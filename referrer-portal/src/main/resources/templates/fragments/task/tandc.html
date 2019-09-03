@@ -1,0 +1,127 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+	<div class="footer section" th:fragment="tandc"> 
+	  <style>
+		    .ref-portal-tandc-overlay {
+		        width: 100%;
+		        height: 100%;
+		        position: fixed;
+		        top: 0;
+		        left: 0;
+		        background-color: rgba(0, 0, 0, 0.4);
+		        z-index: 20000;
+		    }
+		    
+		    .ref-portal-tandc-dialog {
+		      z-index: 21000;
+		      position: fixed;
+		      right: 0;
+		      left: 0;
+		      top: 50px;
+		      margin-right: auto;
+		      margin-left: auto;
+		      height: 90%;
+		      width: 90%;
+		      overflow-y: scroll;
+		      background-color: #FFFFFF;
+		      padding: 12px;
+		      box-shadow: 0 7px 8px -4px rgba(0, 0, 0, 0.2), 0 13px 19px 2px rgba(0, 0, 0, 0.14), 0 5px 24px 4px rgba(0, 0, 0, 0.12);
+		    }
+		</style>
+		
+		<div id="refPortalTandcDialog" class="ref-portal-tandc-overlay" style="display:none;">
+	    <div class="ref-portal-tandc-dialog">
+	        <div class="dialog-content">
+	        </div>
+	        <div class="dialog-botton-bar-creator">    
+	            <buttton class="btn btn-default btn-block" onClick="hideTandcDialog();">Close</buttton>
+	        </div>
+	        <div class="dialog-tandc-agreements" style="width:100%;text-align:right;">
+			    <label><input type="checkbox" id="agreeChkBox" name="agreements" value="agreement-one" onchange='toggleAcceptButton()'> I acknowledge, confirm and agree to the terms and conditions set out in this Agreement.</label><br>
+			</div>
+	        <div class="dialog-botton-bar-warning">
+	        	<form style="float:right;margin-left:10px" class="btn btn-default" th:action="@{/logout}" method="post">
+							<button type="submit" style="background-color: transparent;">Decline</button>
+						</form>    
+	          <buttton style="float:right;margin-left:10px" id="acceptBtn" disabled="true" class="btn btn-primary" onClick='onClickAcceptButton()'>Accept</buttton>
+	        </div>
+	    </div>
+		</div>
+		
+<script type="text/javascript" th:inline="javascript">
+    $(document).ready(function () {
+    	var restRoot = /*[[@{/imedvisagepatient}]]*/ "/imedvisagepatient";
+			$.ajax({
+				type: 'GET',
+		        cache: false,
+		        headers: { "cache-control": "no-cache" },
+		        url: restRoot + "/preferences",
+		        success: function( data ) {
+		            if(data.tandc != 'hide') {
+		                showTandcDialog("warning");
+		            }
+		            else {
+		                hideTandcDialog();
+		            }
+		        }, 
+		        contentType: "application/json",
+						dataType: 'json'
+			});
+		});
+    
+
+	// async: false to wait and reload page
+    function setTandcPrefs(prefs) {
+    	var restRoot = /*[[@{/imedvisagepatient}]]*/ "/imedvisagepatient";
+    	$.ajax({
+				type: 'GET',
+				cache: false,
+				async: false, 
+				headers: { "cache-control": "no-cache" },
+				url: restRoot + '/accepttandc',
+				success: function(data) {
+				},
+				contentType: "application/json",
+				dataType: 'json'
+	    });
+    }
+
+    function showTandcDialog(dialogType){
+    	var restRoot = /*[[@{/imedvisagepatient}]]*/ "/imedvisagepatient";
+        $("#refPortalTandcDialog").css('display','block');
+        $("#refPortalTandcDialog .dialog-content").load(restRoot + "/terms");
+        if(dialogType == "warning") {
+            $("#refPortalTandcDialog .dialog-botton-bar-warning").css('display','block');
+            $("#refPortalTandcDialog .dialog-tandc-agreements").css('display','block');            
+            $("#refPortalTandcDialog .dialog-botton-bar-creator").css('display','none');
+        }
+        else {
+            $("#refPortalTandcDialog .dialog-botton-bar-warning").css('display','none');
+            $("#refPortalTandcDialog .dialog-tandc-agreements").css('display','none');            
+            $("#refPortalTandcDialog .dialog-botton-bar-creator").css('display','block');
+        }
+    }
+    function hideTandcDialog(){
+        $("#refPortalTandcDialog").css('display','none');
+    }
+    function agreementsChecked() {
+    	var is = true;
+    	$('.dialog-tandc-agreements input[type="checkbox"]').each(function(i,e){if(e.checked==false){is=false;}});
+    	return is;
+    }
+    function onClickAcceptButton() {
+    	if(agreementsChecked()) {
+    		setTandcPrefs({tandc:"hide"});
+				hideTandcDialog();
+    		window.location.reload();    		
+    	}
+    }
+    
+    function toggleAcceptButton() {
+    	$("#acceptBtn").attr("disabled", !($("#agreeChkBox").is(":checked")));
+    }
+</script>
+	</div>
+</body>
+</html>

@@ -1,0 +1,9 @@
+User-agent: *
+Disallow: https://forms.i-medonline.com.au/*
+Disallow: https://www.bpoint.com.au/*
+Disallow: /book/*
+Disallow: /imedvisagepatient/*
+Disallow: /rest/*
+Disallow: /myimed/book/*
+Disallow: /myimed/imedvisagepatient/*
+Disallow: /myimed/rest/*

@@ -1,0 +1,123 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+	<head></head>
+	<body>
+		<div class="nav section" style="height:auto;" th:fragment="header">
+		    <div class="w-clearfix wrapper">
+	      		<!-- Logged-in user Full name and Logout link -->
+	      		<div class="w-hidden-small w-hidden-tiny wrapper-global-nav">
+					<span class="logged-in-user nav-link" sec:authorize="isAuthenticated()">Welcome <span th:text="${#authentication.getPrincipal().getGivenName()}"></span></span>
+				</div>
+				<div class="w-nav wrapper-nav" data-animation="default" data-collapse="medium" data-duration="400">
+					<a th:href="@{/}"><img th:src="@{/images/public/imedBanner.svg}" style="margin-left:10px;width:50%;"></a>
+					
+	        <div class="button-menu w-nav-button tight" onClick="$('#mobile-nav-id').toggle(300)">
+						<img class="icon-menu" height="30" th:src="@{/images/public/icon-menu.svg}" width="30">
+	        	<div class="text-menu">Menu</div>
+	        </div>
+					<div class="button-menu w-nav-button tight" onClick="document.getElementById('hidden_book_link').click();">
+						<a th:href="@{/book}" id="hidden_book_link"></a>
+						<img class="icon-menu" height="30" th:src="@{/images/public/icon-locate-orange.svg}" width="30">
+	        	<div class="text-menu">Clinics</div>
+	        </div>
+					<div>
+						<a class="home nav-link w-hidden-medium w-hidden-small w-hidden-tiny w-nav-link wpthemeLeft" th:href="@{/}">Home</a>
+						<a class="home nav-link w-hidden-medium w-hidden-small w-hidden-tiny w-nav-link wpthemeLeft" sec:authorize="!isAuthenticated()" th:href="@{/login}">Results</a>
+						<a class="home nav-link w-hidden-medium w-hidden-small w-hidden-tiny w-nav-link wpthemeLeft" sec:authorize="isAuthenticated()" th:href="@{/results}">Results</a>
+						<a class="home nav-link w-hidden-medium w-hidden-small w-hidden-tiny w-nav-link wpthemeLeft" sec:authorize="hasAuthority('ROLE_HOSPITAL')" th:href="@{/hospital}">Hospital</a>
+						<a class="home nav-link w-hidden-medium w-hidden-small w-hidden-tiny w-nav-link wpthemeLeft" sec:authorize="hasAuthority('ROLE_ADMIN')" th:href="@{/admin}">Admin</a>
+						<a class="home nav-link w-hidden-medium w-hidden-small w-hidden-tiny w-nav-link wpthemeLeft" sec:authorize="!isAuthenticated()" th:href="@{/apply}">Create Account</a>
+						<a class="home nav-link w-hidden-medium w-hidden-small w-hidden-tiny w-nav-link wpthemeLeft" th:href="@{/faqs}">FAQs</a>
+						<a class="home nav-link w-hidden-medium w-hidden-small w-hidden-tiny w-nav-link wpthemeLeft" th:href="@{/feedback}">Feedback</a>
+						<a class="home nav-link w-hidden-medium w-hidden-small w-hidden-tiny w-nav-link wpthemeLeft" sec:authorize="isAuthenticated()" th:href="@{/profile}">My Profile</a>
+					</div>
+				</div>
+  
+				<div class="find-clinic-wrapper" style="margin-top:1px;">
+			    <div class="tabs-find-clinic w-tabs" data-duration-in="300" data-duration-out="100">
+			      <div class="find-menu w-tab-menu">
+			        <a id="find-clinic-hidden-tag" style="padding-left:40px;" class="tab-clinic w-inline-block w-tab-link" th:href="@{/book}" data-w-tab="Tab 1">
+			          <div>Find Clinics</div>
+			        </a>
+			        
+			      	<a sec:authorize="!isAuthenticated()" th:href="@{/login}" style="background-image:none;padding-left:20px;" class="tab-clinic w-inline-block w-tab-link">
+			          <div>Log In</div>
+			        </a>
+			        
+			        <form style="background-image:none;padding-left:20px;" class="tab-clinic w-inline-block w-tab-link" sec:authorize="isAuthenticated()" th:action="@{/logout}" method="post">
+								<button type="submit" style="background-color: transparent;">Log Out</button>
+							</form>
+			      </div>
+<!-- 			      <div class="find-flyout w-tab-content"> -->
+<!-- 			        <div class="find-pane w-tab-pane" data-ix="fade-up-tabs" data-w-tab="Tab 1"> -->
+<!-- 			          <div class="wrapper"> -->
+<!-- 			            <div class="search-heading">Find your closest clinic</div> -->
+<!-- 			            <div class="w-form"> -->
+<!-- 			              <form data-name="Email Form" id="email-form" name="email-form" action="none" onsubmit="goFinder(this,'/wps/portal/patient/Home/clinics/!ut/p/z1/04_Sj9CPykssy0xPLMnMz0vMAfIjo8ziDR0NnQ29TAy9DTyMXAwcvSx9XDwMTAwMQ031C7IdFQEEwf_4/');return false;"> -->
+<!-- 			              	<input class="icon-check w-checkbox-input" type="checkbox" onchange="detectCurrentLocation(this);"><label class="w-form-label" style="color:#fff;">Use current location</label> -->
+<!-- 			                <div class="row w-row"> -->
+<!-- 			                  <div class="col-1-3 w-col w-col-5"> -->
+<!-- 			                    <input class="field-search w-input suburb-search gm-err-autocomplete" data-name="Find A Clinic 13" id="Find-a-clinic-13" maxlength="256" name="Find-a-clinic-13" placeholder="Oops! Something went wrong." type="text" autocomplete="off" disabled="" style="background-image: url(&quot;https://maps.gstatic.com/mapfiles/api-3/images/icon_error.png&quot;);"> -->
+<!-- 			                  </div> -->
+<!-- 			                  <div class="col-1-3 w-col w-col-4"> -->
+<!-- 			                    <select class="field-dropdown w-select" data-name="Procedure 14" id="Procedure-14" name="Procedure-14"> -->
+<!-- 			                      <option value="">Which procedure?</option> -->
+<!-- 			                      <option value="Biopsy">Biopsy</option> -->
+<!-- 			                      <option value="Bone Densitometry">Bone Densitometry</option> -->
+<!-- 			                      <option value="CT">CT</option> -->
+<!-- 			                      <option value="Dental X-ray">Dental X-ray</option> -->
+<!-- 			                      <option value="General X-ray">General X-ray</option> -->
+<!-- 			                      <option value="Interventional Procedures">Interventional Procedures</option> -->
+<!-- 			                      <option value="Mammography">Mammography</option> -->
+<!-- 			                      <option value="MRI">MRI</option> -->
+<!-- 			                      <option value="Nuclear medicine">Nuclear medicine</option> -->
+<!-- 			                      <option value="PET">PET</option> -->
+<!-- 			                      <option value="Tomosynthesis">Tomosynthesis</option> -->
+<!-- 			                      <option value="Ultrasound">Ultrasound</option> -->
+<!-- 			                      <option value="">Other</option> -->
+<!-- 			                    </select> -->
+<!-- 			                  </div> -->
+<!-- 			                  <div class="col-1-3 w-clearfix w-col w-col-3"><a class="button-primary span-100 w-button" href="javascript:void(0);" onclick="goFinder(this,'/wps/portal/patient/Home/clinics/!ut/p/z1/04_Sj9CPykssy0xPLMnMz0vMAfIjo8ziDR0NnQ29TAy9DTyMXAwcvSx9XDwMTAwMQ031C7IdFQEEwf_4/');">Find clinic</a> -->
+<!-- 			                  </div> -->
+<!-- 			                </div> -->
+<!-- 			              </form> -->
+<!-- 			            </div> -->
+<!-- 			          </div> -->
+<!-- 			        </div> -->
+<!-- 			      </div> -->
+			    </div>
+			  </div>
+			</div>
+			
+			<nav id="mobile-nav-id" class="nav-menu w-nav-menu" role="navigation" style="display:none; margin-top:0px; transform: translateY(0px) translateX(0px);">
+	            <a th:href="@{/}" class="nav-link-mobile no-expand w-hidden-main imedPageSelected">
+	                <span lang="en" dir="ltr">Home</span>
+	            </a>
+	            <a th:href="@{/results}" class="nav-link-mobile no-expand w-hidden-main">
+	                <span lang="en" dir="ltr">Results</span>
+	            </a>
+	            <a sec:authorize="!isAuthenticated()" th:href="@{/apply}" class="nav-link-mobile no-expand w-hidden-main">
+	                <span lang="en" dir="ltr">Create Account</span>
+	            </a>
+	            <a th:href="@{/book}" class="nav-link-mobile no-expand w-hidden-main">
+	                <span lang="en" dir="ltr">Book</span>
+	            </a>
+	            <a th:href="@{/payments}" class="nav-link-mobile no-expand w-hidden-main">
+	                <span lang="en" dir="ltr">Payments</span>
+	            </a>
+	            <a th:href="@{/faqs}" class="nav-link-mobile no-expand w-hidden-main">
+	                <span lang="en" dir="ltr">FAQs</span>
+	            </a>
+	            <a th:href="@{/feedback}" class="nav-link-mobile no-expand w-hidden-main">
+	                <span lang="en" dir="ltr">Feedback</span>
+	            </a>
+	            <a sec:authorize="isAuthenticated()" th:href="@{/profile}" class="nav-link-mobile no-expand w-hidden-main">
+	                <span lang="en" dir="ltr">My Profile</span>
+	            </a>
+	            <form class="nav-link-mobile no-expand w-hidden-main" sec:authorize="isAuthenticated()" th:action="@{/logout}" method="post">
+								<button type="submit" style="background-color: transparent;">Log Out</button>
+							</form>
+        	</nav>
+		</div>
+	</body>
+</html>

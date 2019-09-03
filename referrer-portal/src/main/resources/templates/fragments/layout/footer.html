@@ -1,0 +1,21 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+	<div class="footer section" th:fragment="footer"> 
+		<div class="wrapper-footer-copyright">
+			<div class="footer wrapper">
+				<div class="row w-row">
+					<div class="col-1-2 footer-cols w-col w-col-6 w-col-stack">
+						<div class="footer-text">
+							Copyright I-MED Radiology Network 2019 &nbsp;<span class="pipe-grey"> | </span>&nbsp; <a class="links-smaller" th:href="@{/terms}">Terms of
+								Use </a>&nbsp; <span class="pipe-grey"> | </span> &nbsp; <a class="links-smaller" th:href="@{/privacy}">Privacy Policy</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div> 
+		<div sec:authorize="isAuthenticated()" th:replace="fragments/task/tandc :: tandc"></div>
+		<div sec:authorize="isAuthenticated()" th:replace="fragments/task/timeout :: timeout"></div>
+	</div>
+</body>
+</html>

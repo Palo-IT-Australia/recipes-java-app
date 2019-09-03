@@ -1,0 +1,164 @@
+.wpthemeInner, .wptheme1Col .wpthemeCol {
+    width: 100%;
+}
+.wpthemeBannerInner {
+    border-top: 0px;
+    border-bottom: 0px; 
+}
+.wpthemeCol {
+    min-height: 0px;
+    margin-left : 0px;
+}
+.wpthemeFrame {
+    width:100%;
+    min-width: 100%;
+    font-size: 14px;
+    font-family:'Helvetica Neue Light',sans-serif;
+}
+.wpthemeRow .component-control {
+    width: 100%;
+}
+.wpthemeMainContent {
+    background: #eee;
+}
+.wpthemeLayoutContainers {
+    padding: 10px 5px 10px 5px;
+}
+#logoutlink {
+    padding: 0px;
+    border: 0;
+}
+
+.widgetContainer {
+	background-color: white;
+
+	clear: both;
+	border-radius: 8px;
+	box-shadow: 1px 1px 5px #E6E6E6;
+    margin-bottom: 10px;
+    
+    width: 90%;
+    padding: 5%;
+}
+.widgetTitle, .widgetHeadingTitle {
+	font-family: NewJuneRegular;
+	float: left;
+	font-size: 17px;
+	margin-left: 7px;
+	color: #004F9A;
+	margin-top: 2px;
+	font-weight: bold;
+}
+
+.result-filter-row .dropdown-toggle {
+    border: 0;
+    border-left: 1px solid white;
+    border-radius: 2px;
+    background-color: #f7921e;
+    float: right;
+    height: 40px;
+}
+.result-filter-row .fillsplit>.dropdown-toggle.btn-primary, .result-filter-row .dropdown-toggle.btn-primary, #report-panel .dropdown-toggle.btn-primary {
+    background-color: #f7921e!important;
+    border: 0;
+    border-left: 1px solid white;
+}
+.fieldErrorMsg, .invalid-msg, .unavailable-msg {
+    color: red;
+}
+button:disabled, button:disabled:hover {
+    background-color: #bfbfbf;
+    border: 1px solid #bfbfbf;	
+}
+
+.wrapper #report {
+    color: #222;
+}
+
+.find-clinic-container {
+    display: block;
+    background-color: #3c3f48;
+    background-image: none;
+    color: hsla(0, 0%, 100%, .8);
+}
+
+.image-index.support.notice {
+    background-image: url(../images/notice.jpg);
+}
+
+.slider-content .slider-heading {
+    float: none;
+}
+
+.blue-alert-bar {
+    display: block;
+    padding-top: 15px;
+    padding-bottom: 15px;
+    border: 2px solid rgba(0,0,0,.15);
+    background-color: #004e9a;
+    background-image: none;
+    background-size: auto;
+    font-family: 'New June Medium',sans-serif;
+    color: #fff;
+    font-size: 18px;
+    line-height: 22px;
+    letter-spacing: .25px;
+    text-align: center;
+}
+
+.orange-alert-bar {
+    display: block;
+    padding-top: 15px;
+    padding-bottom: 15px;
+    border: 2px solid rgba(0,0,0,.15);
+    background-color:  #f7921e;
+    background-image: none;
+    background-size: auto;
+    font-family: 'New June Medium',sans-serif;
+    color: #fff;
+    font-size: 18px;
+    line-height: 22px;
+    letter-spacing: .25px;
+    text-align: center;
+}
+
+.red-alert-bar {
+    display: block;
+    padding-top: 15px;
+    padding-bottom: 15px;
+    border: 2px solid rgba(0,0,0,.15);
+    background-color:  #b30000;
+    background-image: none;
+    background-size: auto;
+    font-family: 'New June Medium',sans-serif;
+    color: #fff;
+    font-size: 18px;
+    line-height: 22px;
+    letter-spacing: .25px;
+    text-align: center;
+}
+
+.section.image-procedures.image-about {
+	background-image: -webkit-linear-gradient(270deg, rgba(14, 15, 37, .1), rgba(14, 15, 37, .1)), url('../images/about-banner.jpg');
+	background-image: linear-gradient(180deg, rgba(14, 15, 37, .1), rgba(14, 15, 37, .1)), url('../images/about-banner.jpg');
+}
+
+.section.image-procedures.image-feedback {
+	background-image: -webkit-linear-gradient(270deg, rgba(14, 15, 37, .1), rgba(14, 15, 37, .1)), url('../images/feedback-banner.jpg');
+	background-image: linear-gradient(180deg, rgba(14, 15, 37, .1), rgba(14, 15, 37, .1)), url('../images/feedback-banner.jpg');
+}
+
+.section.image-procedures.image-account {
+	background-image: -webkit-linear-gradient(270deg, rgba(14, 15, 37, .1), rgba(14, 15, 37, .1)), url('../images/account-banner.jpg');
+	background-image: linear-gradient(180deg, rgba(14, 15, 37, .1), rgba(14, 15, 37, .1)), url('../images/account-banner.jpg');
+}
+
+@media (max-width: 991px) {
+    .section.image-procedures {
+        height: 55px;
+    }
+    .button-menu.w-nav-button.tight {
+      padding: 8px 2px;
+    	margin: 0 12px;
+    }
+}

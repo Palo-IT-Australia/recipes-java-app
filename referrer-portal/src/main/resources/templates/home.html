@@ -1,0 +1,56 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:include="fragments/layout/head :: head">
+    <title id="pageTitle">Home</title>
+</head>
+</head>
+<body>
+	<div th:replace="fragments/layout/header :: header">...</div>
+	<h1>I-MED Online 2.0</h1>
+	<div class="half-rule"></div>
+	<div class="colour-light-grey section" style="padding-top: 0px;">
+    <div class="wrapper">
+      <div class="intro-text">Welcome to I-MED Online 2.0, where you can access your reports and images from your visits to I-MED Radiology.  Once you have created your account, you can view your reports and images, download them and share them if you wish. My I-MED is where all your radiology reports and images from your visits to I-MED will be stored.</div>
+	  <div class="blue-alert-bar">All radiology results should be discussed with your referring practitioner</div>
+      <div class="row w-row">
+        <div class="col-1-2 col-1-2-padding-right w-col w-col-6">
+          <a class="w-inline-block wrapper-card" data-ix="hover-profile" sec:authorize="!isAuthenticated()" th:href="@{/login}">
+            <div class="image-index"></div>
+            <div class="link-index">Results</div>
+            <p>Your reports and images can be found here.  Remember, you should always speak to your referring medical practitioner about your radiology results.</p>
+          </a>          
+          <a class="w-inline-block wrapper-card" data-ix="hover-profile" sec:authorize="isAuthenticated()" th:href="@{/results}">
+            <div class="image-index"></div>
+            <div class="link-index">Results</div>
+            <p>Your reports and images can be found here.  Remember, you should always speak to your referring medical practitioner about your radiology results.</p>
+          </a>
+        </div>
+		<div class="col-1-2 col-1-2-padding-left w-col w-col-6">
+          <a class="w-inline-block wrapper-card" data-ix="hover-profile" th:href="@{/apply}">
+            <div class="image-index referrer"></div>
+            <div class="link-index">Create your account</div>
+            <p>First you'll need to create an account. Please have your Medicare card number ready.</p>
+          </a>
+        </div>
+      </div>
+      <div class="row w-row">
+        <div class="col-1-2 col-1-2-padding-left w-col w-col-6">
+          <a class="w-inline-block wrapper-card" data-ix="hover-profile" th:href="@{/faqs}">
+            <div class="image-index resources"></div>
+            <div class="link-index">FAQs and support</div>
+            <p>Find the answers to many of the commonly asked questions about My I-MED, or contact us for support.</p>
+          </a>
+        </div>
+        <div class="col-1-2 col-1-2-padding-right w-col w-col-6">
+          <a class="w-inline-block wrapper-card" data-ix="hover-profile" th:href="@{/feedback}">
+            <div class="image-index support" style="background-size: 568px;"></div>
+            <div class="link-index">Feedback</div>
+            <p>Leave any comments or feedback you have about My I-MED to help us improve this service.</p>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+	<div th:replace="fragments/layout/footer :: footer">...</div>
+</body>
+</html>

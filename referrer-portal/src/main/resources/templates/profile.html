@@ -1,0 +1,300 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragments/layout/head :: head">
+    <title id="pageTitle">My Profile</title>
+</head>
+<body>
+	<script th:src="@{/js/public/angular.min.js}"></script>
+
+	<div th:replace="fragments/layout/header :: header"></div>
+
+	<div id="detailAppDiv" ng-controller="detailCtrl" class="colour-light-grey section">
+   <div class="wrapper">
+    
+    <div class="row">
+   	<div class="col-md-6">
+   	
+     <h1>My Profile</h1>
+     <div class="half-rule"></div>
+     <div class="row w-row">
+       <div class="w-col w-col-12 col-centre">
+     		<div class="alert alert-success" role="alert" ng-show="successMsg">{{successMsg}}</div>
+	 		<div class="alert alert-danger" role="alert" ng-show="errorMsg">{{errorMsg}}</div>
+	 	</div>
+	 </div>
+     <div class="row w-row">
+       <div class="w-col w-col-12 col-centre">
+         <h5>LOGIN DETAILS</h5>
+       </div>
+     </div>
+     <div class="row w-row">
+       <div class="w-col w-col-12 col-centre">
+         <div class="row w-row account-detail-row">
+           <div class="w-col w-col-4 account-detail-title-col">
+             <p>Username</p>
+           </div>
+           <div class="w-col w-col-8 account-detail-value">
+             <p>
+               <span class="value" th:text="${#authentication.getPrincipal().getUsername().replace('-!-','@')}"></span> 
+             </p>
+           </div>
+         </div>
+         <div class="row w-row account-detail-row">
+           <div class="w-col w-col-4 account-detail-title-col">
+             <p>Password</p>
+           </div>
+           <div class="w-col w-col-8 account-detail-value">
+             <p>
+               <span class="value">*******</span>
+               <a href="#" class="edit-link link-underline" data-toggle="modal" data-target="#pswdModal">Edit</a>
+             </p>
+           </div>
+         </div>
+       </div>
+     </div>
+     <div class="row w-row small-margin-top">
+       <div class="w-col w-col-12 col-centre">
+         <h5>CONTACT INFO</h5>
+       </div>
+     </div>
+     <div class="row w-row">
+       <div class="w-col w-col-12 col-centre">
+         <div class="row w-row account-detail-row">
+           <div class="w-col w-col-4 account-detail-title-col">
+             <p>Email</p>
+           </div>
+           <div class="w-col w-col-8 account-detail-value">
+             <p>
+               <span class="value">{{initialDetails.email}}</span>
+               <a href="#" ng-click="prepDetailModal('Email')" class="edit-link link-underline" data-toggle="modal" data-target="#myModal">Edit</a>
+             </p>
+           </div>
+         </div>
+         <div class="row w-row account-detail-row">
+           <div class="w-col w-col-4 account-detail-title-col">
+             <p>Mobile</p>
+           </div>
+           <div class="w-col w-col-8 account-detail-value">
+             <p>
+               <span class="value">{{initialDetails.mobile}}</span>
+               <a href="#" ng-click="prepDetailModal('Mobile')" class="edit-link link-underline" data-toggle="modal" data-target="#myModal">Edit</a>
+             </p>
+           </div>
+         </div> 
+       </div>
+     </div>
+     
+   </div>
+   
+   <div class="col-md-6">
+   <h1>My Practices</h1>
+   <div class="half-rule"></div>
+      <table style="color:#3a3a3a;" class="table table-condensed">
+    	<tbody>
+    	  <tr ng-show="referrer" ng-repeat="practice in referrer.practices">
+    	    <td>{{practice.practiceName}}</td>
+	      </tr>
+	    </tbody>
+      </table>
+     <form name="practiceForm" method="post" th:object="${AddPractice}" th:action="@{/addpractice}" novalidate>
+     	<h1>Add Practice</h1>
+     		<div class="row w-row">
+        	<div class="col-no-padding-top w-col w-col-12 w-col-stack has-error">
+            	<input ng-model="practice.providerNumber" name="providerNumber" ng-required="true" type="text" class="field-text w-input" placeholder="Provider Number"/>
+              	<small ng-show="practiceForm.providerNumber.$touched && practiceForm.providerNumber.$invalid" class="intro-text invalid-msg">This field is required</small>
+        	</div>
+       	</div>
+        <div class="row w-row">
+        	<div class="col-no-padding-top w-col w-col-12 w-col-stack has-error">
+           		<input ng-model="practice.name" name="name" ng-required="true" type="text" class="field-text w-input" placeholder="Practice Name"/>
+ 		       	<small ng-show="practiceForm.name.$touched && practiceForm.name.$invalid" class="intro-text invalid-msg">This field is required</small>
+            </div>
+        </div>
+        <div class="row w-row">
+         	<div class="col-no-padding-top w-col w-col-12 w-col-stack has-error">
+           		<input ng-model="practice.phone" name="phone" ng-required="true" type="text" class="field-text w-input" placeholder="Practice Phone Number"/>
+                <small ng-show="practiceForm.phone.$touched && practiceForm.phone.$invalid" class="intro-text invalid-msg">This field is required</small>
+          	</div>
+      	</div>
+       	<div class="row w-row">
+        	<div class="col-no-padding-top w-col w-col-12 w-col-stack has-error">
+            	<input ng-model="practice.fax" name="fax" ng-required="true" type="text" class="field-text w-input" placeholder="Practice Fax Number"/>
+                <small ng-show="practiceForm.fax.$touched && practiceForm.fax.$invalid" class="intro-text invalid-msg">This field is required</small>                
+            </div>
+        </div>
+        <div class="row w-row">
+        	<div class="col-no-padding-top w-col w-col-12 w-col-stack has-error">
+            	<input ng-model="practice.street" name="street" ng-required="true"  type="text" class="field-text w-input" placeholder="Street"/>
+                <small ng-show="practiceForm.street.$touched && practiceForm.street.$invalid" class="intro-text invalid-msg">This field is required</small>  
+            </div>
+       	</div>
+        <div class="row w-row">
+        	<div class="col-no-padding-top w-col w-col-12 w-col-stack has-error">
+            	<input ng-model="practice.suburb" name="suburb" ng-required="true" type="text" class="field-text w-input" id="referrerInputPracticeSuburb" placeholder="Suburb"/>
+             	<small ng-show="practiceForm.suburb.$touched && practiceForm.suburb.$invalid" class="intro-text invalid-msg">This field is required</small>  
+          	</div>
+       	</div>
+       	<div class="row w-row">
+        	<div class="col-no-padding-top w-col w-col-12 w-col-stack has-error">
+         	<select ng-model="practice.state" class="field-text w-input">
+			<option value="NSW">NSW</option>
+			<option value="QLD">QLD</option>
+			<option value="SA">SA</option>
+			<option value="TAS">TAS</option>
+			<option value="VIC">VIC</option>
+			<option value="WA">WA</option>
+			<option value="ACT">ACT</option>
+			</select>
+			</div>
+		</div>
+       	<div class="row w-row">
+        	<div class="col-no-padding-top w-col w-col-12 w-col-stack has-error">
+            	<input ng-model="practice.postcode" name="postcode" ng-required="true" type="text" class="field-text w-input" placeholder="Postcode" />
+              <small ng-show="practiceForm.postcode.$touched && practiceForm.postcode.$invalid" class="intro-text invalid-msg">This field is required</small>  
+         	</div>
+        </div>
+        <p><strong ng-show="practiceAddStatus=='requesting'">Requesting...</strong></p>
+        <div class="alert alert-success" role="alert" ng-show="practiceAddStatus=='success'">Requested to add practice successfully. It takes up to two business days to complete the process. <a href="javascript:void(0);" ng-click="practiceAddStatus=''">Close</a></div>
+	 			<div class="alert alert-danger" role="alert" ng-show="practiceAddStatus=='error'">Failed to add the practice. <a href="javascript:void(0);" ng-click="practiceAddStatus=''">Close</a></div>
+        <button type="submit" ng-disabled="practiceForm.$invalid" class="button-primary w-button">Add Practice</button>
+   </form>
+   </div>
+   
+   </div>
+   </div>
+ <!-- Modal details -->
+ <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" data-keyboard="false">
+   <div class="modal-dialog" role="document">
+     <div class="modal-content">
+       <div class="modal-header">
+         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+         <h4 class="modal-title" id="myModalLabel">{{editTo}}</h4>
+       </div>
+       <div class="modal-body">
+      	<form name="detailForm" method="post" th:object="${DetailModel}" th:action="@{/detail}" novalidate>
+			<div class="row w-row" ng-show="editTo=='Email'">
+	           <div class="col-no-padding-top w-col w-col-12 w-col-stack">
+					<input type="email" ng-model="detailUser.email" ng-change="checkEmailAvailable()" th:field="*{email}" name="email" id="detailEmail" class="field-text w-input" ng-required="true"></input>
+					<span class="fieldErrorMsg" ng-show="detailForm.email.$invalid && detailForm.email.$touched">Please input correct email address</span>
+					<span class="fieldErrorMsg" ng-show="detailForm.email.$valid && !emailAvailable && detailForm.email.$touched">This email address is already registered</span>
+				</div>
+			</div>
+			<div class="row w-row" ng-show="editTo=='Mobile'">
+	      <div class="col-no-padding-top w-col w-col-12 w-col-stack">
+					<input type="text" ng-model="detailUser.mobile" path="mobile" th:field="*{mobile}" id="detailMobile" class="field-text w-input" ng-required="true"></input>
+					<span class="fieldErrorMsg" ng-show="detailForm.mobile.$invalid && detailForm.mobile.$touched">Please input Australian mobile number</span>
+				</div>
+			</div>
+			<div class="row w-row">
+	           <div class="col-no-padding-top w-col w-col-12 w-col-stack">
+				<button type="submit" class="link-info button-primary w-button full-width" ng-disabled="isDetailFormInvalid()">Change</button>
+			   </div>
+			</div>
+		</form>
+       </div>
+     </div>
+   </div>
+ </div>
+ <!-- Modal details End -->
+ <!-- Modal pswd -->
+ <div class="modal fade" id="pswdModal" tabindex="-1" role="dialog" aria-labelledby="pswdModalLabel" data-backdrop="static" data-keyboard="false">
+   <div class="modal-dialog" role="document">
+     <div class="modal-content">
+       <div class="modal-header">
+         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+         <h4 class="modal-title" id="myModalLabel">Password</h4>
+       </div>
+       <div class="modal-body">
+      	<form name="changeForm" class="form-horizontal" method="post" th:action="@{/change}" th:object="${ChangeModel}" novalidate>
+            <div class="row w-row">
+	           <div class="col-no-padding-top w-col w-col-12 w-col-stack">
+                    <input type="password" ng-model="changeUser.currentPassword" ng-required="true" th:field="*{currentPassword}" name="currentPassword" id="changeCurrentPassword" class="field-text w-input" placeholder="Current Password"></input>
+                </div>
+                <code ng-show="changeForm.currentPassword.$error.required && changeForm.currentPassword.$touched">This field is required</code>
+            </div>
+            <div class="row w-row">
+	           <div class="col-no-padding-top w-col w-col-12 w-col-stack">
+                    <input type="password" ng-model="changeUser.newPassword" ng-required="true" th:field="*{newPassword}" name="newPassword" id="changeNewPassword" class="field-text w-input" ng-minlength="8" placeholder="New Password (Minimum 8 characters, alphabet, number, !_%()-?[]`~)"></input>
+                </div>
+                <code ng-show="changeForm.newPassword.$invalid && changeForm.newPassword.$touched">This field is required</code>
+            </div>
+            <div class="row w-row">
+	           <div class="col-no-padding-top w-col w-col-12 w-col-stack">
+                    <input type="password" ng-model="changeUser.confirmPassword" ng-required="true" th:field="*{confirmPassword}" name="confirmPassword" id="changeConfirmPassword" class="field-text w-input" placeholder="Confirm Password"></input>
+                </div>
+                <code ng-show="changeForm.confirmPassword.$error.required && changeForm.confirmPassword.$touched">This field is required</code>
+                <code ng-show="changeUser.confirmPassword!=changeUser.newPassword && changeForm.confirmPassword.$touched">New passwords do not match</code>
+            </div>
+            <div class="row w-row">
+	           <div class="col-no-padding-top w-col w-col-12 w-col-stack">
+            		<button type="submit" class="link-info button-primary w-button full-width" ng-disabled="!changeForm.$valid || changeUser.confirmPassword!=changeUser.newPassword">Change Password</button>
+            	</div>
+            </div>
+        </form>		
+       </div>
+     </div>
+   </div>
+ </div>
+ <!-- Modal pswd End -->
+ </div>
+
+
+ 
+ <script th:inline="javascript">
+	angular.module('detail',[]).controller('detailCtrl', function ($scope, $filter, $http) {
+		$scope.isLoading = false;
+		$scope.detailUser = /*[[${DetailModel}]]*/ {}; 
+		$scope.initialDetails = angular.copy($scope.detailUser);
+		$scope.emailAvailable = true;
+		$scope.successMsg = /*[[${successMsg}]]*/ null;
+		$scope.errorMsg = /*[[${errorMsg}]]*/ null;
+		$scope.editTo = "";
+		
+		$scope.changeUser = {currentPassword:"", newPassword:"", confirmPassword:""};
+		
+		$scope.checkEmailAvailable = function() {
+			var email = $scope.detailUser.email;
+			if(email && email.length > 3) {
+				var restRoot = /*[[@{/imedvisage}]]*/ "/imedvisage";
+				$http.get(restRoot + "/isEmailAvailable", {params:{email:email}}).then(function(obj){
+					$scope.emailAvailable = obj.data.available;			
+				}
+				,function(){$scope.emailAvailable = false;});
+			}else{
+				$scope.emailAvailable = true; // falling back to email validation
+			}	
+		};
+		
+		$scope.prepDetailModal = function(nm) {
+			$scope.editTo = nm;
+			$scope.detailUser = angular.copy($scope.initialDetails);
+		};
+		
+		$scope.isDetailFormInvalid = function() {
+			var v = false;
+			if($scope.editTo == 'Email') {
+				v = $scope.detailForm.email.$invalid || !$scope.emailAvailable;
+			}
+			else if($scope.editTo == 'Mobile')
+			{
+				v = $scope.detailForm.mobile.$invalid;
+			}
+			return v;
+		};
+		
+		// practice
+		$scope.referrer = null;
+		$scope.practice = {providerNumber:"", name:"", phone:"", fax:"", street:"", suburb:"", state:"NSW", postcode:""};
+		//TODO var restRoot = /*[[@{/imedvisage}]]*/ "/imedvisage";
+		//$http.get(restRoot + "/imedvisage/v1/user",{params:{'_nocache':new Date().getTime()}}).then(function(dt){$scope.referrer = dt.data;});
+	});
+				
+	angular.element(document).ready(function() {
+		angular.bootstrap($("#detailAppDiv"), ['detail']);
+	});
+	
+</script>
+	 
+	<div th:replace="fragments/layout/footer :: footer"></div>
+</body>
+</html>

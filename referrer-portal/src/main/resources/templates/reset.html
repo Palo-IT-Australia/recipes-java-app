@@ -1,0 +1,35 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragments/layout/head :: head">
+    <title id="pageTitle">Reset</title>
+</head>
+<body>
+	<div th:replace="fragments/layout/header :: header"></div>
+	<div id="mainAppDiv" class="colour-light-grey section ng-scope">
+		<h1>Reset Your Password</h1>
+		<div class="half-rule"></div>
+   		<div class="wrapper">
+			<div class="image-procedures section"></div>
+   			<div class="intro-text">Enter your email address, and we'll reset your password.</div>    
+		    <div class="row w-row">
+		       <div class="col-1-2 col-1-2-padding-left w-col w-col-6 col-centre">
+					<form name="f" th:action="@{/reset}" th:object="${fmodel}" method="post">  
+            <div th:if="${errorMsg}" th:text="'Error: ' + ${errorMsg}" class="alert alert-danger ng-binding ng-hide" role="alert">    
+                Error: Invalid email address.
+            </div>
+            <div th:if="${successMsg}" class="alert alert-success ng-binding ng-hide" role="alert"> 
+                You have successfully completed the password reset process. Shortly you will receive an email with a link and SMS with a code to finalise your new password.
+            </div>
+            <input th:field="*{username}" class="field-text w-input" placeholder="Email address" type="text" />
+            <div class="form-actions">
+                <button type="submit" class="link-info button-primary w-button full-width">Reset</button>
+            </div>
+			    </form>		    
+				    <p class="intro-text">If you are unsure, please call us on 1300 147 852</p>
+	         	</div>
+	         </div>
+	    </div>
+	 </div>
+	<div th:replace="fragments/layout/footer :: footer"></div>
+</body>
+</html>
