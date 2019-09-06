@@ -82,10 +82,6 @@ button:disabled, button:disabled:hover {
     color: hsla(0, 0%, 100%, .8);
 }
 
-.image-index.support.notice {
-    background-image: url(../images/notice.jpg);
-}
-
 .slider-content .slider-heading {
     float: none;
 }
@@ -161,4 +157,28 @@ button:disabled, button:disabled:hover {
       padding: 8px 2px;
     	margin: 0 12px;
     }
+}
+
+.on-center{
+text-align: center;
+}
+
+.top-bottom-space {	
+    padding-top: 1%;
+    padding-bottom: 2%;
+}
+
+.tnc {
+	margin-left: 23pt;
+	font-size: 13pt;
+	color: #1F497D;
+}
+				
+.tnc li {
+	padding-left: 15px;
+	margin-bottom: 15px;
+}
+			
+.tnc span {
+						font-size: 11pt;
 }

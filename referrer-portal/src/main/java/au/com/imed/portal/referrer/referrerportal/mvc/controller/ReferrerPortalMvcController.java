@@ -71,11 +71,6 @@ public class ReferrerPortalMvcController {
 	@Autowired
 	private GoFaxSmsService smsService;
 
-	@GetMapping("/")
-	public String getHome(Model model) {
-		return "home";
-	}
-
 	@GetMapping("/login")
 	public ModelAndView getLogin() {
 		ModelAndView loginModelAndView = new ModelAndView("login");
@@ -341,8 +336,38 @@ public class ReferrerPortalMvcController {
 		return "resetconfirm";
 	}
 
-	//
-	// Static pages
-	//
+	@GetMapping("/")
+	public String getHome(Model model) {
+		return "home";
+	}
 	
+	@GetMapping("/about")
+	public String getAbout(Model model) {
+		return "about";
+	}
+	
+	@GetMapping("/support")
+	public String getSupport(Model model) {
+		return "support";
+	}
+	
+	@GetMapping("/privacy")
+	public String getPrivacy(Model model) {
+		return "privacy";
+	}
+	
+	@GetMapping("/termsofuse")
+	public String getTermsOfUse(Model model) {
+		return "termsofuse";
+	}
+	
+	@GetMapping("/mycrm")
+	public String getMyCrm(Model model) {
+		return "mycrm";
+	}
+	
+	@GetMapping("/feedback")
+	public String getFeedback(Model model) {
+		return "feedback";
+	}
 }
