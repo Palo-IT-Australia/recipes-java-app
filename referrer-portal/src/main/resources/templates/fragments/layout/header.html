@@ -27,7 +27,8 @@
 						<a class="home nav-link w-hidden-medium w-hidden-small w-hidden-tiny w-nav-link wpthemeLeft" sec:authorize="hasAuthority('ROLE_HOSPITAL')" th:href="@{/hospital}">Hospital</a>
 						<a class="home nav-link w-hidden-medium w-hidden-small w-hidden-tiny w-nav-link wpthemeLeft" sec:authorize="hasAuthority('ROLE_ADMIN')" th:href="@{/admin}">Admin</a>
 						<a class="home nav-link w-hidden-medium w-hidden-small w-hidden-tiny w-nav-link wpthemeLeft" sec:authorize="!isAuthenticated()" th:href="@{/apply}">Create Account</a>
-						<a class="home nav-link w-hidden-medium w-hidden-small w-hidden-tiny w-nav-link wpthemeLeft" th:href="@{/faqs}">FAQs</a>
+						<a class="home nav-link w-hidden-medium w-hidden-small w-hidden-tiny w-nav-link wpthemeLeft" th:href="@{/mycrm}">My CRM</a>
+						<a class="home nav-link w-hidden-medium w-hidden-small w-hidden-tiny w-nav-link wpthemeLeft" th:href="@{/support}">Support</a>
 						<a class="home nav-link w-hidden-medium w-hidden-small w-hidden-tiny w-nav-link wpthemeLeft" th:href="@{/feedback}">Feedback</a>
 						<a class="home nav-link w-hidden-medium w-hidden-small w-hidden-tiny w-nav-link wpthemeLeft" sec:authorize="isAuthenticated()" th:href="@{/profile}">My Profile</a>
 					</div>
@@ -105,9 +106,12 @@
 	            <a th:href="@{/payments}" class="nav-link-mobile no-expand w-hidden-main">
 	                <span lang="en" dir="ltr">Payments</span>
 	            </a>
-	            <a th:href="@{/faqs}" class="nav-link-mobile no-expand w-hidden-main">
-	                <span lang="en" dir="ltr">FAQs</span>
+	            <a th:href="@{/mycrm}" class="nav-link-mobile no-expand w-hidden-main">
+	                <span lang="en" dir="ltr">My CRM</span>
 	            </a>
+	            <a th:href="@{/support}" class="nav-link-mobile no-expand w-hidden-main">
+	                <span lang="en" dir="ltr">Support</span>
+	            </a>	            
 	            <a th:href="@{/feedback}" class="nav-link-mobile no-expand w-hidden-main">
 	                <span lang="en" dir="ltr">Feedback</span>
 	            </a>
