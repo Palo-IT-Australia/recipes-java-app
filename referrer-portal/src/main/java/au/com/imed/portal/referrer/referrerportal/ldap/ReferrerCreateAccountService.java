@@ -21,6 +21,7 @@ import org.springframework.ldap.support.LdapNameBuilder;
 import org.springframework.stereotype.Service;
 
 import au.com.imed.common.active.directory.manager.ImedActiveDirectoryLdapManager;
+import au.com.imed.portal.referrer.referrerportal.common.PortalConstant;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.entity.ReferrerProviderEntity;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.repository.ReferrerProviderJpaRepository;
 import au.com.imed.portal.referrer.referrerportal.model.ExternalPractice;
@@ -102,6 +103,7 @@ public class ReferrerCreateAccountService extends ReferrerAccountService {
 		context.setAttributeValue("AHPRA", imedExternalUser.getAhpraNumber());
 		context.setAttributeValue("homePhone", imedExternalUser.getPreferredPhone());
 		context.setAttributeValue("physicalDeliveryOfficeName", imedExternalUser.getMobile());
+		context.setAttributeValue(PortalConstant.PARAM_ATTR_ACC_LOCKED, "true");
 
     getReferrerStagingLdapTemplate().bind(context);
   }

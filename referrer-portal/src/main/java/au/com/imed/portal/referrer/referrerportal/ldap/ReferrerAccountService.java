@@ -270,5 +270,50 @@ public class ReferrerAccountService extends ABasicAccountService {
 		return list;
 	}
 	
+	public void approveUser(final String uid, final String newuid, final String bu) throws Exception {
+		LdapTemplate stageTemplate = getReferrerStagingLdapTemplate();
+		Name currentDn = getAccountDnList(stageTemplate, "uid", uid).get(0);
+		
+		List<ModificationItem> moditemList = new ArrayList<>(2);
+		
+		if(bu != null && !bu.isBlank()) {
+			Attribute buAttr = new BasicAttribute("BusinessUnit", bu);
+			ModificationItem buItem = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, buAttr);
+			moditemList.add(buItem);
+		}
+		
+		Attribute finAttr = new BasicAttribute(PortalConstant.PARAM_ATTR_FINALIZING_PAGER, PortalConstant.PARAM_ATTR_VALUE_FINALIZING_PAGER);
+		ModificationItem finItem = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, finAttr);
+		moditemList.add(finItem);
+		
+		stageTemplate.modifyAttributes(currentDn, moditemList.toArray(new ModificationItem[moditemList.size()])); 
+		
+		String newDnStr = currentDn.toString().replace(DOMAIN_STAGING, DOMAIN_REFERRER);
+		if(newuid != null && !newuid.isBlank()) {
+			newDnStr.replace("uid=" + uid, "uid=" + newuid);
+		}
+		logger.info("approveUser() " + currentDn.toString() + " to " + newDnStr);
+		stageTemplate.rename(currentDn.toString(), newDnStr);
+	}
 	
+	public void finaliseUser(final String uid) throws Exception {
+		LdapTemplate ldapTemplate = getReferrerLdapTemplate();
+		Name dn = getAccountDnList(ldapTemplate, "uid", uid).get(0);
+
+		Attribute finAttr = new BasicAttribute(PortalConstant.PARAM_ATTR_FINALIZING_PAGER, "");
+		ModificationItem finItem = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, finAttr);
+		
+		Attribute unlockAttr = new BasicAttribute(PortalConstant.PARAM_ATTR_ACC_LOCKED, "false");
+		ModificationItem unlockItem = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, unlockAttr);
+		
+		logger.info("finaliseUser() {} ", dn);
+		ldapTemplate.modifyAttributes(dn, new ModificationItem[] {finItem, unlockItem}); 
+	}
+	
+	public void declineUser(final String uid, final String step) throws Exception {
+		LdapTemplate ldapTemplate = "finalising".equalsIgnoreCase(step) ? getReferrerLdapTemplate() : getReferrerStagingLdapTemplate();
+		Name dn = getAccountDnList(ldapTemplate, "uid", uid).get(0);
+		logger.info("declineUser() {} ", dn);
+		ldapTemplate.unbind(dn);
+	}
 }
