@@ -159,7 +159,7 @@ public class ReferrerAccountService extends ABasicAccountService {
 	public List<Name> GetReferrerDnListByAttr(final String name, final String value) {
 		List<Name> list;
 		try {
-			list = getAccountDnList(getApplicationsLdapTemplate(), name, value);
+			list = getAccountDnList(getReferrerLdapTemplate(), name, value);
 		}catch(Exception ex) {
 			ex.printStackTrace();
 			list = new ArrayList<>(0);
