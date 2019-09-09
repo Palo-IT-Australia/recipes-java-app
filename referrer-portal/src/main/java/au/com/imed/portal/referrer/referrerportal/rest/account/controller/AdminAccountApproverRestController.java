@@ -130,6 +130,7 @@ public class AdminAccountApproverRestController {
     if(uid != null && !uid.isBlank()) {
     	try {
 				referrerAccountService.declineUser(uid, step);
+				deleteProviders(uid);
 				// TODO email.accountDeclined(reason);
 				sts = HttpStatus.OK;
 			} catch (Exception e) {
@@ -153,5 +154,13 @@ public class AdminAccountApproverRestController {
         referrerProviderJpaRepository.saveAndFlush(entity);
       }
     }
+  }
+  
+  private void deleteProviders(final String uid) {
+    List<ReferrerProviderEntity> list = referrerProviderJpaRepository.findByUsername(uid);
+    for(ReferrerProviderEntity entity : list) {
+    	referrerProviderJpaRepository.delete(entity);
+    }
+    referrerProviderJpaRepository.flush();
   }
 }
