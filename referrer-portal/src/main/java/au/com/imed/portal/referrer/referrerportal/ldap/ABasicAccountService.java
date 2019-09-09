@@ -18,15 +18,18 @@ public abstract class ABasicAccountService {
 	@Value("${imed.ldap.url}")
 	private String LDAP_URL;
 
+	protected final static String DOMAIN_REFERRER = "ou=Referrers,ou=Portal,ou=Applications,dc=mia,dc=net,dc=au";
+	protected final static String DOMAIN_STAGING = "ou=Staging,ou=Portal,ou=Applications,dc=mia,dc=net,dc=au";
+			
 	//
 	// LDAP
 	//
 	protected LdapTemplate getReferrerLdapTemplate() throws Exception {
-		return getLdapTemplate("ou=Referrers,ou=Portal,ou=Applications,dc=mia,dc=net,dc=au");
+		return getLdapTemplate(DOMAIN_REFERRER);
 	}
 	
 	protected LdapTemplate getReferrerStagingLdapTemplate() throws Exception {
-		return getLdapTemplate("ou=Staging,ou=Portal,ou=Applications,dc=mia,dc=net,dc=au");
+		return getLdapTemplate(DOMAIN_STAGING);
 	}	
 	
 	protected LdapTemplate getApplicationsLdapTemplate() throws Exception {
