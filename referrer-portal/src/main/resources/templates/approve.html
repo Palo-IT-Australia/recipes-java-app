@@ -1,0 +1,470 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragments/layout/head :: head">
+    <title id="pageTitle">Approve</title>
+</head>
+<body>
+	<div th:replace="fragments/layout/header :: header"></div>
+
+	<script th:src="@{/js/public/angular.min.js}"></script>
+	<link integrity="" rel="stylesheet" th:href="@{/js/public/trNgGrid/trNgGrid.min.css}">
+	<script th:src="@{/js/public/trNgGrid/trNgGrid.min.js}"></script> 
+	<script th:src="@{/js/public/ui-bootstrap-tpls-1.3.2.min.js}"></script>
+
+<style>
+	#loadingDiv {  
+	    position: fixed;
+	    top: 0;
+    	left: 0;
+    	bottom: 0;
+    	right: 0;
+	    z-index:1000;
+	    background-color:grey;
+	    opacity: .5;
+	 }
+	.ajax-loader {
+	    position: absolute;
+	    left: 50%;
+	    top: 50%;
+	    margin-left: -32px; 
+	    margin-top: -32px;  
+	    display: block;     
+	}
+	#mainAppDiv {
+		padding: 2px 5px;
+	}
+	.linklike {
+		color: #004F9A;
+		text-decoration: underline;
+		cursor: pointer;
+	}
+	td[field-name="providers"] textarea {
+    	width: 15em;
+    	height: 10em;
+    }
+    .form-group label {
+    	font-size : 14px;
+    }
+</style>
+    
+<div id="mainAppDiv" ng-app="userApprover">
+	<div ng-controller="myCtrl as vm">
+	<uib-alert type="success" close="closeActionMsg()" ng-show="actionMsg">{{actionMsg}}</uib-alert>
+	<div><button class="btn btn-primary" ng-click="updateData()"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> Refresh </button></div>
+	<h3>New Applications</h3>
+    <table tr-ng-grid="" items="mydata.stagings" fields="['uid','accountType','cn','email','mobile','ahpra','providers']" page-items="10">
+    <thead>
+        <tr>
+            <th field-name="uid" display-name="User ID" enable-filtering="false" cell-width="8em"></th>
+            <th field-name="accountType" display-name="Type" enable-filtering="false" cell-width="8em"></th>
+            <th field-name="cn" display-name="Full Name" enable-filtering="false"></th>
+            <th field-name="email" enable-filtering="false"></th>
+            <th field-name="mobile" display-name="Mobile" enable-filtering="false" cell-width="8em"></th>
+            <th field-name="ahpra" display-name="AHPRA" enable-filtering="false"></th>
+            <th field-name="providers" enable-filtering="false"></th>
+	        <th display-name="Region/BU" enable-filtering="false"></th>
+	   </tr>
+    </thead>
+    <tbody>
+        <tr>
+	        <td field-name="uid">
+        		<input style="border: none; background-color: transparent;" onFocus="this.select();document.execCommand('copy');" type="text" value="{{gridDisplayItem.uid}}" readonly>
+        	</td>
+        	<td field-name="accountType">
+        		<input style="border: none; background-color: transparent;" onFocus="this.select();document.execCommand('copy');" type="text" value="{{gridDisplayItem.accountType}}" readonly>
+        	</td>
+	        <td field-name="cn">
+        		<input style="border: none; background-color: transparent;" onFocus="this.select();document.execCommand('copy');" type="text" value="{{gridDisplayItem.cn}}" readonly>
+        	</td>
+        	<td field-name="email">
+        		<input style="border: none; background-color: transparent;" onFocus="this.select();document.execCommand('copy');" type="text" value="{{gridDisplayItem.email}}" readonly>
+        	</td>
+        	<td field-name="mobile">
+        		<input style="border: none; background-color: transparent;" onFocus="this.select();document.execCommand('copy');" type="text" value="{{gridDisplayItem.mobile}}" readonly>
+        	</td>
+	        <td field-name="ahpra">
+        		<input style="border: none; background-color: transparent;" onFocus="this.select();document.execCommand('copy');" type="text" value="{{gridDisplayItem.ahpra}}" readonly>
+        	</td>
+        	<td field-name="providers">
+				<span ng-repeat="prv in gridDisplayItem.providers"><textarea onClick="this.select();document.execCommand('copy');" readonly>Number:{{prv.providerNumber}}&#13;&#10;Practice:{{prv.practiceName}}&#13;&#10;Phone:{{prv.practicePhone}}&#13;&#10;Fax:{{prv.practiceFax}}&#13;&#10;Address:{{prv.practiceAddress}}&#13;&#10;Street:{{prv.practiceStreet}}&#13;&#10;Suburb:{{prv.practiceSuburb}}&#13;&#10;Postcode:{{prv.practicePostcode}}&#13;&#10;State:{{prv.practiceState}}</textarea></span>
+			</td>
+			<td>
+				<select ng-attr-id="{{ gridDisplayItem.uid + '-bu'}}">
+					<option selected value="MIAV">MIA Victoria</option>
+					<option value="MIAN">MIA NSW</option>
+					<option value="QLD">I-MED Queensland</option>
+					<option value="RIL">Regional Imaging</option>
+					<option value="DJP">Dr Jones & Partners</option>
+					<option value="CAB">Cabrini</option>
+				</select>
+			</td>
+            <td>
+                <div>
+                    <button class="btn btn-success btn-sm" ng-click="openApproveModal(gridDisplayItem.uid);$event.stopPropagation();">
+                        Approve
+                    </button>
+                    <button class="btn btn-danger btn-sm" ng-click="openDeclineModal(gridDisplayItem.uid,'staging');$event.stopPropagation();">
+                        Decline
+                    </button>
+                </div>
+            </td>
+            <!-- <td>
+            	<div>
+                    <button class="btn btn-primary btn-sm" ng-click="openMessageModal(gridDisplayItem.uid,gridDisplayItem.email);$event.stopPropagation();">
+                    	Message
+                    </button>
+            	</div>
+            </td> -->
+        </tr>
+    </tbody>
+	</table>
+
+	<h3>Finalising</h3>
+    <table tr-ng-grid="" items="mydata.finalisings" fields="['uid','accountType','cn','email','mobile','ahpra','providers','businessUnit']" page-items="10">
+    <thead>
+        <tr>
+            <th field-name="uid" display-name="User ID" enable-filtering="false" cell-width="8em"></th>
+            <th field-name="accountType" display-name="Type" enable-filtering="false" cell-width="8em"></th>
+            <th field-name="cn" display-name="Full Name" enable-filtering="false"></th>
+            <th field-name="email" enable-filtering="false"></th>
+            <th field-name="mobile" display-name="Mobile" enable-filtering="false" cell-width="8em"></th>
+            <th field-name="ahpra" display-name="AHPRA" enable-filtering="false"></th>
+            <th field-name="providers" enable-filtering="false" cell-width="8em"></th>
+	        <th field-name="businessUnit" display-name="Region/BU" enable-filtering="false"></th>
+	   </tr>
+    </thead>
+    <tbody>
+        <tr>
+        	<td field-name="uid">
+        		<input style="border: none; background-color: transparent;" onFocus="this.select();document.execCommand('copy');" type="text" value="{{gridDisplayItem.uid}}" readonly>
+        	</td>
+        	<td field-name="accountType">
+        		<input style="border: none; background-color: transparent;" onFocus="this.select();document.execCommand('copy');" type="text" value="{{gridDisplayItem.accountType}}" readonly>
+        	</td>
+	        <td field-name="cn">
+        		<input style="border: none; background-color: transparent;" onFocus="this.select();document.execCommand('copy');" type="text" value="{{gridDisplayItem.cn}}" readonly>
+        	</td>
+        	<td field-name="email">
+        		<input style="border: none; background-color: transparent;" onFocus="this.select();document.execCommand('copy');" type="text" value="{{gridDisplayItem.email}}" readonly>
+        	</td>
+        	<td field-name="mobile">
+        		<input style="border: none; background-color: transparent;" onFocus="this.select();document.execCommand('copy');" type="text" value="{{gridDisplayItem.mobile}}" readonly>
+        	</td>
+	        <td field-name="ahpra">
+        		<input style="border: none; background-color: transparent;" onFocus="this.select();document.execCommand('copy');" type="text" value="{{gridDisplayItem.ahpra}}" readonly>
+        	</td>
+        	<td field-name="providers">
+				<span ng-repeat="prv in gridDisplayItem.providers"><textarea onClick="this.select();document.execCommand('copy');" readonly>Number:{{prv.providerNumber}}&#13;&#10;Practice:{{prv.practiceName}}&#13;&#10;Phone:{{prv.practicePhone}}&#13;&#10;Fax:{{prv.practiceFax}}&#13;&#10;Address:{{prv.practiceAddress}}&#13;&#10;Street:{{prv.practiceStreet}}&#13;&#10;Suburb:{{prv.practiceSuburb}}&#13;&#10;Postcode:{{prv.practicePostcode}}&#13;&#10;State:{{prv.practiceState}}</textarea></span>
+			</td>
+            <td>
+                <div>
+                    <button class="btn btn-success btn-sm" ng-click="openFinaliseModal(gridDisplayItem.uid);$event.stopPropagation();">
+                        Complete
+                    </button>
+                    <button class="btn btn-danger btn-sm" ng-click="openDeclineModal(gridDisplayItem.uid,'finalising');$event.stopPropagation();">
+                        Decline
+                    </button>
+                </div>
+            </td>
+            <!-- <td>
+            	<div>
+                    <button class="btn btn-primary btn-sm" ng-click="openMessageModal(gridDisplayItem.uid,gridDisplayItem.email);$event.stopPropagation();">
+                    	Message
+                    </button>
+            	</div>
+            </td> -->
+        </tr>
+    </tbody>
+	</table>
+	
+	<div id="loadingDiv" ng-show="isLoading">
+  	<img th:src="@{/images/public/orangeLoader.gif}" class="ajax-loader" />
+  </div>	
+    
+    <script type="text/ng-template" id="approveModal.html">
+		<div class="modal-body">
+			<div class="form-group">
+    			<label class="form-control-static">User ID : {{uid}}</label>
+				<p style="color:red;" ng-show="checkUidObj.error">This uid has already been used. Input new user ID.</p>
+    		</div>
+			<div class="form-group">
+  				<label for="approvenewuid">New User ID (Optional - Minimum 5 Length):</label>
+  				<input class="form-control" id="approvenewuid" ng-model="newuid" ng-change="validateNewuid()">
+				<p style="color:red;" ng-show="validateObj.error">{{validateObj.msg}}</p>
+			</div>
+		</div>
+		<div class="modal-footer">
+			<button type="button" class="btn btn-success" ng-click="approve()" ng-disabled="validateObj.error || checkUidObj.error">Approve</button>
+			<button type="button" class="btn btn-default" ng-click="cancel()">Cancel</button>
+		</div>
+	</script>    
+	
+	<script type="text/ng-template" id="finaliseModal.html">
+		<div class="modal-body">
+			<div class="form-group">
+				<label class="form-control-static">BEFORE you click APPROVE, please make sure the following steps have been completed;</label>
+				<div class="checkbox" style="width:100%;">
+				  <label><input type="checkbox" ng-model="ticklist.psync">Has the PACS account been synced?</label>
+				</div>
+				<div class="checkbox">
+				  <label><input type="checkbox" ng-model="ticklist.penter">Has the referrers details been entered in the referrers PACS account?</label>
+				</div>
+				<div class="checkbox">
+				  <label><input type="checkbox" ng-model="ticklist.vis">Has the referrers Visage RIS or Comrad RIS referrer account and user account has been created?</label>
+				</div>
+			</div>
+		</div>
+		<div class="modal-footer" style="border-top:0;">
+			<button type="button" class="btn btn-success" ng-click="approve()" ng-disabled="nonticked()">Complete</button>
+			<button type="button" class="btn btn-default" ng-click="cancel()">Cancel</button>
+		</div>
+	</script>    
+	
+    <script type="text/ng-template" id="declineModal.html">
+		<div class="modal-body">
+			<div class="form-group">
+  				<label for="declineReason">Comment (Optional):</label>
+  				<textarea class="form-control" rows="5" id="declineReason" ng-model="reason"></textarea>
+			</div>
+		</div>
+		<div class="modal-footer">
+			<button type="button" class="btn btn-danger" ng-click="decline()">Decline</button>
+			<button type="button" class="btn btn-default" ng-click="cancel()">Cancel</button>
+		</div>
+	</script>    
+
+    <script type="text/ng-template" id="messageModal.html">
+		<div class="modal-body">
+			<div ng-repeat="mm in messages">
+				<div class="well well-sm">
+					<p ng-bind-html="toTrusted(mm.message)"></p>
+					<p><i>{{mm.createdAt}}(AEST) by {{mm.editor}}</i></p>
+				</div>
+			</div>
+			<div class="form-group">
+  				<label for="newMessage">Message:</label>
+  				<textarea class="form-control" rows="5" id="newMessage" ng-model="msg"></textarea>
+			</div>
+		</div>
+		<div class="modal-footer">
+			<button type="button" class="btn btn-primary" ng-disabled="msg.length==0" ng-click="send()">Send</button>
+			<button type="button" class="btn btn-default" ng-click="cancel()">Cancel</button>
+		</div>
+	</script>    
+
+	</div>
+	
+</div>
+
+<script th:inline="javascript">
+angular.module('userApprover',["trNgGrid","ui.bootstrap"])
+.controller('myCtrl', function ($scope, $http, $filter, $sce, $uibModal) {
+	$scope.isLoading = false;
+	$scope.actionMsg = null;
+	$scope.restRoot = /*[[@{/adminrest/approver}]]*/ "/adminrest/approver";
+ 	var self = this; 	
+	
+	$scope.mydata = [];
+	
+	$scope.updateData = function() {
+		//$scope.mydata.length = 0;
+		$scope.isLoading = true;
+		$scope.actionMsg = null;
+		$http.get($scope.restRoot + "/getStageUsers").then(function(obj){
+			$scope.mydata = obj.data;
+			$scope.isLoading = false;
+		});
+	};
+	
+	$scope.approveUser = function(uid, newuid){
+		// Get business unit
+		var bu = angular.element("#" + uid + "-bu").val();
+		$scope.isLoading = true;
+		$scope.actionMsg = null;
+		$http.get("${approveUser}",{params:{uid:uid,bu:bu,newuid:newuid}}).then(function(obj){
+			$scope.mydata = obj.data;
+			$scope.isLoading = false;
+			var appuid = (newuid && newuid.length >= 5) ? newuid : uid;	
+			$scope.actionMsg = "User:" + appuid + " Approved";
+		});		
+	};
+	
+	$scope.finaliseUser = function(uid, newuid){
+		$scope.isLoading = true;
+		$scope.actionMsg = null;
+		$http.get("${finaliseUser}",{params:{uid:uid,newuid:newuid}}).then(function(obj){
+			$scope.mydata = obj.data;
+			$scope.isLoading = false;
+			$scope.actionMsg = "User:" + uid + " Finalised";
+		});		
+	};
+	
+	$scope.declineUser = function(uid, reason, step){
+		$scope.isLoading = true;
+		$scope.actionMsg = null;
+		$http.get("${declineUser}",{params:{uid:uid,reason:reason,step:step}}).then(function(obj){
+			$scope.mydata = obj.data;
+			$scope.isLoading = false;
+			$scope.actionMsg = "User:" + uid + " Declined";
+		});		
+	};
+	
+	$scope.sendMessage = function(uid, email, msg) {
+		$scope.isLoading = true;
+		$scope.actionMsg = null;
+		$http.get("${sendMessage}",{params:{uid:uid,email:email,msg:msg.replace(/\r|\n|\r\n/g, '<br/>')}}).then(function(obj){
+			$scope.isLoading = false;
+			$scope.actionMsg = "Sent Message to User:" + uid;
+		});				
+	}
+
+	var trusted = {};
+	$scope.secUrl=function(content) {
+		return trusted[content] || (trusted[content] = $sce.trustAsHtml(content)); 
+	};
+	
+	$scope.closeActionMsg = function() {
+		$scope.actionMsg = null;
+	};
+	
+	$scope.openApproveModal = function(uid) {
+		var modalInstance = $uibModal.open({
+			templateUrl: "approveModal.html",
+			controller: "approveModalCtrl",
+			resolve: {
+				uid:function() {
+					return uid;
+				}
+			}
+		});
+		modalInstance.result.then(function(newuid){
+			$scope.approveUser(uid, newuid);
+		},function(){});
+	};
+	
+	$scope.openFinaliseModal = function(uid) {
+		var modalInstance = $uibModal.open({
+			templateUrl: "finaliseModal.html",
+			controller: "finaliseModalCtrl",
+			resolve: {
+				uid:function() {
+					return uid;
+				}
+			}
+		});
+		modalInstance.result.then(function(newuid){
+			$scope.finaliseUser(uid, newuid);
+		},function(){});
+	};
+	
+	$scope.openDeclineModal = function(uid, step) {
+		var declineModalInstance = $uibModal.open({
+			templateUrl: "declineModal.html",
+			controller: "declineModalCtrl"
+		});
+		declineModalInstance.result.then(function(reason){
+			$scope.declineUser(uid, reason, step);
+		},function(){});
+	};
+
+	$scope.openMessageModal = function(uid,email) {
+		$scope.isLoading = true;
+		$scope.actionMsg = null;
+		$http.get("${getMessages}",{params:{uid:uid}}).then(function(obj){
+			var messages = obj.data;
+			$scope.isLoading = false;
+			
+			var messageModalInstance = $uibModal.open({
+				templateUrl: "messageModal.html",
+				controller: "messageModalCtrl",
+				size: "lg",
+				resolve: {
+					items:function() {
+						return messages;
+					}
+				}
+			});
+			messageModalInstance.result.then(function(msg){
+				$scope.sendMessage(uid, email, msg);
+			},function(){});
+		});
+	};
+	
+	// boot with update call
+	$scope.updateData();	
+}).controller('approveModalCtrl', function($scope, $uibModalInstance, $http, uid){
+	$scope.uid = uid;
+	$scope.newuid = "";
+	$scope.restRoot = /*[[@{/adminrest/approver}]]*/ "/adminrest/approver";
+	$scope.validateObj = {};
+	$scope.checkUidObj = {};
+	$scope.approve = function() {
+		$uibModalInstance.close($scope.newuid);
+	};
+	$scope.cancel = function() {
+		$uibModalInstance.dismiss('cancel');
+	};
+	$scope.validateNewuid = function() {
+		if($scope.newuid.length == 0) {
+			$scope.validateObj = {};
+			$scope.validateUid();
+		}
+		else if($scope.newuid.length > 0 && $scope.newuid.length < 5) {
+			$scope.validateObj = {error:true, msg:"Minimum 5 length"};
+		}
+		else {
+			$http.get($scope.restRoot + "/checkNewuid",{params:{newuid:$scope.newuid}}).then(function(obj){
+				$scope.validateObj = obj.data;
+				if(!$scope.validateObj.error) {
+					$scope.checkUidObj = {};
+				}
+			});
+		}
+	};
+	$scope.validateUid = function() {
+		$http.get($scope.restRoot + "/checkNewuid",{params:{newuid:$scope.uid}}).then(function(obj){
+			$scope.checkUidObj = obj.data;
+		});
+	};
+	// booting
+	$scope.validateUid();
+}).controller('finaliseModalCtrl', function($scope, $uibModalInstance, $http, uid){
+	$scope.uid = uid;
+	$scope.newuid = "";
+	$scope.ticklist = {psync:false,penter:false,vis:false};
+	$scope.approve = function() {
+		$uibModalInstance.close($scope.newuid);
+	};
+	$scope.cancel = function() {
+		$uibModalInstance.dismiss('cancel');
+	};
+	$scope.nonticked = function() {
+		return !($scope.ticklist.psync && $scope.ticklist.penter && $scope.ticklist.vis);
+	};
+}).controller('declineModalCtrl', function($scope, $uibModalInstance){
+	$scope.reason = "";
+	$scope.decline = function() {
+		$uibModalInstance.close($scope.reason);
+	};
+	$scope.cancel = function() {
+		$uibModalInstance.dismiss('cancel');
+	};
+}).controller('messageModalCtrl', function($scope, $uibModalInstance, items, $sce){
+	$scope.messages = items;
+	$scope.msg = "";
+	$scope.send = function() {
+		$uibModalInstance.close($scope.msg);
+	};
+	$scope.cancel = function() {
+		$uibModalInstance.dismiss('cancel');
+	};
+	$scope.toTrusted = function(html) {
+		return $sce.trustAsHtml(html);
+	}
+});
+</script>
+
+
+	<div th:replace="fragments/layout/footer :: footer"></div>
+</body>
+</html>
