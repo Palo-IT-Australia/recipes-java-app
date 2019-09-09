@@ -1,5 +1,7 @@
 package au.com.imed.portal.referrer.referrerportal.rest.account.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +16,8 @@ import au.com.imed.portal.referrer.referrerportal.rest.account.model.UniquenessM
 @RestController
 @RequestMapping("/referreraccount")
 public class ReferrerPortalAccountRestController {
+	private Logger logger = LoggerFactory.getLogger(ReferrerPortalAccountRestController.class);
+	
 	@Autowired
 	private LdapAccountCheckerService accountChecker;
 	
@@ -44,4 +48,5 @@ public class ReferrerPortalAccountRestController {
 		um.setAvailable(accountChecker.isAhpraAvailable(ahpra));
 		return new ResponseEntity<UniquenessModel>(um, HttpStatus.OK);
 	}
+	
 }

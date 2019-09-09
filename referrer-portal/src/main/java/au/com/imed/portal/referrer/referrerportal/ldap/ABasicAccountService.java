@@ -12,6 +12,7 @@ import org.springframework.ldap.core.support.AbstractContextMapper;
 import org.springframework.ldap.core.support.LdapContextSource;
 
 import au.com.imed.portal.referrer.referrerportal.model.AccountDetail;
+import au.com.imed.portal.referrer.referrerportal.model.StageUser;
 
 public abstract class ABasicAccountService {  
 	@Value("${imed.ldap.url}")
@@ -77,6 +78,23 @@ public abstract class ABasicAccountService {
 			detail.setName(attrs.get("cn") != null ? attrs.get("cn").get(0).toString() : "");
 			detail.setMobile(attrs.get("mobile") != null ? attrs.get("mobile").get(0).toString() : "");
 			detail.setUid(attrs.get("uid") != null ? attrs.get("uid").get(0).toString() : "");
+			return detail;
+		}
+	}
+	
+	protected class StageUserAttributeMapper implements AttributesMapper<StageUser> {
+		@Override
+		public StageUser mapFromAttributes(Attributes attrs) throws NamingException {
+			StageUser detail = new StageUser();
+			detail.setEmail(attrs.get("mail") != null ? attrs.get("mail").get(0).toString() : "");
+			detail.setGivenName(attrs.get("givenName") != null ? attrs.get("givenName").get(0).toString() : "");
+			detail.setSurname(attrs.get("sn") != null ? attrs.get("sn").get(0).toString() : "");
+			detail.setMobile(attrs.get("mobile") != null ? attrs.get("mobile").get(0).toString() : "");
+			detail.setUid(attrs.get("uid") != null ? attrs.get("uid").get(0).toString() : "");
+			detail.setCn(attrs.get("cn") != null ? attrs.get("cn").get(0).toString() : "");
+			detail.setAhpra(attrs.get("ahpra") != null ? attrs.get("ahpra").get(0).toString() : "");
+			detail.setAccountType(attrs.get("employeeType") != null ? attrs.get("employeeType").get(0).toString() : "");
+			detail.setBusinessUnit(attrs.get("BusinessUnit") != null ? attrs.get("BusinessUnit").get(0).toString() : "");
 			return detail;
 		}
 	}

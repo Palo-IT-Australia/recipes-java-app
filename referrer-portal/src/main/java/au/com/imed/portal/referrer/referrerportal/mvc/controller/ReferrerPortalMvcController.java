@@ -8,7 +8,6 @@ import static au.com.imed.portal.referrer.referrerportal.common.PortalConstant.M
 import java.net.URLEncoder;
 import java.util.Map;
 
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
@@ -105,6 +104,11 @@ public class ReferrerPortalMvcController {
 	public String getAdmin() {
 		return "admin";
 	}
+	
+	@GetMapping("/admin/approve")
+	public String getAdminApprove() {
+		return "approve";
+	}	
 
 	@GetMapping("/profile")
 	public String getProfile(Model model, Authentication authentication) {

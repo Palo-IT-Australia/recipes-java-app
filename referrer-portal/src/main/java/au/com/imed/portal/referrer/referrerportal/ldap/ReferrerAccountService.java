@@ -30,9 +30,11 @@ import org.springframework.ldap.filter.EqualsFilter;
 import org.springframework.ldap.query.LdapQuery;
 import org.springframework.stereotype.Service;
 
+import au.com.imed.portal.referrer.referrerportal.common.PortalConstant;
 import au.com.imed.portal.referrer.referrerportal.model.AccountDetail;
 import au.com.imed.portal.referrer.referrerportal.model.ChangeModel;
 import au.com.imed.portal.referrer.referrerportal.model.DetailModel;
+import au.com.imed.portal.referrer.referrerportal.model.StageUser;
 import au.com.imed.portal.referrer.referrerportal.utils.ValidationUtility;
 
 @Primary
@@ -139,6 +141,31 @@ public class ReferrerAccountService extends ABasicAccountService {
 		}
 		return list;
 	}
+	
+	protected List<Name> getAccountDnList(LdapTemplate template, final String name, final String value) {
+		List<Name> list;
+		AndFilter filter = new AndFilter();
+		filter.and(new EqualsFilter(name, value));
+		try {
+			list = template.search("", filter.encode(), new PersonContextMapper());
+		}
+		catch (Exception ex) {
+			ex.printStackTrace();
+			list = new ArrayList<>(0);
+		}
+		return list;
+	}
+	
+	public List<Name> GetReferrerDnListByAttr(final String name, final String value) {
+		List<Name> list;
+		try {
+			list = getAccountDnList(getApplicationsLdapTemplate(), name, value);
+		}catch(Exception ex) {
+			ex.printStackTrace();
+			list = new ArrayList<>(0);
+		}
+		return list;
+	}
 
 	public Map<String, String> updateReferrerAccountDetail(final String userName, final DetailModel detail) throws Exception {
 		Map<String, String> resultMap = new HashMap<String, String>();
@@ -214,5 +241,34 @@ public class ReferrerAccountService extends ABasicAccountService {
 		}
 	}
 
+	//
+	//	Approver
+	//
+	public List<StageUser> getStageUserList() {
+		List<StageUser> list;
+		LdapQuery query = query().where("uid").like("*");
+		try {
+			list = getReferrerStagingLdapTemplate().search(query, new StageUserAttributeMapper());
+		}
+		catch (Exception ex) {
+			ex.printStackTrace();
+			list = new ArrayList<>(0);
+		}
+		return list;
+	}
+	
+	public List<StageUser> getFinalisingUserList() {
+		List<StageUser> list;
+		LdapQuery query = query().where(PortalConstant.PARAM_ATTR_FINALIZING_PAGER).is(PortalConstant.PARAM_ATTR_VALUE_FINALIZING_PAGER);
+		try {
+			list = getReferrerLdapTemplate().search(query, new StageUserAttributeMapper());
+		}
+		catch (Exception ex) {
+			ex.printStackTrace();
+			list = new ArrayList<>(0);
+		}
+		return list;
+	}
+	
 	
 }

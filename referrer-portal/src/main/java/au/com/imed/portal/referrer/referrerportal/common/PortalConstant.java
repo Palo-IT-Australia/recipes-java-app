@@ -17,4 +17,8 @@ public final class PortalConstant {
 
   // Temporal password for COMRAD
   public static String IMED_TEMPORAL_PASSWORD = "iMtmP2018pswd";
+  
+  // Approver
+  public static final String PARAM_ATTR_FINALIZING_PAGER = "pager";
+  public static final String PARAM_ATTR_VALUE_FINALIZING_PAGER = "Finalizing";
 }
