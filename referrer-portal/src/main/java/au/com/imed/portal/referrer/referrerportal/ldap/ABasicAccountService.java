@@ -32,6 +32,10 @@ public abstract class ABasicAccountService {
 		return getLdapTemplate(DOMAIN_STAGING);
 	}	
 	
+	protected LdapTemplate getPortalLdapTemplate() throws Exception {
+		return getLdapTemplate("ou=Portal,ou=Applications,dc=mia,dc=net,dc=au");
+	}
+	
 	protected LdapTemplate getApplicationsLdapTemplate() throws Exception {
 		return getLdapTemplate("ou=Applications,dc=mia,dc=net,dc=au");
 	}

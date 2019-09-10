@@ -288,12 +288,12 @@ public class ReferrerAccountService extends ABasicAccountService {
 		
 		stageTemplate.modifyAttributes(currentDn, moditemList.toArray(new ModificationItem[moditemList.size()])); 
 		
-		String newDnStr = currentDn.toString().replace(DOMAIN_STAGING, DOMAIN_REFERRER);
+		String newDnStr = currentDn.toString();
 		if(newuid != null && !newuid.isBlank()) {
-			newDnStr.replace("uid=" + uid, "uid=" + newuid);
+			newDnStr = newDnStr.replace("uid=" + uid, "uid=" + newuid);
 		}
-		logger.info("approveUser() " + currentDn.toString() + " to " + newDnStr);
-		stageTemplate.rename(currentDn.toString(), newDnStr);
+		logger.info("approveUser() moving " + currentDn.toString() + " to " + newDnStr);
+		getPortalLdapTemplate().rename(currentDn.toString() + ",ou=Staging", newDnStr + ",ou=Referrers");
 	}
 	
 	public void finaliseUser(final String uid) throws Exception {
