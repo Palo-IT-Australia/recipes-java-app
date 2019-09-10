@@ -85,7 +85,7 @@ public class ReferrerPortalMvcController {
 	
 	@PostMapping("/apply")
 	public String postApply(@ModelAttribute(PARAM_IMED_EXTERNAL_USER) ExternalUser imedExternalUser, Model model) {
-		logger.info("/apply", imedExternalUser.toString());
+		logger.info("/apply " + imedExternalUser.toString());
 		model.addAllAttributes(accountService.createAccount(imedExternalUser));
 		return "apply";
 	}
