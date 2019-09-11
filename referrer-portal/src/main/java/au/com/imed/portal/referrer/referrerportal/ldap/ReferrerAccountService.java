@@ -193,6 +193,13 @@ public class ReferrerAccountService extends ABasicAccountService {
 		return resultMap;
 	}
 
+	
+	/**
+	 * Change referrer password without any password check
+	 * @param uid
+	 * @param newPassword
+	 * @throws Exception
+	 */
 	public void resetReferrerPassword(final String userName, final String password) throws Exception 
 	{
 		if(userName.isEmpty() || password.isEmpty()) {
@@ -239,6 +246,17 @@ public class ReferrerAccountService extends ABasicAccountService {
 		else {
 			throw new InvalidParameterException();
 		}
+	}
+
+	public void lockUnlockReferrerAccount(final String uid, final boolean lock) throws Exception {
+		LdapTemplate ldapTemplate = getReferrerLdapTemplate();
+		Name dn = getAccountDnList(ldapTemplate, "uid", uid).get(0);
+
+		Attribute unlockAttr = new BasicAttribute(PortalConstant.PARAM_ATTR_ACC_LOCKED, lock ? "true" : "false");
+		ModificationItem unlockItem = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, unlockAttr);
+		
+		logger.info("lockUnlockReferrerAccount() {} ", dn);
+		ldapTemplate.modifyAttributes(dn, new ModificationItem[] {unlockItem}); 
 	}
 
 	//

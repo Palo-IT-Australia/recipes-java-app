@@ -3,6 +3,9 @@ package au.com.imed.portal.referrer.referrerportal.model;
 import java.io.Serializable;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class ExternalUser  implements Serializable{
   
   private static final long serialVersionUID = 1L;
