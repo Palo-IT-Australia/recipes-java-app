@@ -1,5 +1,6 @@
 package au.com.imed.portal.referrer.referrerportal.rest.account.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -18,6 +19,7 @@ import au.com.imed.common.active.directory.manager.ImedActiveDirectoryLdapManage
 import au.com.imed.portal.referrer.referrerportal.ldap.HospitalGroupService;
 import au.com.imed.portal.referrer.referrerportal.ldap.ReferrerCreateAccountService;
 import au.com.imed.portal.referrer.referrerportal.model.ExternalUser;
+import au.com.imed.portal.referrer.referrerportal.model.LdapUserDetails;
 import au.com.imed.portal.referrer.referrerportal.rest.account.model.AccountLockUnlock;
 import au.com.imed.portal.referrer.referrerportal.rest.account.model.AccountUid;
 import au.com.imed.portal.referrer.referrerportal.rest.account.model.AccountUidPassword;
@@ -64,7 +66,27 @@ public class AdminAccountManagerRestController {
   			new ImedActiveDirectoryLdapManager().findByUid(uid).size() == 0;
 	}
 	
-	@PostMapping("/createAccount")
+	@GetMapping("/find")
+	public ResponseEntity<List<LdapUserDetails>> getFind(@RequestParam("word") String word) {
+		List<LdapUserDetails> list;
+		HttpStatus sts = HttpStatus.OK;
+		if(word != null && word.length() >= 3) {
+			try {
+				list = referrerCreateAccountService.findFuzzyReferrerAccounts(word);
+			} catch (Exception e) {
+				e.printStackTrace();
+				list = new ArrayList<>(0);
+				sts = HttpStatus.INTERNAL_SERVER_ERROR;
+			}
+		} else {
+			list = new ArrayList<>(0);
+			sts = HttpStatus.BAD_REQUEST;
+		}
+		logger.info("Admin /find word:{} size:{}", word, list.size());
+		return new ResponseEntity<List<LdapUserDetails>>(list, sts);
+	}
+	
+	@PostMapping("/create")
 	public ResponseEntity<String> postCreateAccount(@RequestBody ExternalUser imedExternalUser) {
 		HttpStatus sts = HttpStatus.OK;
 		try {
@@ -76,7 +98,7 @@ public class AdminAccountManagerRestController {
 		return new ResponseEntity<String>(sts);
 	}
 	
-	@PostMapping("/updatePassword")
+	@PostMapping("/password")
 	public ResponseEntity<String> postUpdatePassword(@RequestBody AccountUidPassword aup) {
 		final String uid = aup.getUid();
 		final String password = aup.getPassword();
@@ -96,7 +118,7 @@ public class AdminAccountManagerRestController {
 		return new ResponseEntity<String>(sts);
 	}
 	
-	@PostMapping("/lockUnlock")
+	@PostMapping("/lock")
 	public ResponseEntity<String> postLockUnlock(@RequestBody AccountLockUnlock alu) {
 		final String uid = alu.getUid();
 		final boolean lock = alu.isLock();

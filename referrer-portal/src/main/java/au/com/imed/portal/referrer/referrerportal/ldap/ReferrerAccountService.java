@@ -34,6 +34,7 @@ import au.com.imed.portal.referrer.referrerportal.common.PortalConstant;
 import au.com.imed.portal.referrer.referrerportal.model.AccountDetail;
 import au.com.imed.portal.referrer.referrerportal.model.ChangeModel;
 import au.com.imed.portal.referrer.referrerportal.model.DetailModel;
+import au.com.imed.portal.referrer.referrerportal.model.LdapUserDetails;
 import au.com.imed.portal.referrer.referrerportal.model.StageUser;
 import au.com.imed.portal.referrer.referrerportal.utils.ValidationUtility;
 
@@ -257,6 +258,15 @@ public class ReferrerAccountService extends ABasicAccountService {
 		
 		logger.info("lockUnlockReferrerAccount() {} ", dn);
 		ldapTemplate.modifyAttributes(dn, new ModificationItem[] {unlockItem}); 
+	}
+	
+	public List<LdapUserDetails> findFuzzyReferrerAccounts(final String word) throws Exception {
+		LdapQuery query = query().where("uid").like("*" + word + "*")
+				.or("mail").is(word)
+				.or("givenName").is(word)
+				.or("ahpra").is(word)
+				.or("sn").is(word);
+		return getReferrerLdapTemplate().search(query, new LdapUserDetailsUserAttributeMapper());
 	}
 
 	//
