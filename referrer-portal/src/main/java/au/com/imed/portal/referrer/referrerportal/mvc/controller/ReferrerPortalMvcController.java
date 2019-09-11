@@ -109,6 +109,11 @@ public class ReferrerPortalMvcController {
 	public String getAdminApprove() {
 		return "approve";
 	}	
+	
+	@GetMapping("/admin/account")
+	public String getAdminAccout() {
+		return "account";
+	}	
 
 	@GetMapping("/profile")
 	public String getProfile(Model model, Authentication authentication) {
