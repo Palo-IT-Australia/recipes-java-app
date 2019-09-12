@@ -85,7 +85,7 @@ public class ReferrerPortalMvcController {
 	
 	@PostMapping("/apply")
 	public String postApply(@ModelAttribute(PARAM_IMED_EXTERNAL_USER) ExternalUser imedExternalUser, Model model) {
-		logger.info("/apply", imedExternalUser.toString());
+		logger.info("/apply " + imedExternalUser.toString());
 		model.addAllAttributes(accountService.createAccount(imedExternalUser));
 		return "apply";
 	}
@@ -108,6 +108,11 @@ public class ReferrerPortalMvcController {
 	@GetMapping("/admin/approve")
 	public String getAdminApprove() {
 		return "approve";
+	}	
+	
+	@GetMapping("/admin/account")
+	public String getAdminAccout() {
+		return "account";
 	}	
 
 	@GetMapping("/profile")

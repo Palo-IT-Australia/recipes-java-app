@@ -281,7 +281,12 @@ angular.module('userApprover',["trNgGrid","ui.bootstrap"])
 		var bu = angular.element("#" + uid + "-bu").val();
 		$scope.isLoading = true;
 		$scope.actionMsg = null;
-		$http.get("${approveUser}",{params:{uid:uid,bu:bu,newuid:newuid}}).then(function(obj){
+		var token = $("meta[name='_csrf']").attr("content");
+		$http.post($scope.restRoot + "/approveUser", 
+				{uid:uid,bu:bu,newuid:newuid},
+				{headers: {
+					 "X-XSRF-TOKEN": token
+				}}).then(function(obj){
 			$scope.mydata = obj.data;
 			$scope.isLoading = false;
 			var appuid = (newuid && newuid.length >= 5) ? newuid : uid;	
@@ -292,7 +297,12 @@ angular.module('userApprover',["trNgGrid","ui.bootstrap"])
 	$scope.finaliseUser = function(uid, newuid){
 		$scope.isLoading = true;
 		$scope.actionMsg = null;
-		$http.get("${finaliseUser}",{params:{uid:uid,newuid:newuid}}).then(function(obj){
+		var token = $("meta[name='_csrf']").attr("content");
+		$http.post($scope.restRoot + "/finaliseUser", 
+			{uid:uid,newuid:newuid},
+			{headers: {
+				 "X-XSRF-TOKEN": token
+			}}).then(function(obj){
 			$scope.mydata = obj.data;
 			$scope.isLoading = false;
 			$scope.actionMsg = "User:" + uid + " Finalised";
@@ -302,7 +312,12 @@ angular.module('userApprover',["trNgGrid","ui.bootstrap"])
 	$scope.declineUser = function(uid, reason, step){
 		$scope.isLoading = true;
 		$scope.actionMsg = null;
-		$http.get("${declineUser}",{params:{uid:uid,reason:reason,step:step}}).then(function(obj){
+		var token = $("meta[name='_csrf']").attr("content");
+		$http.post($scope.restRoot + "/declineUser",
+				{uid:uid,reason:reason,step:step},
+				{headers: {
+					 "X-XSRF-TOKEN": token
+				}}).then(function(obj){
 			$scope.mydata = obj.data;
 			$scope.isLoading = false;
 			$scope.actionMsg = "User:" + uid + " Declined";
@@ -312,7 +327,12 @@ angular.module('userApprover',["trNgGrid","ui.bootstrap"])
 	$scope.sendMessage = function(uid, email, msg) {
 		$scope.isLoading = true;
 		$scope.actionMsg = null;
-		$http.get("${sendMessage}",{params:{uid:uid,email:email,msg:msg.replace(/\r|\n|\r\n/g, '<br/>')}}).then(function(obj){
+		var token = $("meta[name='_csrf']").attr("content");
+		$http.post($scope.restRoot + "/sendMessage",
+			{uid:uid,email:email,msg:msg.replace(/\r|\n|\r\n/g, '<br/>')},
+			{headers: {
+				 "X-XSRF-TOKEN": token
+			}}).then(function(obj){
 			$scope.isLoading = false;
 			$scope.actionMsg = "Sent Message to User:" + uid;
 		});				

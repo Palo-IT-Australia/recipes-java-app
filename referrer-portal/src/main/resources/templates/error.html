@@ -1,0 +1,10 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<title id="pageTitle">Server Error</title>
+</head>
+<body>
+	<h3>Server Error</h3>
+	<span>Status : </span><span th:text="${status}">No status code</span>
+	<div><a th:href="@{/}">Back to Home page</a></div>
+</body>

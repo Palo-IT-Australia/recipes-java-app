@@ -17,10 +17,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ldap.core.DirContextAdapter;
+import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.support.LdapNameBuilder;
 import org.springframework.stereotype.Service;
 
 import au.com.imed.common.active.directory.manager.ImedActiveDirectoryLdapManager;
+import au.com.imed.portal.referrer.referrerportal.common.PortalConstant;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.entity.ReferrerProviderEntity;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.repository.ReferrerProviderJpaRepository;
 import au.com.imed.portal.referrer.referrerportal.model.ExternalPractice;
@@ -78,6 +80,20 @@ public class ReferrerCreateAccountService extends ReferrerAccountService {
 	}
 
 	public void createPortalStagingUser(final ExternalUser imedExternalUser, final String proposedUid) throws Exception {
+		createReferrerUser(getReferrerStagingLdapTemplate(), imedExternalUser, proposedUid);
+	}
+	
+	/**
+	 * Admin tool can create referrer account without approval process
+	 * @param imedExternalUser
+	 * @param proposedUid
+	 * @throws Exception
+	 */
+	public void createPortalReferrerUser(final ExternalUser imedExternalUser, final String proposedUid) throws Exception {
+		createReferrerUser(getReferrerLdapTemplate(), imedExternalUser, proposedUid);
+	}
+	
+	private void createReferrerUser(LdapTemplate ldapTemplate, final ExternalUser imedExternalUser, final String proposedUid) throws Exception {
   	Name dn = LdapNameBuilder
   			.newInstance()
   			.add("uid", imedExternalUser.getUserid())
@@ -101,10 +117,37 @@ public class ReferrerCreateAccountService extends ReferrerAccountService {
 		context.setAttributeValue("carLicense", proposedUid);
 		context.setAttributeValue("AHPRA", imedExternalUser.getAhpraNumber());
 		context.setAttributeValue("homePhone", imedExternalUser.getPreferredPhone());
-		context.setAttributeValue("physicalDeliveryOfficeName", imedExternalUser.getMobile());
+		List<ExternalPractice> practices = imedExternalUser.getPractices();
+		if(practices != null && practices.size() > 0) {
+			context.setAttributeValue("physicalDeliveryOfficeName", practices.get(0).getPracticeAddress());
+		} else {
+			context.setAttributeValue("physicalDeliveryOfficeName", imedExternalUser.getMobile());			
+		}
+		context.setAttributeValue(PortalConstant.PARAM_ATTR_ACC_LOCKED, "true");
 
-    getReferrerStagingLdapTemplate().bind(context);
+    ldapTemplate.bind(context);
   }
+	
+	public void createPlaceholderUser(final String uid) throws Exception {
+		Name dn = LdapNameBuilder
+  			.newInstance()
+  			.add("uid", uid)
+  			.build();
+  	DirContextAdapter context = new DirContextAdapter(dn);
+
+  	context.setAttributeValues(
+        "objectclass", 
+        new String[] 
+          { "top", 
+            "person", 
+            "organizationalPerson", 
+            "inetorgPerson" });
+  	context.setAttributeValue("cn", "Placeholder account");
+		context.setAttributeValue("sn", "Placeholder");
+		context.setAttributeValue(PortalConstant.PARAM_ATTR_ACC_LOCKED, "true");
+
+    getStagePacsLdapTemplate().bind(context);
+	}
 	
 	private void saveProviders(final ExternalUser user) {
     List<ExternalPractice> practices = user.getPractices();

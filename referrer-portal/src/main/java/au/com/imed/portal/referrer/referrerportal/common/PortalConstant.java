@@ -34,4 +34,12 @@ public final class PortalConstant {
 	public static final String DISPLAY_DATE_FORMAT = "dd/MM/yyyy";
 	public static final String DISPLAY_DATE_TIME_FORMAT = "dd/MM/yyyy HH:mm:ss";
 
+
+  // Temporal password for COMRAD
+  public static String IMED_TEMPORAL_PASSWORD = "iMtmP2018pswd";
+  
+  // Approver
+  public static final String PARAM_ATTR_ACC_LOCKED = "ibm-pwdAccountLocked";
+  public static final String PARAM_ATTR_FINALIZING_PAGER = "pager";
+  public static final String PARAM_ATTR_VALUE_FINALIZING_PAGER = "Finalizing";
 }
