@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>2.1.3.RELEASE</version>
-		<relativePath/> <!-- lookup parent from repository -->
+		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>au.com.imed.portal.referrer</groupId>
 	<artifactId>referrer-portal</artifactId>
@@ -38,7 +39,7 @@
 			<url>http://repo1.maven.org/maven2</url>
 		</pluginRepository>
 	</pluginRepositories>
-	
+
 	<dependencies>
 		<!-- IMED -->
 		<dependency>
@@ -46,7 +47,7 @@
 			<artifactId>commoon-active-directory</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
-	
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -63,7 +64,7 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security</artifactId>
 		</dependency>
-				<dependency>
+		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-ldap</artifactId>
 		</dependency>
@@ -105,81 +106,87 @@
 			<optional>true</optional>
 		</dependency>
 		<dependency>
-	    <groupId>org.springframework.boot</groupId>
-	    <artifactId>spring-boot-devtools</artifactId>
-	    <scope>runtime</scope>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-devtools</artifactId>
+			<scope>runtime</scope>
 		</dependency>
 
-<!-- DICOM TOOL Need to Exclude log4j to prevent multiple definitions -->
+		<!-- DICOM TOOL Need to Exclude log4j to prevent multiple definitions -->
 		<dependency>
 			<groupId>org.weasis</groupId>
 			<artifactId>weasis-dicom-tools</artifactId>
 			<version>1.0.5-SNAPSHOT</version>
 			<exclusions>
-        <exclusion>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-        </exclusion>
-    </exclusions>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-log4j12</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.dcm4che</groupId>
 			<artifactId>dcm4che-core</artifactId>
 			<version>${dcm4che.version}</version>
 			<exclusions>
-        <exclusion>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-        </exclusion>
-    </exclusions>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-log4j12</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.dcm4che</groupId>
 			<artifactId>dcm4che-net</artifactId>
 			<version>${dcm4che.version}</version>
 			<exclusions>
-        <exclusion>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-        </exclusion>
-    </exclusions>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-log4j12</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
-		
+
 		<!-- HTTP CLIENT -->
 		<dependency>
-		    <groupId>org.apache.httpcomponents</groupId>
-		    <artifactId>httpclient</artifactId>
-		    <!--  <version>4.5.1</version>   -->
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+			<!-- <version>4.5.1</version> -->
 		</dependency>
-		
+
 		<!-- JWT -->
 		<dependency>
-		    <groupId>org.bitbucket.b_c</groupId>
-		    <artifactId>jose4j</artifactId>
-		    <version>0.6.5</version>
+			<groupId>org.bitbucket.b_c</groupId>
+			<artifactId>jose4j</artifactId>
+			<version>0.6.5</version>
 		</dependency>
-				
+
 		<!-- xss jsoup clean sanitize -->
 		<dependency>
 			<groupId>org.jsoup</groupId>
 			<artifactId>jsoup</artifactId>
 			<version>1.11.3</version>
 		</dependency>
-		
+
 		<!-- Basic validations like string, number -->
 		<dependency>
-	    <groupId>org.apache.commons</groupId>
-	    <artifactId>commons-lang3</artifactId>
-	  </dependency>
-	  
-	  <dependency>
-	    <groupId>commons-validator</groupId>
-	    <artifactId>commons-validator</artifactId>
-	    <version>1.6</version>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
 		</dependency>
-		
+
+		<dependency>
+			<groupId>commons-validator</groupId>
+			<artifactId>commons-validator</artifactId>
+			<version>1.6</version>
+		</dependency>
+
+		<dependency>
+			<groupId>net.sourceforge.jexcelapi</groupId>
+			<artifactId>jxl</artifactId>
+			<version>2.6.12</version>
+		</dependency>
+
 	</dependencies>
-	
+
 	<build>
 		<finalName>referrer</finalName>
 		<plugins>
@@ -197,16 +204,14 @@
 					<url>http://imedtstom05.imed:8080/manager/text</url>
 					<username>huehara</username>
 					<password>D3pl0ym3nt%</password>
-					
-					<!-- PROD 
-					<url>http://imedpdtom05.imed:8080/manager/text</url>
-					<username>huehara</username>
-					<password>PR0DD3pl0ym3nt%</password>-->
-					
+
+					<!-- PROD <url>http://imedpdtom05.imed:8080/manager/text</url> <username>huehara</username> 
+						<password>PR0DD3pl0ym3nt%</password> -->
+
 					<path>/referrer</path>
 				</configuration>
 			</plugin>
-		</plugins>		
+		</plugins>
 	</build>
 
 </project>
