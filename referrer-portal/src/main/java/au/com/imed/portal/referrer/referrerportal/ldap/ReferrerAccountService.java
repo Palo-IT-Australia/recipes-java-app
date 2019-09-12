@@ -49,25 +49,26 @@ public class ReferrerAccountService extends ABasicAccountService {
 		filter.and(new EqualsFilter("cn", "HospitalAccess"));
 		filter.and(new EqualsFilter("objectclass", "groupOfUniqueNames"));
 
-		if(uid != null && uid.length() >= 3) {
+		if (uid != null && uid.length() >= 3) {
 			try {
-				List<List<String>> members = getApplicationsLdapTemplate()
-						.search("", filter.encode(), new AttributesMapper<List<String>>() {
+				List<List<String>> members = getApplicationsLdapTemplate().search("", filter.encode(),
+						new AttributesMapper<List<String>>() {
 							@Override
 							public List<String> mapFromAttributes(Attributes attributes) throws NamingException {
 								List<String> lst = new ArrayList<>();
 								NamingEnumeration<?> ne = attributes.get("uniquemember").getAll();
-								while(ne.hasMore()) {
+								while (ne.hasMore()) {
 									String m = ne.next().toString();
 									lst.add(m);
 								}
 								return lst;
 							}
 						});
-				if(members.get(0).contains("uid=" + uid + ",ou=Referrers,ou=Portal,ou=Applications,dc=mia,dc=net,dc=au")) {
+				if (members.get(0)
+						.contains("uid=" + uid + ",ou=Referrers,ou=Portal,ou=Applications,dc=mia,dc=net,dc=au")) {
 					is = true;
 				}
-			} catch(Exception ex) {
+			} catch (Exception ex) {
 				ex.printStackTrace();
 			}
 		}
@@ -88,7 +89,7 @@ public class ReferrerAccountService extends ABasicAccountService {
 		try {
 			List<AccountDetail> list = getAccountDetailList(getReferrerLdapTemplate(), name, value);
 			detail = list.size() > 0 ? list.get(0) : null;
-		} catch(Exception ex) {
+		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
 		return detail;
@@ -98,7 +99,7 @@ public class ReferrerAccountService extends ABasicAccountService {
 		List<AccountDetail> list;
 		try {
 			list = getAccountDetailList(getGlobalLdapTemplate(), name, value);
-		}catch(Exception ex) {
+		} catch (Exception ex) {
 			ex.printStackTrace();
 			list = new ArrayList<>(0);
 		}
@@ -109,7 +110,7 @@ public class ReferrerAccountService extends ABasicAccountService {
 		List<AccountDetail> list;
 		try {
 			list = getAccountDetailList(getApplicationsLdapTemplate(), name, value);
-		}catch(Exception ex) {
+		} catch (Exception ex) {
 			ex.printStackTrace();
 			list = new ArrayList<>(0);
 		}
@@ -122,88 +123,87 @@ public class ReferrerAccountService extends ABasicAccountService {
 		filter.and(new EqualsFilter(name, value));
 		try {
 			list = template.search("", filter.encode(), new AccountDetailAttributeMapper());
-		}
-		catch (Exception ex) {
+		} catch (Exception ex) {
 			ex.printStackTrace();
 			list = new ArrayList<>(0);
 		}
 		return list;
 	}
-	
-	protected List<AccountDetail> getAccountDetailListLike(LdapTemplate template, final String name, final String valueLike) {
+
+	protected List<AccountDetail> getAccountDetailListLike(LdapTemplate template, final String name,
+			final String valueLike) {
 		List<AccountDetail> list;
 		LdapQuery query = query().where(name).like(valueLike);
 		try {
 			list = template.search(query, new AccountDetailAttributeMapper());
-		}
-		catch (Exception ex) {
+		} catch (Exception ex) {
 			ex.printStackTrace();
 			list = new ArrayList<>(0);
 		}
 		return list;
 	}
-	
+
 	protected List<Name> getAccountDnList(LdapTemplate template, final String name, final String value) {
 		List<Name> list;
 		AndFilter filter = new AndFilter();
 		filter.and(new EqualsFilter(name, value));
 		try {
 			list = template.search("", filter.encode(), new PersonContextMapper());
-		}
-		catch (Exception ex) {
+		} catch (Exception ex) {
 			ex.printStackTrace();
 			list = new ArrayList<>(0);
 		}
 		return list;
 	}
-	
+
 	public List<Name> GetReferrerDnListByAttr(final String name, final String value) {
 		List<Name> list;
 		try {
 			list = getAccountDnList(getReferrerLdapTemplate(), name, value);
-		}catch(Exception ex) {
+		} catch (Exception ex) {
 			ex.printStackTrace();
 			list = new ArrayList<>(0);
 		}
 		return list;
 	}
 
-	public Map<String, String> updateReferrerAccountDetail(final String userName, final DetailModel detail) throws Exception {
+	public Map<String, String> updateReferrerAccountDetail(final String userName, final DetailModel detail)
+			throws Exception {
 		Map<String, String> resultMap = new HashMap<String, String>();
 		if (!ValidationUtility.isValidEmail(detail.getEmail())) {
 			resultMap.put(MODEL_KEY_ERROR_MSG, "Invalid email");
-		}else if (!ValidationUtility.hasAtleastOneNumberWithOptionalSpace(detail.getMobile())) {
+		} else if (!ValidationUtility.hasAtleastOneNumberWithOptionalSpace(detail.getMobile())) {
 			resultMap.put(MODEL_KEY_ERROR_MSG, "Invalid phone number");
-		}else {
+		} else {
 			AndFilter filter = new AndFilter();
 			filter.and(new EqualsFilter("uid", userName));
 			LdapTemplate ldapTemplate = getReferrerLdapTemplate();
 			List<Name> list = ldapTemplate.search("", filter.encode(), new PersonContextMapper());
-			if(list.size() > 0) {
+			if (list.size() > 0) {
 				Attribute mobileAttr = new BasicAttribute("mobile", detail.getMobile());
 				ModificationItem mobileItem = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, mobileAttr);
 				Attribute emailAttr = new BasicAttribute("mail", detail.getEmail());
 				ModificationItem emailItem = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, emailAttr);
-				ldapTemplate.modifyAttributes(list.get(0), new ModificationItem [] {mobileItem, emailItem});  // relative dn in Name
+				ldapTemplate.modifyAttributes(list.get(0), new ModificationItem[] { mobileItem, emailItem }); // relative
+																												// dn in
+																												// Name
 				resultMap.put(MODEL_KEY_SUCCESS_MSG, "Your details have been changed.");
-			}
-			else {
+			} else {
 				throw new InvalidParameterException();
 			}
-		}  	
+		}
 		return resultMap;
 	}
 
-	
 	/**
 	 * Change referrer password without any password check
+	 * 
 	 * @param uid
 	 * @param newPassword
 	 * @throws Exception
 	 */
-	public void resetReferrerPassword(final String userName, final String password) throws Exception 
-	{
-		if(userName.isEmpty() || password.isEmpty()) {
+	public void resetReferrerPassword(final String userName, final String password) throws Exception {
+		if (userName.isEmpty() || password.isEmpty()) {
 			throw new InvalidParameterException();
 		} else {
 			logger.warn("resetReferrerPassword() invalid params");
@@ -211,9 +211,9 @@ public class ReferrerAccountService extends ABasicAccountService {
 		}
 	}
 
-	public void updateReferrerPassword(final String userName, final ChangeModel changeModel) throws Exception 
-	{
-		if(userName.isEmpty() || changeModel.getCurrentPassword().isEmpty() || changeModel.getNewPassword().isEmpty()) {
+	public void updateReferrerPassword(final String userName, final ChangeModel changeModel) throws Exception {
+		if (userName.isEmpty() || changeModel.getCurrentPassword().isEmpty()
+				|| changeModel.getNewPassword().isEmpty()) {
 			logger.warn("updateReferrerPassword() invalid params");
 			throw new InvalidParameterException();
 		} else {
@@ -221,30 +221,29 @@ public class ReferrerAccountService extends ABasicAccountService {
 		}
 	}
 
-	private void updateReferrerPassword(final String userName, final String newPassword, final String currentPassword) throws Exception {
+	private void updateReferrerPassword(final String userName, final String newPassword, final String currentPassword)
+			throws Exception {
 		AndFilter filter = new AndFilter();
 		filter.and(new EqualsFilter("uid", userName));
 
 		LdapTemplate ldapTemplate = getReferrerLdapTemplate();
 		List<Name> list = ldapTemplate.search("", filter.encode(), new PersonContextMapper());
 		logger.info("updateReferrerPassword() " + list);
-		if(list.size() > 0) {
-			// Check password 
-			boolean isauth = currentPassword == null || ldapTemplate.authenticate("", filter.toString(), currentPassword);  
+		if (list.size() > 0) {
+			// Check password
+			boolean isauth = currentPassword == null
+					|| ldapTemplate.authenticate("", filter.toString(), currentPassword);
 			logger.info("updateReferrerPassword() password corrrect? " + isauth);
-			if(isauth)
-			{
+			if (isauth) {
 				// Update password
 				Attribute pswdAttr = new BasicAttribute("userPassword", newPassword);
 				ModificationItem pswdItem = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, pswdAttr);
-				ldapTemplate.modifyAttributes(list.get(0), new ModificationItem [] {pswdItem}); 
+				ldapTemplate.modifyAttributes(list.get(0), new ModificationItem[] { pswdItem });
 				logger.info("updateReferrerPassword() updated password");
-			}
-			else {
+			} else {
 				throw new AuthenticationException();
 			}
-		}
-		else {
+		} else {
 			throw new InvalidParameterException();
 		}
 	}
@@ -255,91 +254,104 @@ public class ReferrerAccountService extends ABasicAccountService {
 
 		Attribute unlockAttr = new BasicAttribute(PortalConstant.PARAM_ATTR_ACC_LOCKED, lock ? "true" : "false");
 		ModificationItem unlockItem = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, unlockAttr);
-		
+
 		logger.info("lockUnlockReferrerAccount() {} ", dn);
-		ldapTemplate.modifyAttributes(dn, new ModificationItem[] {unlockItem}); 
+		ldapTemplate.modifyAttributes(dn, new ModificationItem[] { unlockItem });
 	}
-	
+
 	public List<LdapUserDetails> findFuzzyReferrerAccounts(final String word) throws Exception {
-		LdapQuery query = query().where("uid").like("*" + word + "*")
-				.or("mail").is(word)
-				.or("givenName").is(word)
-				.or("ahpra").is(word)
-				.or("sn").is(word);
+		LdapQuery query = query().where("uid").like("*" + word + "*").or("mail").is(word).or("givenName").is(word)
+				.or("ahpra").is(word).or("sn").is(word);
 		return getReferrerLdapTemplate().search(query, new LdapUserDetailsUserAttributeMapper());
 	}
 
 	//
-	//	Approver
+	// Approver
 	//
 	public List<StageUser> getStageUserList() {
 		List<StageUser> list;
 		LdapQuery query = query().where("uid").like("*");
 		try {
 			list = getReferrerStagingLdapTemplate().search(query, new StageUserAttributeMapper());
-		}
-		catch (Exception ex) {
+		} catch (Exception ex) {
 			ex.printStackTrace();
 			list = new ArrayList<>(0);
 		}
 		return list;
 	}
-	
+
 	public List<StageUser> getFinalisingUserList() {
 		List<StageUser> list;
-		LdapQuery query = query().where(PortalConstant.PARAM_ATTR_FINALIZING_PAGER).is(PortalConstant.PARAM_ATTR_VALUE_FINALIZING_PAGER);
+		LdapQuery query = query().where(PortalConstant.PARAM_ATTR_FINALIZING_PAGER)
+				.is(PortalConstant.PARAM_ATTR_VALUE_FINALIZING_PAGER);
 		try {
 			list = getReferrerLdapTemplate().search(query, new StageUserAttributeMapper());
-		}
-		catch (Exception ex) {
+		} catch (Exception ex) {
 			ex.printStackTrace();
 			list = new ArrayList<>(0);
 		}
 		return list;
 	}
-	
+
+	public boolean checkPassword(final String username, final String password) {
+		boolean isAuth = false;
+		try {
+			if (username != null && username.length() > 0 && password != null && password.length() > 0) {
+				AndFilter filter = new AndFilter();
+				filter.and(new EqualsFilter("uid", username));
+				isAuth = getReferrerLdapTemplate().authenticate("", filter.toString(), password);
+			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		logger.info("Check referrer credential is valid ? " + isAuth);
+		return isAuth;
+	}
+
 	public void approveUser(final String uid, final String newuid, final String bu) throws Exception {
 		LdapTemplate stageTemplate = getReferrerStagingLdapTemplate();
 		Name currentDn = getAccountDnList(stageTemplate, "uid", uid).get(0);
-		
+
 		List<ModificationItem> moditemList = new ArrayList<>(2);
-		
-		if(bu != null && !bu.isBlank()) {
+
+		if (bu != null && !bu.isBlank()) {
 			Attribute buAttr = new BasicAttribute("BusinessUnit", bu);
 			ModificationItem buItem = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, buAttr);
 			moditemList.add(buItem);
 		}
-		
-		Attribute finAttr = new BasicAttribute(PortalConstant.PARAM_ATTR_FINALIZING_PAGER, PortalConstant.PARAM_ATTR_VALUE_FINALIZING_PAGER);
+
+		Attribute finAttr = new BasicAttribute(PortalConstant.PARAM_ATTR_FINALIZING_PAGER,
+				PortalConstant.PARAM_ATTR_VALUE_FINALIZING_PAGER);
 		ModificationItem finItem = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, finAttr);
 		moditemList.add(finItem);
-		
-		stageTemplate.modifyAttributes(currentDn, moditemList.toArray(new ModificationItem[moditemList.size()])); 
-		
+
+		stageTemplate.modifyAttributes(currentDn, moditemList.toArray(new ModificationItem[moditemList.size()]));
+
 		String newDnStr = currentDn.toString();
-		if(newuid != null && !newuid.isBlank()) {
+		if (newuid != null && !newuid.isBlank()) {
 			newDnStr = newDnStr.replace("uid=" + uid, "uid=" + newuid);
 		}
 		logger.info("approveUser() moving " + currentDn.toString() + " to " + newDnStr);
 		getPortalLdapTemplate().rename(currentDn.toString() + ",ou=Staging", newDnStr + ",ou=Referrers");
 	}
-	
+
 	public void finaliseUser(final String uid) throws Exception {
 		LdapTemplate ldapTemplate = getReferrerLdapTemplate();
 		Name dn = getAccountDnList(ldapTemplate, "uid", uid).get(0);
 
 		Attribute finAttr = new BasicAttribute(PortalConstant.PARAM_ATTR_FINALIZING_PAGER, "");
 		ModificationItem finItem = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, finAttr);
-		
+
 		Attribute unlockAttr = new BasicAttribute(PortalConstant.PARAM_ATTR_ACC_LOCKED, "false");
 		ModificationItem unlockItem = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, unlockAttr);
-		
+
 		logger.info("finaliseUser() {} ", dn);
-		ldapTemplate.modifyAttributes(dn, new ModificationItem[] {finItem, unlockItem}); 
+		ldapTemplate.modifyAttributes(dn, new ModificationItem[] { finItem, unlockItem });
 	}
-	
+
 	public void declineUser(final String uid, final String step) throws Exception {
-		LdapTemplate ldapTemplate = "finalising".equalsIgnoreCase(step) ? getReferrerLdapTemplate() : getReferrerStagingLdapTemplate();
+		LdapTemplate ldapTemplate = "finalising".equalsIgnoreCase(step) ? getReferrerLdapTemplate()
+				: getReferrerStagingLdapTemplate();
 		Name dn = getAccountDnList(ldapTemplate, "uid", uid).get(0);
 		logger.info("declineUser() {} ", dn);
 		ldapTemplate.unbind(dn);
