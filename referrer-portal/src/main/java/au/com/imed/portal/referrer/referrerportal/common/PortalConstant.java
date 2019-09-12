@@ -18,9 +18,6 @@ public final class PortalConstant {
 	// Temporal password for COMRAD
 	public static String IMED_TEMPORAL_PASSWORD = "iMtmP2018pswd";
 
-	// Approver
-	public static final String PARAM_ATTR_FINALIZING_PAGER = "pager";
-	public static final String PARAM_ATTR_VALUE_FINALIZING_PAGER = "Finalizing";
 
 	public static final String HEADER_AUTHENTICATION = "Authentication";
 
@@ -36,6 +33,7 @@ public final class PortalConstant {
 
 	// Approver
 	public static final String PARAM_ATTR_ACC_LOCKED = "ibm-pwdAccountLocked";
+
 	
 	// ldap references
 	public final static String DOMAIN_REFERRER = "ou=Referrers,ou=Portal,ou=Applications,dc=mia,dc=net,dc=au";
@@ -49,5 +47,11 @@ public final class PortalConstant {
 	public final static String DOMAIN_PACS_USERS = "ou=PACS Users,dc=mia,dc=net,dc=au";
 	public final static String DOMAIN_PATIENTS = "ou=Patients,ou=Portal,ou=Applications,dc=mia,dc=net,dc=au";
 	
+
+	// Approver
+	public static final String PARAM_ATTR_FINALIZING_PAGER = "pager";
+	public static final String PARAM_ATTR_VALUE_FINALIZING_PAGER = "Finalizing";
+
+
 
 }
