@@ -63,7 +63,7 @@ import au.com.imed.portal.referrer.referrerportal.rest.visage.service.dicom.acco
 import au.com.imed.portal.referrer.referrerportal.service.ReferrerPortalRestApiSyslog;
 
 @RestController
-@RequestMapping("/visage")
+@RequestMapping("/imedvisage/v1")
 public class VisageController {
 
 	@Autowired
