@@ -33,7 +33,25 @@ public final class PortalConstant {
 
 	// Approver
 	public static final String PARAM_ATTR_ACC_LOCKED = "ibm-pwdAccountLocked";
+
+	
+	// ldap references
+	public final static String DOMAIN_REFERRER = "ou=Referrers,ou=Portal,ou=Applications,dc=mia,dc=net,dc=au";
+	public final static String DOMAIN_STAGING = "ou=Staging,ou=Portal,ou=Applications,dc=mia,dc=net,dc=au";
+	public final static String DOMAIN_PORTAL = "ou=Portal,ou=Applications,dc=mia,dc=net,dc=au";
+	public final static String DOMAIN_APPLICATIONS = "ou=Applications,dc=mia,dc=net,dc=au";
+	public final static String DOMAIN_GLOBAL = "dc=mia,dc=net,dc=au";
+	public final static String DOMAIN_BUSINESS_UNITS = "ou=Business Units,dc=mia,dc=net,dc=au";
+	public final static String DOMAIN_STAGING_PACS_USERS = "ou=Staging PACS Users,dc=mia,dc=net,dc=au";
+	public final static String DOMAIN_IMED_PACS_USERS = "ou=IMED PACS Users,dc=mia,dc=net,dc=au";
+	public final static String DOMAIN_PACS_USERS = "ou=PACS Users,dc=mia,dc=net,dc=au";
+	public final static String DOMAIN_PATIENTS = "ou=Patients,ou=Portal,ou=Applications,dc=mia,dc=net,dc=au";
+	
+
+	// Approver
 	public static final String PARAM_ATTR_FINALIZING_PAGER = "pager";
 	public static final String PARAM_ATTR_VALUE_FINALIZING_PAGER = "Finalizing";
+
+
 
 }

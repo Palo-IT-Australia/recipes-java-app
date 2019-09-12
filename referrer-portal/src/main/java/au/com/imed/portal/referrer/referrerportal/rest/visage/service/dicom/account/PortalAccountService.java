@@ -26,6 +26,7 @@ import org.springframework.ldap.filter.LessThanOrEqualsFilter;
 import org.springframework.ldap.filter.NotFilter;
 import org.springframework.stereotype.Service;
 
+import au.com.imed.portal.referrer.referrerportal.ldap.ABasicAccountService;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.model.account.AccountDetail;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.model.account.AccountPassword;
 
@@ -51,10 +52,10 @@ public class PortalAccountService extends ABasicAccountService {
 		boolean canView = false;
 		if (userName != null) {
 			try {
-				AccountDetail account = this.getAccountDetail(getPacsUsersLdapTemplate(), userName);
+				AccountDetail account = this.getAccountDetail(getPacsLdapTemplate(), userName);
 				if (account != null) {
 					// Email only one in pacs dn?
-					canView = (this.findsAccountsByAttributes(getPacsUsersLdapTemplate(), "mail", account.getEmail())
+					canView = (this.findsAccountsByAttributes(getPacsLdapTemplate(), "mail", account.getEmail())
 							.size() == 1);
 				}
 			} catch (Exception ex) {
