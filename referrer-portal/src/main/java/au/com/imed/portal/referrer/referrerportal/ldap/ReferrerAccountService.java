@@ -270,5 +270,20 @@ public class ReferrerAccountService extends ABasicAccountService {
 		return list;
 	}
 	
+	public boolean checkPassword(final String username, final String password) {
+		boolean isAuth = false;
+		try {
+			if (username != null && username.length() > 0 && password != null && password.length() > 0) {
+				AndFilter filter = new AndFilter();
+				filter.and(new EqualsFilter("uid", username));
+				isAuth = getReferrerLdapTemplate().authenticate("", filter.toString(), password);
+			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		logger.info("Check referrer credential is valid ? " + isAuth);
+		return isAuth;
+	}
+	
 	
 }
