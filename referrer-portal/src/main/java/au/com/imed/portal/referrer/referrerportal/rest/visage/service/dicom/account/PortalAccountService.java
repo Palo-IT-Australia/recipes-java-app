@@ -1,8 +1,8 @@
 package au.com.imed.portal.referrer.referrerportal.rest.visage.service.dicom.account;
 
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import javax.naming.AuthenticationException;
@@ -14,6 +14,8 @@ import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ldap.core.AttributesMapper;
 import org.springframework.ldap.core.DirContextOperations;
@@ -25,6 +27,7 @@ import org.springframework.ldap.filter.GreaterThanOrEqualsFilter;
 import org.springframework.ldap.filter.LessThanOrEqualsFilter;
 import org.springframework.ldap.filter.NotFilter;
 import org.springframework.stereotype.Service;
+import org.springframework.util.FileCopyUtils;
 
 import au.com.imed.portal.referrer.referrerportal.ldap.ABasicAccountService;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.model.account.AccountDetail;
@@ -33,12 +36,15 @@ import au.com.imed.portal.referrer.referrerportal.rest.visage.model.account.Acco
 @Service
 public class PortalAccountService extends ABasicAccountService {
 	public ResponseEntity<String> getTermsAndConditions() {
-		return doGet(
-				"http://localhost/wps/wcm/connect/imed-wcm-common/main/patients/your safety?source=library&srv=cmpnt&cmpntid=f02625c9-60e5-49dc-b147-0b5ae280d215&WCM_Page.ResetAll=TRUE&CACHE=NONE&CONTENTCACHE=NONE&CONNECTORCACHE=NONE",
-				new HashMap<String, String>(0), String.class);
-		// return HttpStatus.OK.equals(entity.getStatusCode()) ? new
-		// ResponseEntity<String>(new String(entity.getBody(), "UTF-8"), HttpStatus.OK)
-		// : entity;
+		String temp = "";
+		try {
+			ClassPathResource cpr = new ClassPathResource("static/files/tandc.html");
+			byte[] bdata = FileCopyUtils.copyToByteArray(cpr.getInputStream());
+			temp = new String(bdata, StandardCharsets.UTF_8);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return new ResponseEntity<String>(temp, HttpStatus.OK);
 	}
 
 	/**
@@ -206,20 +212,6 @@ public class PortalAccountService extends ABasicAccountService {
 			System.out.println("PersonContextMapper : " + context.getAttributes());
 			return context.getDn();
 		}
-	}
-
-	private List<Name> findReferrerAccountName(final String userName) {
-		List<Name> list = new ArrayList<>(0);
-		try {
-			AndFilter filter = new AndFilter();
-			filter.and(new EqualsFilter("uid", userName));
-
-			LdapTemplate ldapTemplate = getReferrerLdapTemplate();
-			list = ldapTemplate.search("", filter.encode(), new PersonContextMapper());
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
-		return list;
 	}
 
 	public boolean isPatientAccount(final String userName) {
