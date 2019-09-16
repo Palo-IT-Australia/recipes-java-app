@@ -168,34 +168,34 @@ public class AuthenticationUtil extends ABasicAccountService {
 	public static String getAuthenticatedUserName(final String auth) {
 		String userName = null;
 
-//		// JWT
-//		if (auth != null && auth.length() > 0) {
-//			try {
-//				final String usernameInToken = AuthenticationUtil.checkAccessToken(auth);
-//				if (usernameInToken != null) {
-//					userName = CommonUtil.emailToUid(usernameInToken);
-//					logger.info("getAuthenticatedUserName() " + PortalConstant.HEADER_AUTHENTICATION + " VALID with "
-//							+ userName);
-//				} else {
-//					logger.info(
-//							"getAuthenticatedUserName() " + PortalConstant.HEADER_AUTHENTICATION + " invalid token");
-//				}
-//			} catch (Exception ex) {
-//				logger.info("getAuthenticatedUserName() " + PortalConstant.HEADER_AUTHENTICATION + " invalid");
-//			}
-//		}
-//
-//		if (userName == null) {
-//			// Spring security for logged in user
-//			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//			if (!(authentication instanceof AnonymousAuthenticationToken)) {
-//				userName = authentication.getName();
-//			}
-//		}
-//
-//		logger.info("Authenticated user name : " + userName);
+		// JWT
+		if (auth != null && auth.length() > 0) {
+			try {
+				final String usernameInToken = AuthenticationUtil.checkAccessToken(auth);
+				if (usernameInToken != null) {
+					userName = CommonUtil.emailToUid(usernameInToken);
+					logger.info("getAuthenticatedUserName() " + PortalConstant.HEADER_AUTHENTICATION + " VALID with "
+							+ userName);
+				} else {
+					logger.info(
+							"getAuthenticatedUserName() " + PortalConstant.HEADER_AUTHENTICATION + " invalid token");
+				}
+			} catch (Exception ex) {
+				logger.info("getAuthenticatedUserName() " + PortalConstant.HEADER_AUTHENTICATION + " invalid");
+			}
+		}
 
-		return "alchau";
+		if (userName == null) {
+			// Spring security for logged in user
+			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+			if (!(authentication instanceof AnonymousAuthenticationToken)) {
+				userName = authentication.getName();
+			}
+		}
+
+		logger.info("Authenticated user name : " + userName);
+
+		return userName;
 	}
 
 }

@@ -204,9 +204,9 @@ public class ReferrerAccountService extends ABasicAccountService {
 	 */
 	public void resetReferrerPassword(final String userName, final String password) throws Exception {
 		if (userName.isEmpty() || password.isEmpty()) {
+			logger.warn("resetReferrerPassword() invalid params");
 			throw new InvalidParameterException();
 		} else {
-			logger.warn("resetReferrerPassword() invalid params");
 			updateReferrerPassword(userName, password, null);
 		}
 	}
