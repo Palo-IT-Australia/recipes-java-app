@@ -55,7 +55,7 @@ public class AdminAccountManagerRestController {
 		return new ResponseEntity<String>(sts);
 	}
 	
-	@GetMapping("isUidAvailablePlaceholder")
+	@GetMapping("/isUidAvailablePlaceholder")
 	public ResponseEntity<UniquenessModel> isUidAvailablePlaceholder(@RequestParam("uid") String uid) {
 		UniquenessModel model = new UniquenessModel();
 		model.setAvailable(isUidAvailableForPlaceholder(uid));
