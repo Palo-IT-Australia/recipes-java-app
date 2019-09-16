@@ -48,5 +48,8 @@ public final class PortalConstant {
 	public final static String DOMAIN_PACS_USERS = "ou=PACS Users,dc=mia,dc=net,dc=au";
 	public final static String DOMAIN_PATIENTS = "ou=Patients,ou=Portal,ou=Applications,dc=mia,dc=net,dc=au";
 	
+	// Terms and Conditions
+	public final static String TERMS_AND_CONDITIONS_SHOW = "show";
+	public final static String TERMS_AND_CONDITIONS_HIDE = "hide";
 
 }
