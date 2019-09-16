@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import au.com.imed.portal.referrer.referrerportal.common.PortalConstant;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.repository.HospitalPreferencesJPARepository;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.repository.UserPreferencesJPARepository;
 import au.com.imed.portal.referrer.referrerportal.jpa.history.model.HospitalPreferencesEntity;
@@ -85,15 +86,18 @@ public class UserPreferencesService {
 			return new ResponseEntity<String>(HttpStatus.UNAUTHORIZED);
 		}
 	}
-
-	public void turnDownTerms(final String userName) {
+	
+	public ResponseEntity<String> updateTermsAndCondition(final String userName, String termsAndConditionStatus) {
 		if (userName != null) {
 			UserPreferencesEntity entity = getPreferenceEntity(userName);
 			if (entity != null) {
 				entity.setUsername(userName);
-				entity.setHelp("show");
+				entity.setHelp(termsAndConditionStatus);
 				repository.saveAndFlush(entity);
 			}
+			return new ResponseEntity<String>(HttpStatus.ACCEPTED);
+		} else {
+			return new ResponseEntity<String>(HttpStatus.UNAUTHORIZED);
 		}
 	}
 
