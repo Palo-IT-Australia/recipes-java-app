@@ -51,14 +51,14 @@
 		
 <script type="text/javascript" th:inline="javascript">
     $(document).ready(function () {
-    	var restRoot = /*[[@{/imedvisagepatient}]]*/ "/imedvisagepatient";
+    	var restRoot = /*[[@{/imedvisage/v1}]]*/ "imedvisage/v1";
 			$.ajax({
 				type: 'GET',
 		        cache: false,
 		        headers: { "cache-control": "no-cache" },
 		        url: restRoot + "/preferences",
 		        success: function( data ) {
-		            if(data.tandc != 'hide') {
+		            if(data.help != 'hide') {
 		                showTandcDialog("warning");
 		            }
 		            else {
@@ -73,7 +73,7 @@
 
 	// async: false to wait and reload page
     function setTandcPrefs(prefs) {
-    	var restRoot = /*[[@{/imedvisagepatient}]]*/ "/imedvisagepatient";
+    	var restRoot = /*[[@{/imedvisage/v1}]]*/ "imedvisage/v1";
     	$.ajax({
 				type: 'GET',
 				cache: false,
@@ -88,7 +88,7 @@
     }
 
     function showTandcDialog(dialogType){
-    	var restRoot = /*[[@{/imedvisagepatient}]]*/ "/imedvisagepatient";
+    	var restRoot = /*[[@{/imedvisage/v1}]]*/  "imedvisage/v1";
         $("#refPortalTandcDialog").css('display','block');
         $("#refPortalTandcDialog .dialog-content").load(restRoot + "/terms");
         if(dialogType == "warning") {

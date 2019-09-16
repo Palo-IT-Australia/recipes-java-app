@@ -461,6 +461,12 @@ public class VisageController {
 			@RequestHeader(value = PortalConstant.HEADER_AUTHENTICATION, required = false) String authentication) {
 		return patientHistoryService.getHistories(AuthenticationUtil.getAuthenticatedUserName(authentication));
 	}
+	
+	@GetMapping("/accepttandc")
+	 public ResponseEntity<String> accepttandc(@RequestHeader(value=PortalConstant.HEADER_AUTHENTICATION, required=false) String authentication) {
+	    String userName = AuthenticationUtil.getAuthenticatedUserName(authentication);
+	    return preferenceService.updateTermsAndCondition(userName, PortalConstant.TERMS_AND_CONDITIONS_HIDE);
+	 }
 
 	@PostMapping(value = "/preferences")
 	public ResponseEntity<String> postPreferences(@RequestBody UserPreferences preferences,
@@ -625,7 +631,7 @@ public class VisageController {
 			if (!auditService.isUnderRateLimitRequest(userName)) {
 				System.out.println("Too many requests from " + userName);
 				valid = false;
-				preferenceService.turnDownTerms(userName); // Block by having to accept terms again
+				preferenceService.updateTermsAndCondition(userName, PortalConstant.TERMS_AND_CONDITIONS_SHOW);
 				auditService.auditRateLimit(userName);
 			}
 		}
