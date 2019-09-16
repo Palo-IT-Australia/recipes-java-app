@@ -30,7 +30,7 @@
 						<a class="home nav-link w-hidden-medium w-hidden-small w-hidden-tiny w-nav-link wpthemeLeft" th:href="@{/mycrm}">My CRM</a>
 						<a class="home nav-link w-hidden-medium w-hidden-small w-hidden-tiny w-nav-link wpthemeLeft" th:href="@{/support}">Support</a>
 						<a class="home nav-link w-hidden-medium w-hidden-small w-hidden-tiny w-nav-link wpthemeLeft" th:href="@{/feedback}">Feedback</a>
-						<a class="home nav-link w-hidden-medium w-hidden-small w-hidden-tiny w-nav-link wpthemeLeft" sec:authorize="isAuthenticated()" th:href="@{/profile}">My Profile</a>
+						<a class="home nav-link w-hidden-medium w-hidden-small w-hidden-tiny w-nav-link wpthemeLeft" sec:authorize="isAuthenticated()" th:href="@{/profile}">My Account</a>
 					</div>
 				</div>
   
@@ -125,7 +125,7 @@
 	                <span lang="en" dir="ltr">Feedback</span>
 	            </a>
 	            <a sec:authorize="isAuthenticated()" th:href="@{/profile}" class="nav-link-mobile no-expand w-hidden-main">
-	                <span lang="en" dir="ltr">My Profile</span>
+	                <span lang="en" dir="ltr">My Account</span>
 	            </a>
 	            <form class="nav-link-mobile no-expand w-hidden-main" sec:authorize="isAuthenticated()" th:action="@{/logout}" method="post">
 								<button type="submit" style="background-color: transparent;">Log Out</button>
