@@ -1,0 +1,14 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+	<body>
+		<div class="footer section" th:fragment="chat"> 
+			<link rel="stylesheet" th:href="@{/js/public/chat/dist/styles.css}">
+			<imed-chat-root sec:authorize="isAuthenticated()" th:username="${#authentication.getPrincipal().getGivenName() + ' ' + #authentication.getPrincipal().getSn()}"></imed-chat-root>
+			<imed-chat-root sec:authorize="!isAuthenticated()" username=""></imed-chat-root>
+			<script type="text/javascript" th:src="@{/js/public/chat/dist/inline.bundle.js}"></script>
+			<script type="text/javascript" th:src="@{/js/public/chat/dist/polyfills.bundle.js}"></script>
+			<script type="text/javascript" th:src="@{/js/public/chat/dist/vendor.bundle.js}"></script>
+			<script type="text/javascript" th:src="@{/js/public/chat/dist/main.bundle.js}"></script>
+		</div>
+	</body>
+</html>
