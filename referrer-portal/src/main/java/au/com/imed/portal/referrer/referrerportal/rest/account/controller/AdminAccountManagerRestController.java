@@ -18,8 +18,10 @@ import org.springframework.web.bind.annotation.RestController;
 import au.com.imed.common.active.directory.manager.ImedActiveDirectoryLdapManager;
 import au.com.imed.portal.referrer.referrerportal.ldap.HospitalGroupService;
 import au.com.imed.portal.referrer.referrerportal.ldap.ReferrerCreateAccountService;
+import au.com.imed.portal.referrer.referrerportal.model.DetailModel;
 import au.com.imed.portal.referrer.referrerportal.model.ExternalUser;
 import au.com.imed.portal.referrer.referrerportal.model.LdapUserDetails;
+import au.com.imed.portal.referrer.referrerportal.rest.account.model.AccountDetails;
 import au.com.imed.portal.referrer.referrerportal.rest.account.model.AccountLockUnlock;
 import au.com.imed.portal.referrer.referrerportal.rest.account.model.AccountUid;
 import au.com.imed.portal.referrer.referrerportal.rest.account.model.AccountUidPassword;
@@ -91,6 +93,21 @@ public class AdminAccountManagerRestController {
 		HttpStatus sts = HttpStatus.OK;
 		try {
 			referrerCreateAccountService.createPortalReferrerUser(imedExternalUser, imedExternalUser.getUserid());
+		} catch (Exception e) {
+			sts = HttpStatus.BAD_REQUEST;
+			e.printStackTrace();
+		} 
+		return new ResponseEntity<String>(sts);
+	}
+	
+	@PostMapping("/detail")
+	public ResponseEntity<String> postDetail(@RequestBody AccountDetails detail) {
+		HttpStatus sts = HttpStatus.OK;
+		try {
+			DetailModel dm = new DetailModel();
+			dm.setEmail(detail.getEmail());
+			dm.setMobile(detail.getMobile());
+			referrerCreateAccountService.updateReferrerAccountDetail(detail.getUid(), dm);
 		} catch (Exception e) {
 			sts = HttpStatus.BAD_REQUEST;
 			e.printStackTrace();
