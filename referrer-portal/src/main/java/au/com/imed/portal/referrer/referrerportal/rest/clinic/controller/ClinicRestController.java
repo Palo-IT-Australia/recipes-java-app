@@ -128,6 +128,15 @@ public class ClinicRestController {
 		return (new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED));
 	}
 
+	/**
+	 * This API does the same thing as appointment endpoint. But this is mainly for
+	 * third party people to use in their app (like Creative Factory for UX dev)
+	 * 
+	 * @param appointment
+	 * @param referral
+	 * @param authentication
+	 * @return
+	 */
 	@PostMapping("/booking")
 	public ResponseEntity<String> postBooking(@RequestPart Appointment appointment,
 			@RequestPart("referral") @Nullable MultipartFile referral,
