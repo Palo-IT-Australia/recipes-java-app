@@ -128,17 +128,6 @@ public class ClinicRestController {
 		return (new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED));
 	}
 
-	@PostMapping("/booking")
-	public ResponseEntity<String> postBooking(@RequestPart Appointment appointment,
-			@RequestPart("referral") @Nullable MultipartFile referral,
-			@RequestHeader(value = PortalConstant.HEADER_AUTHENTICATION, required = false) String authentication) {
-		if (AuthenticationUtil.getAuthenticatedUserName(authentication) != null) {
-			return makeAppointment(appointment, referral);
-		} else {
-			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-		}
-	}
-
 	@PostMapping("/appointment")
 	public ResponseEntity<String> postAppointment(@RequestPart("appointment") Appointment appointment,
 			@RequestPart("referral") @Nullable MultipartFile referral) {
