@@ -16,6 +16,8 @@
 		</div> 
 		<div sec:authorize="isAuthenticated()" th:replace="fragments/task/tandc :: tandc"></div>
 		<div sec:authorize="isAuthenticated()" th:replace="fragments/task/timeout :: timeout"></div>
+		<div sec:authorize="isAuthenticated()" th:replace="fragments/task/chkemail :: chkemail"></div>
+		<div th:replace="fragments/task/chat :: chat"></div>
 	</div>
 </body>
 </html>

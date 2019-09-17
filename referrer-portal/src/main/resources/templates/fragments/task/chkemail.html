@@ -1,0 +1,23 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+	<body>
+		<div class="footer section" th:fragment="chkemail"> 
+		<script type="text/javascript" th:inline="javascript">
+			$(document).ready(function () {
+				var apiroot = /*[[@{/imedvisage/v1}]]*/ "imedvisage/v1";
+				var pathacnt = /*[[@{/profile}]]*/ "/profile";
+				$.ajax({
+					type: 'GET',
+					cache: false,
+					url:  apiroot + '/canEmailView',
+					success: function(data) {
+					},
+					error: function() {
+						$(".nav.section").append("<div class='warnEmailBanner' style='color:black;background-color:#FFFF99;padding:4px;display:inline-block;width:100%;'>An unique personal email address is required to enable full functionality including image access. Please go to <a href='" + pathacnt + "'>My Account</a> to update your email address.</div>");
+					}
+				});
+			 });
+		</script>
+		</div>
+	</body>
+</html>

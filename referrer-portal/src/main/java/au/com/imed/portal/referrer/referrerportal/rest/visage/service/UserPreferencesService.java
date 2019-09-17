@@ -90,11 +90,12 @@ public class UserPreferencesService {
 	public ResponseEntity<String> updateTermsAndCondition(final String userName, String termsAndConditionStatus) {
 		if (userName != null) {
 			UserPreferencesEntity entity = getPreferenceEntity(userName);
-			if (entity != null) {
-				entity.setUsername(userName);
-				entity.setHelp(termsAndConditionStatus);
-				repository.saveAndFlush(entity);
+			if (entity == null) {
+				entity = new UserPreferencesEntity();
 			}
+			entity.setUsername(userName);
+			entity.setHelp(termsAndConditionStatus);
+			repository.saveAndFlush(entity);
 			return new ResponseEntity<String>(HttpStatus.ACCEPTED);
 		} else {
 			return new ResponseEntity<String>(HttpStatus.UNAUTHORIZED);

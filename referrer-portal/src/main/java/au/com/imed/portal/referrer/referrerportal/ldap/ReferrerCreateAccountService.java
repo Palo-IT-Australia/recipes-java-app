@@ -121,7 +121,7 @@ public class ReferrerCreateAccountService extends ReferrerAccountService {
 		if(practices != null && practices.size() > 0) {
 			context.setAttributeValue("physicalDeliveryOfficeName", practices.get(0).getPracticeAddress());
 		} else {
-			context.setAttributeValue("physicalDeliveryOfficeName", imedExternalUser.getMobile());			
+			context.setAttributeValue("physicalDeliveryOfficeName", imedExternalUser.getPreferredPhone());			
 		}
 		context.setAttributeValue(PortalConstant.PARAM_ATTR_ACC_LOCKED, "true");
 
