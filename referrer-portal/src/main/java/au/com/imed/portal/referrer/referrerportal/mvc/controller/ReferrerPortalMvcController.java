@@ -113,7 +113,12 @@ public class ReferrerPortalMvcController {
 	@GetMapping("/admin/account")
 	public String getAdminAccout() {
 		return "account";
-	}	
+	}
+	
+	@GetMapping("/book")
+	public String getBook() {
+		return "book";
+	}
 
 	@GetMapping("/profile")
 	public String getProfile(Model model, Authentication authentication) {
