@@ -120,6 +120,11 @@ public class VisageController {
 
 	@Autowired
 	private ReferrerAccountService referrerAccountService;
+	
+	@GetMapping("/ping")
+	public String getPing() {
+		return "V0.1 (Migrating)";
+	}
 
 	@GetMapping("/searchOrders")
 	public ResponseEntity<List<Order>> searchOrders(@RequestParam Map<String, String> paramMap,
