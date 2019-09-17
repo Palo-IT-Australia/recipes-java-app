@@ -30,6 +30,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.FileCopyUtils;
 
 import au.com.imed.portal.referrer.referrerportal.ldap.ABasicAccountService;
+import au.com.imed.portal.referrer.referrerportal.model.AccountPatientLdap;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.model.account.AccountDetail;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.model.account.AccountPassword;
 
@@ -286,6 +287,51 @@ public class PortalAccountService extends ABasicAccountService {
 			}
 		}
 		return retstr;
+	}
+
+	public AccountPatientLdap getAccountPatientLdap(final String userName) {
+		AccountPatientLdap accountDetail = null;
+
+		try {
+			List<AccountPatientLdap> list = getReferrerLdapTemplate().search("", "(uid=" + userName + ")",
+					new AttributesMapper<AccountPatientLdap>() {
+						@Override
+						public AccountPatientLdap mapFromAttributes(Attributes attrs) throws NamingException {
+							AccountPatientLdap detail = new AccountPatientLdap();
+							detail.setLastName(attrs.get("sn") != null ? attrs.get("sn").get(0).toString() : "");
+							detail.setFirstName(
+									attrs.get("givenName") != null ? attrs.get("givenName").get(0).toString() : "");
+							detail.setMedicare(
+									attrs.get("employeeNumber") != null ? attrs.get("employeeNumber").get(0).toString()
+											: "");
+							detail.setPostcode(
+									attrs.get("postalCode") != null ? attrs.get("postalCode").get(0).toString() : "");
+							detail.setEmail(attrs.get("mail") != null ? attrs.get("mail").get(0).toString() : "");
+							detail.setMobile(attrs.get("mobile") != null ? attrs.get("mobile").get(0).toString() : "");
+							detail.setDob(attrs.get("dob") != null ? attrs.get("dob").get(0).toString() : "");
+							detail.setDobAus(
+									attrs.get("dob") != null ? convertToAusDate(attrs.get("dob").get(0).toString())
+											: "");
+							return detail;
+						}
+					});
+			accountDetail = list.size() > 0 ? list.get(0) : null;
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+
+		return accountDetail;
+	}
+
+	private String convertToAusDate(final String ori) {
+		String aus = "";
+		try {
+			String[] elms = ori.split("-");
+			aus = elms[2] + "/" + elms[1] + "/" + elms[0];
+		} catch (Exception ex) {
+			aus = "";
+		}
+		return aus;
 	}
 
 }

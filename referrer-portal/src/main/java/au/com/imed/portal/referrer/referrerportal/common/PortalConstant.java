@@ -18,7 +18,6 @@ public final class PortalConstant {
 	// Temporal password for COMRAD
 	public static String IMED_TEMPORAL_PASSWORD = "iMtmP2018pswd";
 
-
 	public static final String HEADER_AUTHENTICATION = "Authentication";
 
 	// Constants related to ldap and email symbols
@@ -35,7 +34,7 @@ public final class PortalConstant {
 	public static final String PARAM_ATTR_ACC_LOCKED = "ibm-pwdAccountLocked";
 	public static final String PARAM_ATTR_FINALIZING_PAGER = "pager";
 	public static final String PARAM_ATTR_VALUE_FINALIZING_PAGER = "Finalizing";
-	
+
 	// ldap references
 	public final static String DOMAIN_REFERRER = "ou=Referrers,ou=Portal,ou=Applications,dc=mia,dc=net,dc=au";
 	public final static String DOMAIN_STAGING = "ou=Staging,ou=Portal,ou=Applications,dc=mia,dc=net,dc=au";
@@ -47,9 +46,13 @@ public final class PortalConstant {
 	public final static String DOMAIN_IMED_PACS_USERS = "ou=IMED PACS Users,dc=mia,dc=net,dc=au";
 	public final static String DOMAIN_PACS_USERS = "ou=PACS Users,dc=mia,dc=net,dc=au";
 	public final static String DOMAIN_PATIENTS = "ou=Patients,ou=Portal,ou=Applications,dc=mia,dc=net,dc=au";
-	
+
 	// Terms and Conditions
 	public final static String TERMS_AND_CONDITIONS_SHOW = "show";
 	public final static String TERMS_AND_CONDITIONS_HIDE = "hide";
+
+	// Clinic finder related constants
+	public static final double FINDER_RADIUS = 100.00;
+	public static final int MAX_CLINICS = 16;
 
 }
