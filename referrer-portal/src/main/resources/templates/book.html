@@ -1,0 +1,22 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragments/layout/head :: head">
+    <title id="pageTitle">Book</title>
+</head>
+<body>
+	<div th:replace="fragments/layout/header :: header"></div>
+
+	<base th:href="@{/book}">
+	<link th:href="@{/js/public/locator/dist/styles.bundle.css}" rel="stylesheet"/>
+	<div class="section">
+		<div th:url="@{/}" id="apiContextPathForClinicLocator"></div>
+		<cloc-root></cloc-root>
+	</div>
+	<script type="text/javascript" th:src="@{/js/public/locator/dist/inline.bundle.js}"></script>
+	<script type="text/javascript" th:src="@{/js/public/locator/dist/polyfills.bundle.js}"></script>
+	<script type="text/javascript" th:src="@{/js/public/locator/dist/vendor.bundle.js}"></script>
+	<script type="text/javascript" th:src="@{/js/public/locator/dist/main.bundle.js}"></script>	
+	
+	<div th:replace="fragments/layout/footer :: footer"></div>
+</body>
+</html>
