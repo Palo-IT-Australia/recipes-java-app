@@ -28,6 +28,13 @@ public class ReferrerPortalAccountRestController {
 		return new ResponseEntity<UniquenessModel>(um, HttpStatus.OK);
 	}
 	
+	@GetMapping("/isEmailAvailableForUser")
+	public ResponseEntity<UniquenessModel> isEmailAvailable(@RequestParam("email") String email, @RequestParam("uid") String uid) {
+		UniquenessModel um = new UniquenessModel();
+		um.setAvailable(accountChecker.isEmailAvailableForUser(email, uid)); 
+		return new ResponseEntity<UniquenessModel>(um, HttpStatus.OK);
+	}
+	
 	@GetMapping("/isEmailAvailablePortal")
 	public ResponseEntity<UniquenessModel> isEmailAvailablePortal(@RequestParam("email") String email) {
 		UniquenessModel um = new UniquenessModel();

@@ -105,6 +105,17 @@ public class ReferrerAccountService extends ABasicAccountService {
 		}
 		return list;
 	}
+	
+	public List<AccountDetail> findAccountsGlobalByAttr(final String name, final String value, final String uid) {
+		List<AccountDetail> list;
+		try {
+			list = getAccountDetailList(getGlobalLdapTemplate(), name, value, uid);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			list = new ArrayList<>(0);
+		}
+		return list;
+	}
 
 	public List<AccountDetail> findAccountsPortalByAttr(final String name, final String value) {
 		List<AccountDetail> list;
@@ -123,6 +134,18 @@ public class ReferrerAccountService extends ABasicAccountService {
 		filter.and(new EqualsFilter(name, value));
 		try {
 			list = template.search("", filter.encode(), new AccountDetailAttributeMapper());
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			list = new ArrayList<>(0);
+		}
+		return list;
+	}
+	
+	private List<AccountDetail> getAccountDetailList(LdapTemplate template, final String name, final String value, final String uid) {
+		List<AccountDetail> list;
+		LdapQuery query = query().where(name).is(value).and("uid").not().is(uid);
+		try {
+			list = template.search(query, new AccountDetailAttributeMapper());
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			list = new ArrayList<>(0);

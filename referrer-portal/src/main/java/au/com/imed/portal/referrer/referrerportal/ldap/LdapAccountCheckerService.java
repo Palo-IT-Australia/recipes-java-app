@@ -30,6 +30,11 @@ public class LdapAccountCheckerService {
   			new ImedActiveDirectoryLdapManager().findByMail(email).size() == 0;
   }
   
+  public boolean isEmailAvailableForUser(final String email, final String uid) {
+  	return referrerAccountService.findAccountsGlobalByAttr("mail", email, uid).size() == 0 &&
+  			new ImedActiveDirectoryLdapManager().findByAttributeExceptUid("mail", email, uid).size() == 0;
+  }
+  
   /**
    * ex. ibm portal federated
    */
