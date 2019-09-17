@@ -41,14 +41,11 @@
           <div>Resources</div>
         </a>
         <nav onmouseover="$(&quot;#head-resource-nav&quot;).show();" onmouseout="$(&quot;#head-resource-nav&quot;).hide();" id="head-resource-nav" class="list-about w-dropdown-list" style="background-color: rgb(40, 53, 85); z-index: 300; display: none;">
-			<a style="width:265px;" class="link-about w-dropdown-link" href="javascript:void(0);" onclick="$(&quot;#find-clinic-hidden-tag&quot;).click();$(&quot;#head-resource-nav&quot;).hide();">Find Clinic</a>
+			<a style="width:265px;" class="link-about w-dropdown-link" href="javascript:void(0);" th:href="@{/book}">Find Clinic</a>
        		<a style="width:265px;" class="link-about w-dropdown-link" href="javascript:void(0);" onclick="window.open(&#39;https://i-med.com.au/doctors/practice-software-connection&#39;);$(&#39;#head-resource-nav&#39;).hide();">Practice Software Connection</a>
 			<a style="width:265px;" class="link-about w-dropdown-link" href="javascript:void(0);" onclick="window.open(&#39;https://i-med.com.au/doctors/referral-pads&#39;);$(&#39;#head-resource-nav&#39;).hide();">Order Referrral Pads</a>
 			<a style="width:265px;" class="link-about w-dropdown-link" href="javascript:void(0);" onclick="window.open(&#39;https://i-med.com.au/doctors/access-patient-images&#39;);$(&#39;#head-resource-nav&#39;).hide();">Desktop Shortcut / Installers</a>
     	</nav>
-        <a id="find-clinic-hidden-tag" style="padding:0;" class="w-tab-link w--current" data-w-tab="Tab 1" data-w-tab-open="Tab 1">
-        </a>
-
 			        
 			      	<a sec:authorize="!isAuthenticated()" th:href="@{/login}" style="background-image:none;padding-left:20px;" class="tab-clinic w-inline-block w-tab-link">
 			          <div>Log In</div>
