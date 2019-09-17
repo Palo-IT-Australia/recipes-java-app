@@ -243,7 +243,7 @@ public class AuthenticationUtil {
 			try {
 				final String usernameInToken = AuthenticationUtil.checkAccessToken(auth);
 				if (usernameInToken != null) {
-					userName = CommonUtil.emailToUid(usernameInToken);
+					userName = usernameInToken;
 					logger.info("getAuthenticatedUserName() " + PortalConstant.HEADER_AUTHENTICATION + " VALID with "
 							+ userName);
 				} else {

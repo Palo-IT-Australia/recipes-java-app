@@ -8,6 +8,8 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import au.com.imed.common.active.directory.manager.ImedActiveDirectoryLdapManager;
 import au.com.imed.portal.referrer.referrerportal.common.PortalConstant;
 import au.com.imed.portal.referrer.referrerportal.common.syslog.ReferrerEvent;
 import au.com.imed.portal.referrer.referrerportal.common.util.AuthenticationUtil;
@@ -65,6 +68,7 @@ import au.com.imed.portal.referrer.referrerportal.service.ReferrerPortalRestApiS
 @RestController
 @RequestMapping("/imedvisage/v1")
 public class VisageController {
+	private Logger logger = LoggerFactory.getLogger(VisageController.class);
 
 	@Autowired
 	private AuditService auditService;
@@ -582,21 +586,29 @@ public class VisageController {
 	@PostMapping("/token")
 	public ResponseEntity<Tokens> createTokens(@RequestBody UsernamePassword usernamePassword) {
 		ResponseEntity<Tokens> entity = new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-		if (usernamePassword != null && referrerAccountService.checkPassword(usernamePassword.getUsername(),
-				usernamePassword.getPassword())) {
-			try {
-				final String access = AuthenticationUtil.createAccessToken(usernamePassword.getUsername());
-				final String refresh = AuthenticationUtil.createRefreshToken(usernamePassword.getUsername());
-				Tokens tokens = new Tokens();
-				tokens.setAccess(access);
-				tokens.setRefresh(refresh);
-				entity = new ResponseEntity<Tokens>(tokens, HttpStatus.OK);
-			} catch (Exception ex) {
-				ex.printStackTrace();
-				entity = new ResponseEntity<Tokens>(HttpStatus.INTERNAL_SERVER_ERROR);
+		if (usernamePassword != null) { 
+			boolean isAuthInPortal = referrerAccountService.checkPassword(usernamePassword.getUsername(), usernamePassword.getPassword());
+			boolean isAuthInAd = new ImedActiveDirectoryLdapManager().checkPassword(usernamePassword.getUsername(), usernamePassword.getPassword());
+			logger.info("/token auth LDAP {} , AD {}", isAuthInPortal, isAuthInAd);
+			if(isAuthInAd || isAuthInPortal) {
+				try {
+					final String access = AuthenticationUtil.createAccessToken(usernamePassword.getUsername());
+					final String refresh = AuthenticationUtil.createRefreshToken(usernamePassword.getUsername());
+					Tokens tokens = new Tokens();
+					tokens.setAccess(access);
+					tokens.setRefresh(refresh);
+					entity = new ResponseEntity<Tokens>(tokens, HttpStatus.OK);
+				} catch (Exception ex) {
+					ex.printStackTrace();
+					entity = new ResponseEntity<Tokens>(HttpStatus.INTERNAL_SERVER_ERROR);
+				}
+			}
+			else
+			{
+				logger.warn("/token authorization error for " + usernamePassword.getUsername());
 			}
 		} else {
-			System.out.println("createTokens(/token) No request body provided or username/password is wrong");
+			logger.warn("createTokens(/token) No request body provided or username/password is wrong");
 		}
 
 		syslog.log(
