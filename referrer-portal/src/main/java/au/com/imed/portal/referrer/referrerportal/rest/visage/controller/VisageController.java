@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -33,6 +32,8 @@ import au.com.imed.portal.referrer.referrerportal.jpa.history.model.ReportNotifi
 import au.com.imed.portal.referrer.referrerportal.jpa.history.repository.ReportFcmTokenJPARepository;
 import au.com.imed.portal.referrer.referrerportal.jpa.history.repository.ReportNotificationJPARepository;
 import au.com.imed.portal.referrer.referrerportal.ldap.ReferrerAccountService;
+import au.com.imed.portal.referrer.referrerportal.rest.visage.model.HospitalOrderSummary;
+import au.com.imed.portal.referrer.referrerportal.rest.visage.model.HospitalUserPreferences;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.model.Order;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.model.OrderDetails;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.model.Patient;
@@ -42,6 +43,7 @@ import au.com.imed.portal.referrer.referrerportal.rest.visage.model.Referrer;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.model.RefreshedToken;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.model.ReportNotify;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.model.ReportNotifyRegister;
+import au.com.imed.portal.referrer.referrerportal.rest.visage.model.SearchHospitalOrders;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.model.SearchOrders;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.model.Tokens;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.model.UserPreferences;
@@ -58,6 +60,7 @@ import au.com.imed.portal.referrer.referrerportal.rest.visage.service.GetReferre
 import au.com.imed.portal.referrer.referrerportal.rest.visage.service.PatientHistoryService;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.service.PdfReportService;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.service.ReportService;
+import au.com.imed.portal.referrer.referrerportal.rest.visage.service.SearchHospitalOrderSummaryService;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.service.SearchOrdersService;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.service.UserPreferencesService;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.service.ViewImageService;
@@ -125,10 +128,70 @@ public class VisageController {
 	@Autowired
 	private ReferrerAccountService referrerAccountService;
 	
+  @Autowired
+  private SearchHospitalOrderSummaryService hospitalSearchOrderService;
+	
 	@GetMapping("/ping")
 	public String getPing() {
 		return "V0.1 (Migrating)";
 	}
+	
+	@GetMapping("/searchHospitalOrders")
+  public ResponseEntity<List<HospitalOrderSummary>> searchHospitalOrders(@RequestParam Map<String, String> paramMap, @RequestHeader(value=PortalConstant.HEADER_AUTHENTICATION, required=false) String authentication) {
+    String userName = AuthenticationUtil.getAuthenticatedUserName(authentication);
+    if(rateLimit(userName))
+    {
+      if(preferenceService.isTermsAccepted(userName))
+      {
+        ResponseEntity<SearchHospitalOrders> entity = hospitalSearchOrderService.doRestGet(userName, paramMap, SearchHospitalOrders.class);
+        List<HospitalOrderSummary> originalList = entity.getBody().getOrders();
+        //      List<HospitalOrderSummary> filteredList = new ArrayList<>();
+        //      for(HospitalOrderSummary summary : originalList) {
+        //        Map<String, String> opmap = new HashMap<>(1);
+        //        opmap.put("orderUri", summary.getUri());
+        //        if(!summary.isAccessible()) {
+        //          opmap.put("breakGlass", "true");
+        //        }
+        //        ResponseEntity<HospitalOrderDetails> orderEntity = hospitalOrderService.doRestGet(userName, opmap, HospitalOrderDetails.class);
+        //        if(HttpStatus.OK.equals(orderEntity.getStatusCode())) {
+        //          final String desc = orderEntity.getBody().getPriorityType().getDescription();
+        //          System.out.println("Priority is " + desc + " for Acc# " + summary.getAccessionNumber());
+        //          if("In-Patient".equalsIgnoreCase(desc)) {
+        //            filteredList.add(summary);
+        //          }
+        //        }
+        //      }
+        //      return new ResponseEntity<>(filteredList, entity.getHeaders(), entity.getStatusCode());
+        return new ResponseEntity<>(originalList, entity.getHeaders(), entity.getStatusCode());
+      }
+      else
+      {
+        return new ResponseEntity<>(HttpStatus.METHOD_NOT_ALLOWED);
+      }
+    }
+    else
+    {
+      return new ResponseEntity<>(HttpStatus.TOO_MANY_REQUESTS);
+    }
+  }
+	
+  @GetMapping("/hospitalPreferences")
+  public ResponseEntity<HospitalUserPreferences> getHospitalPreferences(@RequestHeader(value=PortalConstant.HEADER_AUTHENTICATION, required=false) String authentication) {
+    HospitalUserPreferences pref = preferenceService.getHospitalPreferences(AuthenticationUtil.getAuthenticatedUserName(authentication));
+    return new ResponseEntity<HospitalUserPreferences>(pref, pref != null ? HttpStatus.OK : HttpStatus.BAD_REQUEST);
+  }
+  
+  @PostMapping("/hospitalPreferences")
+  public ResponseEntity<String> postHospitalPreferences(@RequestBody HospitalUserPreferences preferences, @RequestHeader(value=PortalConstant.HEADER_AUTHENTICATION, required=false) String authentication) {
+    ResponseEntity<String> entity;
+    try {
+      preferenceService.updateHospitalPreferences(AuthenticationUtil.getAuthenticatedUserName(authentication), preferences);
+      entity = new ResponseEntity<>(HttpStatus.OK);
+    } catch(Exception ex) {
+      entity = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
+    return entity;
+  }
 
 	@GetMapping("/searchOrders")
 	public ResponseEntity<List<Order>> searchOrders(@RequestParam Map<String, String> paramMap,
