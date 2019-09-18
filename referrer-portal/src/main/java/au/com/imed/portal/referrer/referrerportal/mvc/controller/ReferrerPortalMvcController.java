@@ -35,6 +35,7 @@ import au.com.imed.portal.referrer.referrerportal.model.ResetConfirmModel;
 import au.com.imed.portal.referrer.referrerportal.model.ResetModel;
 import au.com.imed.portal.referrer.referrerportal.security.DetailedLdapUserDetails;
 import au.com.imed.portal.referrer.referrerportal.service.ConfirmProcessDataService;
+import au.com.imed.portal.referrer.referrerportal.service.EnvironmentVariableService;
 import au.com.imed.portal.referrer.referrerportal.sms.GoFaxSmsService;
 import au.com.imed.portal.referrer.referrerportal.utils.ModelUtil;
 import au.com.imed.portal.referrer.referrerportal.utils.SmsPasscodeHashUtil;
@@ -69,12 +70,14 @@ public class ReferrerPortalMvcController {
 	
 	@Autowired
 	private GoFaxSmsService smsService;
+	
+	@Autowired
+	EnvironmentVariableService environmentVariableService;
 
 	@GetMapping("/login")
 	public ModelAndView getLogin() {
 		ModelAndView loginModelAndView = new ModelAndView("login");
-		//TODO loginModelAndView.addObject("message", environmentVariableService.getValue("login_page_alert_text"));
-		loginModelAndView.addObject("message", null);
+		loginModelAndView.addObject("message", environmentVariableService.getValue("login_page_alert_text"));
 		return loginModelAndView;
 	}
 	
