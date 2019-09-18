@@ -258,4 +258,15 @@ public class ReferrerMailService {
   public void emailSupportTeamNewUser(ExternalUser user) {
     sendMail(SUPPORT_ADDRESS, "New User Created - " + user.getUserid(), UserMessageUtil.getNewAccountCreatedBody(user));
   }
+  
+  public void sendReportHtml(final String [] toEmails, final String url) throws Exception 
+  {
+    MimeMessage mimeMessage = mailSender.createMimeMessage();
+    MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, false, "utf-8");
+    mimeMessage.setContent("Please click <a href=\"" + url + "\">here</a> to open report download page.<br/>This link is valid for 24 hours.", "text/html");
+    helper.setTo(toEmails);  
+    helper.setSubject("I-MED Radiology Network : Access to your report");
+    helper.setFrom(FROM_ADDRESS);
+    mailSender.send(mimeMessage);
+  }
 }

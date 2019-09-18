@@ -43,7 +43,26 @@ public class Patient {
   private String patientId;
   private Address address;
   
-  @JsonProperty("name")
+  private String mobile;
+  private String email;
+  
+  public String getMobile() {
+		return mobile;
+	}
+
+	public void setMobile(String mobile) {
+		this.mobile = mobile;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	@JsonProperty("name")
   public String getFullName() {
     return fullName;
   }
