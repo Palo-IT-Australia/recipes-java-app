@@ -283,8 +283,13 @@ public class ReferrerAccountService extends ABasicAccountService {
 	}
 
 	public List<LdapUserDetails> findFuzzyReferrerAccounts(final String word) throws Exception {
-		LdapQuery query = query().where("uid").like("*" + word + "*").or("mail").is(word).or("givenName").is(word)
-				.or("ahpra").is(word).or("sn").is(word);
+		LdapQuery query = query()
+				.attributes("ibm-pwdAccountLocked", "cn", "uid", "givenName", "sn", "mail", "ahpra", "createTimeStamp", "BusinessUnit", "employeeType", "homePhone", "mobile", "physicalDeliveryOfficeName")
+				.where("uid").like("*" + word + "*")
+				.or("mail").is(word)
+				.or("givenName").is(word)
+				.or("ahpra").is(word)
+				.or("sn").is(word);
 		return getReferrerLdapTemplate().search(query, new LdapUserDetailsUserAttributeMapper());
 	}
 
