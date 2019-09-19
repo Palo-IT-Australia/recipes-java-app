@@ -3,7 +3,6 @@ package au.com.imed.portal.referrer.referrerportal.rest.visage.service;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -25,9 +24,6 @@ public class ViewImageService {
 
 	@Autowired
 	private UrlAvailService urlAvailService;
-
-	@Value("${imed.vuemotion.enckey}")
-	private String vueMotionKey;
 
 	public String runUrlCheck() {
 		return urlAvailService.getUrl(true);
@@ -53,11 +49,11 @@ public class ViewImageService {
 				if (studyInstanceUid != null && studyInstanceUid.length() > 0) {
 					System.out.println("Carestream /view per resutl mode using studyInstanceUid = " + studyInstanceUid);
 					url = CarestreamImageViewerUtil.generateUrlByStudyInstanceUid(urlAvailService.getUrl(false),
-							vueMotionKey, userName, studyInstanceUid, order.getPatient().getPatientId());
+							userName, studyInstanceUid, order.getPatient().getPatientId());
 				} else {
 					System.out
 							.println("Carestream /view multi modality mode using acc# = " + order.getAccessionNumber());
-					url = CarestreamImageViewerUtil.generateUrl(urlAvailService.getUrl(false), vueMotionKey, userName,
+					url = CarestreamImageViewerUtil.generateUrl(urlAvailService.getUrl(false), userName,
 							buildAccessionNumberString(order), order.getPatient().getPatientId());
 				}
 				entity = (url != null && url.length() > 0) ? ResponseEntity.ok(url)

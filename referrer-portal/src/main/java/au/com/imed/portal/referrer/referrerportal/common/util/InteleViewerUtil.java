@@ -3,6 +3,7 @@ package au.com.imed.portal.referrer.referrerportal.common.util;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
@@ -15,6 +16,8 @@ public class InteleViewerUtil {
   
   public static final String URL_EV = "URL_EV";
   public static final String URL_IV = "URL_IV";
+  public static final String URL_EV_MOBILE = "URL_EV_MOBILE";
+  public static final String URL_EV_REST = "URL_EV_REST";
 
   static {
     ERROR_STRINGS.add("ACCOUNT_EXPIRED");
@@ -58,6 +61,12 @@ public class InteleViewerUtil {
             if (URL_EV.equals(mode)) {
               urlList.add(buildIvEvUrl(userName, accessionNum, patientId, sessionId));
             }
+            else if (URL_EV_MOBILE.equals(mode)) {
+              urlList.add(buildIvEvMobileUrl(userName, accessionNum, patientId, sessionId));     
+            }
+            else if (URL_EV_REST.equals(mode)) {
+              urlList.add(buildIvEvRestrictedUrl(accessionNum, sessionId));     
+            }
             else
             {
               urlList.add(buildViewUrl(userName, accessionNum, patientId, sessionId));
@@ -97,8 +106,24 @@ public class InteleViewerUtil {
     return sb.toString();
   }
   
-  private static final String IVEV_IMAGE_URL_FMT = "https://pacs.i-med.com.au/enhancedviewer/viewer/%s/%s?sessionId=%s&username=%s&lang=en&embeddedMode=true";
+  private static final String IVEV_IMAGE_URL_FMT = "https://pacs.i-med.com.au/enhancedviewer/viewer/%s/%s?sessionId=%s&embeddedMode=true";
+  private static final String IVEV_MOBILE_IMAGE_URL_FMT = "https://pacs.i-med.com.au/m.enhancedviewer/viewer/%s/%s?sessionId=%s";
+  private static final String IVEV_REST_IMAGE_URL_FMT = "https://pacs.i-med.com.au/Portal/view/orders/%s?sessionId=%s";
+  //private static final String IVEV_REST_IMAGE_URL_FMT = "https://pacs.i-med.com.au/Portal/view/orders/%s?SID=%s&signature=%s";
   private static String buildIvEvUrl(final String userName, final String accessionNum, final String patientId, final String sessionId) {
-    return String.format(IVEV_IMAGE_URL_FMT, patientId, accessionNum, sessionId, userName);
+    return String.format(IVEV_IMAGE_URL_FMT, patientId, accessionNum, sessionId);
   }
+  private static String buildIvEvMobileUrl(final String userName, final String accessionNum, final String patientId, final String sessionId) {
+    return String.format(IVEV_MOBILE_IMAGE_URL_FMT, patientId, accessionNum, sessionId);
+  }
+  private static String buildIvEvRestrictedUrl(final String accessionNum, final String sessionId) {
+    return String.format(IVEV_REST_IMAGE_URL_FMT, accessionNum, sessionId);
+    //return String.format(IVEV_REST_IMAGE_URL_FMT, accessionNum, sessionId, getHash(accessionNum, sessionId));
+  }
+  
+  private static final String SIGNKEY = "tobedecided";
+  private static String getHash(final String accessionNumber, final String sessionId) {
+    return DigestUtils.sha1Hex(sessionId + "|" + accessionNumber + "|" + SIGNKEY).substring(0, 20);
+  }
+
 }

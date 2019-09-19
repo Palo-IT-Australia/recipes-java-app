@@ -11,20 +11,22 @@ import javax.crypto.spec.SecretKeySpec;
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.stereotype.Component;
 
+import au.com.imed.portal.referrer.referrerportal.common.GlobalVals;
+
 
 @Component
 public class Aes256Util {
   private static final String ENCRYPTION_MODE = "AES/CBC/PKCS5Padding";
   //private static final String ENCRYPTION_KEY = "rpJupVvvHiX5kgrPllV8mWsurbzSu9D99kUwamFdL9I=";
   
-  private static SecretKey getSecret(String keyInString) {
-    byte [] binkey = Base64.decodeBase64(keyInString);
+  private static SecretKey getSecret() {
+    byte [] binkey = Base64.decodeBase64(GlobalVals.CARESTREAM_KEY);
     return new SecretKeySpec(binkey, 0, 256/8, "AES"); 
   }
   
-  public static String encodeToUrlQuery(final String plainText, String keyInString) throws Exception {
+  public static String encodeToUrlQuery(final String plainText) throws Exception {
     Cipher aesCipher = Cipher.getInstance(ENCRYPTION_MODE);  //getting cipher for AES
-    aesCipher.init(Cipher.ENCRYPT_MODE, getSecret(keyInString), getIv());  //initializing cipher for encryption with key
+    aesCipher.init(Cipher.ENCRYPT_MODE, getSecret(), getIv());  //initializing cipher for encryption with key
     byte [] enc = aesCipher.doFinal(plainText.getBytes("UTF-8"));
     String sixfour = Base64.encodeBase64String(enc);
     String query = URLEncoder.encode(sixfour, "UTF-8");
