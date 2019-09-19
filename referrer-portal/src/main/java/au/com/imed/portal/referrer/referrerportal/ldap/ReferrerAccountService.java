@@ -320,6 +320,17 @@ public class ReferrerAccountService extends ABasicAccountService {
 		}
 		return list;
 	}
+	
+	public StageUser findReferrerAsStageUser(final String uid) {
+		StageUser usr = null;
+		LdapQuery query = query().where("uid").is(uid);
+		try {
+			usr = getReferrerLdapTemplate().search(query, new StageUserAttributeMapper()).get(0);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		return usr;
+	}
 
 	public boolean checkPassword(final String username, final String password) {
 		boolean isAuth = false;
@@ -363,7 +374,7 @@ public class ReferrerAccountService extends ABasicAccountService {
 		getPortalLdapTemplate().rename(currentDn.toString() + ",ou=Staging", newDnStr + ",ou=Referrers");
 	}
 
-	public void finaliseUser(final String uid) throws Exception {
+	public StageUser finaliseUser(final String uid) throws Exception {
 		LdapTemplate ldapTemplate = getReferrerLdapTemplate();
 		Name dn = getAccountDnList(ldapTemplate, "uid", uid).get(0);
 
@@ -375,6 +386,8 @@ public class ReferrerAccountService extends ABasicAccountService {
 
 		logger.info("finaliseUser() {} ", dn);
 		ldapTemplate.modifyAttributes(dn, new ModificationItem[] { finItem, unlockItem });
+		
+		return findReferrerAsStageUser(uid);
 	}
 
 	public void declineUser(final String uid, final String step) throws Exception {

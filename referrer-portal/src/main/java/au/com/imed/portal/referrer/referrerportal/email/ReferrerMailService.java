@@ -2,9 +2,12 @@ package au.com.imed.portal.referrer.referrerportal.email;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.activation.DataHandler;
 import javax.activation.FileDataSource;
@@ -17,29 +20,50 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.InputStreamSource;
+import org.springframework.mail.MailSendException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import au.com.imed.portal.referrer.referrerportal.jpa.audit.entity.ReferrerProviderEntity;
 import au.com.imed.portal.referrer.referrerportal.model.AddPractice;
 import au.com.imed.portal.referrer.referrerportal.model.ExternalUser;
+import au.com.imed.portal.referrer.referrerportal.model.StageUser;
 import au.com.imed.portal.referrer.referrerportal.security.DetailedLdapUserDetails;
 
 @Service
 public class ReferrerMailService {
+	private Logger logger = LoggerFactory.getLogger(ReferrerMailService.class);
+	
 	private static final String FROM_ADDRESS = "do_not_reply@i-med.com.au";
 	public static final String SUPPORT_ADDRESS = "referrer@i-med.com.au";
 	private static final ClassPathResource IMED_LOGO = new ClassPathResource("static/images/public/imed.jpg");
 	private static final String LOGO_KEY = "imed.jpg";
 	private static final String INLINE_LOGO = "<br/><img src=\"cid:imed.jpg\"></img><br/>";
-
+  private final static String SUBJECT_APPROVED = "Welcome to the new I-MED Online 2.0!";
+  private final static String TEMPLATE_APPROVED = "tempApproveEmail.html";
+  private final static String TEMPLATE_MIDDLE_APPROVED = "tempApproveEmailMiddle.html";
+  private final static String TEMPLATE_END_APPROVED = "tempApproveEmailEnd.html";
+  private final static String NL = "\n";
+  
+  private final static Map<String, String> IMG_CID_MAP_APPROVED = new HashMap<>();
+  static {
+    IMG_CID_MAP_APPROVED.put("banner", "static/images/public/banner.jpg");
+    IMG_CID_MAP_APPROVED.put("apple", "static/images/public/apple.jpg");
+    IMG_CID_MAP_APPROVED.put("google", "static/images/public/google.jpg");
+    IMG_CID_MAP_APPROVED.put("sign", "static/images/public/sign.jpg");
+  }
+  
 	@Autowired
 	@Qualifier("mailSender")
 	private JavaMailSender mailSender;
@@ -255,10 +279,6 @@ public class ReferrerMailService {
     sendMail("referrer@i-med.com.au", "I-MED Online : Referrer New Practice", sb.toString());   
 	}
 	
-  public void emailSupportTeamNewUser(ExternalUser user) {
-    sendMail(SUPPORT_ADDRESS, "New User Created - " + user.getUserid(), UserMessageUtil.getNewAccountCreatedBody(user));
-  }
-  
   public void sendReportHtml(final String [] toEmails, final String url) throws Exception 
   {
     MimeMessage mimeMessage = mailSender.createMimeMessage();
@@ -268,5 +288,179 @@ public class ReferrerMailService {
     helper.setSubject("I-MED Radiology Network : Access to your report");
     helper.setFrom(FROM_ADDRESS);
     mailSender.send(mimeMessage);
+  }
+  
+
+
+  public void sendHtmlMail(String to, String from, String subject, String htmlBody, Map<String, String> imgmap) {
+    try
+    {
+      MimeMessage mimeMessage = mailSender.createMimeMessage();
+      MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, false, "utf-8");
+      
+      // TEXT
+      MimeMultipart multipart = new MimeMultipart("related");
+      BodyPart messageBodyPart = new MimeBodyPart();
+      messageBodyPart.setContent(htmlBody, "text/html; charset=UTF-8");
+      multipart.addBodyPart(messageBodyPart);
+      
+      // IMGS
+      if(imgmap != null) {
+        for(String key : imgmap.keySet()) {
+          MimeBodyPart imagePart = new MimeBodyPart();
+          imagePart.setHeader("Content-ID", "<" + key + ">");
+          imagePart.setDisposition(MimeBodyPart.INLINE);
+          ClassPathResource cpr = new ClassPathResource(imgmap.get(key));
+          imagePart.attachFile(cpr.getFile());
+          multipart.addBodyPart(imagePart);
+        }
+      }
+      
+      mimeMessage.setContent(multipart);
+      helper.setTo(to);
+      helper.setSubject(subject);
+      helper.setFrom(from);
+      mailSender.send(mimeMessage);
+      System.out.println("sendHtmlMail() sent email to " + to);
+    }
+    catch(Exception ex) {
+      ex.printStackTrace();
+    }
+  }
+   
+  private String readMailTemplate(final String fname) {
+    String temp = "";
+    try {
+      ClassPathResource cpr = new ClassPathResource("static/files/" + fname);
+      byte[] bdata = FileCopyUtils.copyToByteArray(cpr.getInputStream());
+      temp = new String(bdata, StandardCharsets.UTF_8);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    System.out.println("template length = " + temp.length());
+    return temp;
+  }
+
+  public void emailNewUser(ExternalUser user) {
+    emailSupportTeamNewUser(user);
+  }
+
+  public void emailPasswordChange(StageUser user) {
+    try {
+      sendMail(user.getEmail(), "I-MED Online - Change of your password notification", UserMessageUtil.getPasswordChangedBody(user.getUid()));
+    }
+    catch (MailSendException ex) {
+      emailSupportTeamMailIssue(user.getUid());
+    }
+  }
+
+  public void emailPasswordReset(StageUser user, String password) {
+    try {
+      sendMail(user.getEmail(), "I-MED Online - Password reset", UserMessageUtil.getResetPasswordBody(user,password));
+    }
+    catch (MailSendException ex) {
+      emailSupportTeamMailIssue(user.getUid());
+    }
+  }
+
+  public void emailDetailsChanged(StageUser user) {
+    try {
+      sendMail(user.getEmail(), "I-MED Online - Change of your details", UserMessageUtil.getDetailsChangedBody(user));
+    }
+    catch (MailSendException ex) {
+      emailSupportTeamMailIssue(user.getUid());
+    }
+  }
+
+  public void emailAccountApproved(StageUser user) {
+    String template = this.readMailTemplate(TEMPLATE_APPROVED);
+    String tempmiddle = this.readMailTemplate(TEMPLATE_MIDDLE_APPROVED);
+    String tempend = this.readMailTemplate(TEMPLATE_END_APPROVED);
+    final String htmlBody = template + " " + user.getGivenName() + " " + user.getSurname() + tempmiddle + user.getUid() + tempend;
+    logger.info("emailAccountApproved() body = " + htmlBody); 
+    String em = user.getEmail();
+    if(em != null && em.length() > 3) {
+      this.sendHtmlMail(em, FROM_ADDRESS, SUBJECT_APPROVED, htmlBody, IMG_CID_MAP_APPROVED);
+    }
+  }
+  
+  public void emailCrmNotify(StageUser user) {
+    StringBuffer sb = new StringBuffer();
+    sb.append("To whom it may concern, ");
+    sb.append(NL);
+    sb.append(NL);
+    sb.append(NL);
+    sb.append("User ID: ");
+    sb.append(user.getUid());
+    sb.append(NL);
+    sb.append("AHPRA #: ");
+    sb.append(user.getAhpra());
+    sb.append(NL);
+    sb.append("First Name: ");
+    sb.append(user.getGivenName());
+    sb.append(NL);
+    sb.append("Last Name: ");
+    sb.append(user.getSurname());
+    sb.append(NL);
+    sb.append("Mobile: ");
+    sb.append(user.getMobile());
+    sb.append(NL);
+    sb.append("Email: ");
+    sb.append(user.getEmail());
+    sb.append(NL);
+    sb.append(NL);
+    sb.append("<Practices>");
+    sb.append(NL);    
+    for(ReferrerProviderEntity prov : user.getProviders()) {
+      sb.append("Name: ");
+      sb.append(prov.getPracticeName());
+      sb.append(NL);
+      sb.append("Address: ");
+      sb.append(prov.getPracticeAddress());
+      sb.append(NL);
+      sb.append("Provider #: ");
+      sb.append(prov.getProviderNumber());
+      sb.append(NL);
+      sb.append("Phone: ");
+      sb.append(prov.getPracticePhone());
+      sb.append(NL);
+      sb.append("Fax: ");
+      sb.append(prov.getPracticeFax());
+      sb.append(NL);
+      sb.append(NL);
+      sb.append(NL);
+    }
+    sendMail("Christian.Galloway@i-med.com.au", "Referrer Account Creation IMO2.0 Regional Imaging", sb.toString());
+  }
+
+  public void emailAccountDeclined(StageUser user, String reason) {
+    // Below action disabled on JE request - enable when advised
+    /*try {
+      sendMail(user.getEmail(), "I-MED Online - Account Application Declined",UserMessageUtil.getDeclinedBody(reason));
+    }
+    catch (MailSendException ex) {
+      emailSupportTeamMailIssue(user.getUid());
+    }*/
+  }
+
+  public void emailAccountMessage(String userId,String email, String message) {
+    try {
+      sendMail(email, "I-MED Online - Message about your account application",UserMessageUtil.getAccountMessage(message),SUPPORT_ADDRESS);
+    }
+    catch (MailSendException ex) {
+      emailSupportTeamMailIssue(userId);
+    }
+  }
+
+  private void emailSupportTeamMailIssue(String user) {
+    sendMail(SUPPORT_ADDRESS, "User Account Issue",UserMessageUtil.getAccountMailIssueBody(user));
+  }
+
+  private void emailSupportTeamNewUser(ExternalUser user) {
+    sendMail(SUPPORT_ADDRESS, "New User Created - " + user.getUserid(), UserMessageUtil.getNewAccountCreatedBody(user));
+  }
+
+  public void emailSupportTeamRegistrationError(Exception e, String stage, ExternalUser user) {
+    sendMail(UserMessageUtil.ADMIN_USER_EMAIL, "Account Registration Error", UserMessageUtil.getRegistrationErrorBody(e,stage,user));
   }
 }

@@ -6,6 +6,7 @@ import org.jose4j.json.internal.json_simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import au.com.imed.common.active.directory.manager.ImedActiveDirectoryLdapManager;
+import au.com.imed.portal.referrer.referrerportal.email.ReferrerMailService;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.entity.ReferrerProviderEntity;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.repository.ReferrerProviderJpaRepository;
 import au.com.imed.portal.referrer.referrerportal.ldap.ReferrerAccountService;
@@ -29,8 +31,14 @@ import au.com.imed.portal.referrer.referrerportal.rest.account.model.AccountDecl
 public class AdminAccountApproverRestController {
 	private Logger logger = LoggerFactory.getLogger(AdminAccountApproverRestController.class);
 	
+	@Value("${spring.profiles.active}")
+	private String ACTIVE_PROFILE;
+	
 	@Autowired
 	private ReferrerAccountService referrerAccountService;
+	
+	@Autowired
+	private ReferrerMailService emailService;
 	
 	@Autowired
 	private ReferrerProviderJpaRepository referrerProviderJpaRepository;
@@ -107,8 +115,11 @@ public class AdminAccountApproverRestController {
   	HttpStatus sts = HttpStatus.BAD_REQUEST;
   	if(uid != null && !uid.isBlank()) {
   		try {
-  			referrerAccountService.finaliseUser(uid);
-  			// TODO welcom email using html tempalte
+  			StageUser user = referrerAccountService.finaliseUser(uid);
+  			if(!"prod".equals(ACTIVE_PROFILE)) {
+  				user.setEmail("Hidehiro.Uehara@i-med.com.au");
+  			}
+  			emailService.emailAccountApproved(user);
   			sts = HttpStatus.OK;
   		} catch (Exception e) {
   			e.printStackTrace();
@@ -131,7 +142,6 @@ public class AdminAccountApproverRestController {
     	try {
 				referrerAccountService.declineUser(uid, step);
 				deleteProviders(uid);
-				// TODO email.accountDeclined(reason);
 				sts = HttpStatus.OK;
 			} catch (Exception e) {
 				e.printStackTrace();

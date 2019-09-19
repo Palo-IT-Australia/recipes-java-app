@@ -10,8 +10,10 @@
 		<h1>Admin</h1>
 		<div class="half-rule"></div>
 		<div class="wrapper">
-			<a th:href="@{/admin/approve}">Account Approver</a><br/>
-			<a th:href="@{/admin/account}">Account Manager</a>
+			<div class="list-group">
+				<a th:href="@{/admin/approve}" class="list-group-item">Account Approver</a><br/>
+				<a th:href="@{/admin/account}" class="list-group-item">Account Manager</a>
+			</div>
 		</div>
 	</div>
 

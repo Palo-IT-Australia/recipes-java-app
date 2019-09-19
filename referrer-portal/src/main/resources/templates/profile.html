@@ -19,7 +19,7 @@
      <div class="row w-row">
        <div class="w-col w-col-12 col-centre">
      		<div class="alert alert-success" role="alert" ng-show="successMsg">{{successMsg}}</div>
-	 		<div class="alert alert-danger" role="alert" ng-show="errorMsg">{{errorMsg}}</div>
+	 		  <div class="alert alert-danger" role="alert" ng-show="errorMsg">{{errorMsg}}</div>
 	 	</div>
 	 </div>
      <div class="row w-row">
@@ -154,8 +154,8 @@
          	</div>
         </div>
         <p><strong ng-show="practiceAddStatus=='requesting'">Requesting...</strong></p>
-        <div class="alert alert-success" role="alert" ng-show="practiceAddStatus=='success'">Requested to add practice successfully. It takes up to two business days to complete the process. <a href="javascript:void(0);" ng-click="practiceAddStatus=''">Close</a></div>
-	 			<div class="alert alert-danger" role="alert" ng-show="practiceAddStatus=='error'">Failed to add the practice. <a href="javascript:void(0);" ng-click="practiceAddStatus=''">Close</a></div>
+        <div class="alert alert-success" role="alert" ng-show="practiceSuccessMsg">{{practiceSuccessMsg}}</div>
+	 			<div class="alert alert-danger" role="alert" ng-show="practiceErrorMsg">{{practiceErrorMsg}}</div>
         <button type="submit" ng-disabled="practiceForm.$invalid" class="button-primary w-button">Add Practice</button>
    </form>
    </div>
@@ -250,6 +250,9 @@
 		$scope.errorMsg = /*[[${errorMsg}]]*/ null;
 		$scope.editTo = "";
 		
+		$scope.practiceSuccessMsg = /*[[${practiceSuccessMsg}]]*/ null;
+		$scope.practiceErrorMsg = /*[[${practiceErrorMsg}]]*/ null;
+		
 		$scope.changeUser = {currentPassword:"", newPassword:"", confirmPassword:""};
 		
 		$scope.checkEmailAvailable = function() {
@@ -285,8 +288,8 @@
 		// practice
 		$scope.referrer = null;
 		$scope.practice = {providerNumber:"", name:"", phone:"", fax:"", street:"", suburb:"", state:"NSW", postcode:""};
-		//TODO var restRoot = /*[[@{/imedvisage}]]*/ "/imedvisage";
-		//$http.get(restRoot + "/imedvisage/v1/user",{params:{'_nocache':new Date().getTime()}}).then(function(dt){$scope.referrer = dt.data;});
+		var restRoot = /*[[@{/imedvisage/v1}]]*/ "/imedvisage/v1";
+		$http.get(restRoot + "/user",{params:{'_nocache':new Date().getTime()}}).then(function(dt){$scope.referrer = dt.data;});
 	});
 				
 	angular.element(document).ready(function() {

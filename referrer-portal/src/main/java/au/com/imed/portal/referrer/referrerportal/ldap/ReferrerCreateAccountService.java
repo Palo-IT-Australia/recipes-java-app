@@ -16,6 +16,7 @@ import javax.naming.Name;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.support.LdapNameBuilder;
@@ -23,6 +24,7 @@ import org.springframework.stereotype.Service;
 
 import au.com.imed.common.active.directory.manager.ImedActiveDirectoryLdapManager;
 import au.com.imed.portal.referrer.referrerportal.common.PortalConstant;
+import au.com.imed.portal.referrer.referrerportal.email.ReferrerMailService;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.entity.ReferrerProviderEntity;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.repository.ReferrerProviderJpaRepository;
 import au.com.imed.portal.referrer.referrerportal.model.ExternalPractice;
@@ -33,8 +35,14 @@ import au.com.imed.portal.referrer.referrerportal.utils.ModelUtil;
 public class ReferrerCreateAccountService extends ReferrerAccountService {
 	private Logger logger = LoggerFactory.getLogger(ReferrerCreateAccountService.class);
 	
+	@Value("${spring.profiles.active}")
+	private String ACTIVE_PROFILE;
+	
 	@Autowired
 	private ReferrerProviderJpaRepository referrerProviderJpaRepository;
+	
+	@Autowired
+	private ReferrerMailService emailService;
 	
 	//@Autowired
 	//private ReferrerMailService emailService;
@@ -60,9 +68,10 @@ public class ReferrerCreateAccountService extends ReferrerAccountService {
 				try {
 					createPortalStagingUser(imedExternalUser, proposedUid);
 					saveProviders(imedExternalUser);
-					// Note : jsp shows message this msg is just switch
 					resultMap.put(MODEL_KEY_SUCCESS_MSG, "Thank you for registering for I-MED Online 2.0! Your application will be processed within one business day. You will receive and email confirmation with your username once complete.");
-					// TODO emailService.emailSupportTeamNewUser(imedExternalUser);
+					if("prod".equals(ACTIVE_PROFILE)) {
+						emailService.emailNewUser(imedExternalUser);
+					}
 				}
 				catch (Exception ex) 
 				{

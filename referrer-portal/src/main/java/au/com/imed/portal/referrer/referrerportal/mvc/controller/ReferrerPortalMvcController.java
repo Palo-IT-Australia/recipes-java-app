@@ -207,11 +207,13 @@ public class ReferrerPortalMvcController {
 		logger.info("postAddpractice()", practice.toString());
 		logger.info(authentication.getPrincipal().toString());
 		DetailedLdapUserDetails principal = (DetailedLdapUserDetails) authentication.getPrincipal();
-		emailService.sendAddPractice(practice, principal);
-		// TODO success/error msg
+		if("prod".equals(ACTIVE_PROFILE)) {
+			emailService.sendAddPractice(practice, principal);
+		}
 		model.addAttribute("ChangeModel", new ChangeModel());
 		model.addAttribute("AddPractice", new AddPractice());
 		model.addAttribute("DetailModel", getPopulatedDetailModel(authentication));
+		model.addAttribute("practiceSuccessMsg", "Requested to add practice successfully. It takes up to two business days to complete the process.");
 		return "profile";
 	}
 	
