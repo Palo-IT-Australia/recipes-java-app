@@ -6,6 +6,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,11 +22,14 @@ import au.com.imed.portal.referrer.referrerportal.ldap.ReferrerCreateAccountServ
 import au.com.imed.portal.referrer.referrerportal.model.DetailModel;
 import au.com.imed.portal.referrer.referrerportal.model.ExternalUser;
 import au.com.imed.portal.referrer.referrerportal.model.LdapUserDetails;
+import au.com.imed.portal.referrer.referrerportal.reportaccess.ReportAccessService;
 import au.com.imed.portal.referrer.referrerportal.rest.account.model.AccountDetails;
 import au.com.imed.portal.referrer.referrerportal.rest.account.model.AccountLockUnlock;
+import au.com.imed.portal.referrer.referrerportal.rest.account.model.AccountReportAccess;
 import au.com.imed.portal.referrer.referrerportal.rest.account.model.AccountUid;
 import au.com.imed.portal.referrer.referrerportal.rest.account.model.AccountUidPassword;
 import au.com.imed.portal.referrer.referrerportal.rest.account.model.UniquenessModel;
+import au.com.imed.portal.referrer.referrerportal.rest.visage.model.Order;
 
 @RestController
 @RequestMapping("/adminrest/account")
@@ -37,6 +41,9 @@ public class AdminAccountManagerRestController {
 	
 	@Autowired
 	private HospitalGroupService hospitalGroupService;
+	
+	@Autowired
+	private ReportAccessService reportAccessService;
 	
 	@PostMapping("/placeholder")
 	public ResponseEntity<String> postPlaceholder(@RequestBody AccountUid au) {
@@ -186,4 +193,17 @@ public class AdminAccountManagerRestController {
   	}
   }
   
+  
+  // Report Access
+	@GetMapping("/reportlist")
+	public ResponseEntity<List<Order>> getList(@RequestParam("patientId") String patientId) {
+		return new ResponseEntity<List<Order>>(reportAccessService.listOrders(patientId), HttpStatus.OK);
+	}
+	
+	@PostMapping("/reportavailable")
+	public ResponseEntity<JSONObject> postAvailable(@RequestBody AccountReportAccess ra) {
+		logger.info("/available request body = " + ra);
+		boolean is = reportAccessService.makeAvailable(ra.getReportUri(), ra.getOrderUri(), ra.getPatientUri());
+		return ResponseEntity.status(is ? HttpStatus.OK : HttpStatus.BAD_REQUEST).body(new JSONObject());
+	}
 }

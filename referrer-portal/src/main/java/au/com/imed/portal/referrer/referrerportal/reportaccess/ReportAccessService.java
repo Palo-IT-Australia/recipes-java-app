@@ -93,7 +93,8 @@ public class ReportAccessService {
 			final String urlCode = HashPasscodeUtil.randomString(32);
 			entity.setUrlCode(urlCode);    
 			String encoded = AesStringUtil.encrypt(urlCode);
-			final String baseUrl = PORTAL_ROOT_URL;
+			System.out.println("encoded = " + encoded);
+			final String baseUrl = PORTAL_ROOT_URL + "/reportdownload";
 
 			Map<String, String> paramMap = new HashMap<>(2);
 			paramMap.put("patientUri", patientUri);
@@ -129,6 +130,7 @@ public class ReportAccessService {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		System.out.println("msg " + msg);
 		return isSuccess;
 	}
 

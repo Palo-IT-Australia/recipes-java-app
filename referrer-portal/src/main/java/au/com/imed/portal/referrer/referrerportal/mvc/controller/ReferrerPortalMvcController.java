@@ -9,6 +9,7 @@ import java.net.URLEncoder;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +22,8 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import au.com.imed.portal.referrer.referrerportal.email.ReferrerMailService;
@@ -33,6 +36,8 @@ import au.com.imed.portal.referrer.referrerportal.model.DetailModel;
 import au.com.imed.portal.referrer.referrerportal.model.ExternalUser;
 import au.com.imed.portal.referrer.referrerportal.model.ResetConfirmModel;
 import au.com.imed.portal.referrer.referrerportal.model.ResetModel;
+import au.com.imed.portal.referrer.referrerportal.reportaccess.ReportAccessModel;
+import au.com.imed.portal.referrer.referrerportal.reportaccess.ReportAccessService;
 import au.com.imed.portal.referrer.referrerportal.security.DetailedLdapUserDetails;
 import au.com.imed.portal.referrer.referrerportal.service.ConfirmProcessDataService;
 import au.com.imed.portal.referrer.referrerportal.service.EnvironmentVariableService;
@@ -72,7 +77,10 @@ public class ReferrerPortalMvcController {
 	private GoFaxSmsService smsService;
 	
 	@Autowired
-	EnvironmentVariableService environmentVariableService;
+	private EnvironmentVariableService environmentVariableService;
+	
+	@Autowired
+	private ReportAccessService reportAccessService;
 
 	@GetMapping("/login")
 	public ModelAndView getLogin() {
@@ -358,6 +366,42 @@ public class ReferrerPortalMvcController {
 	@GetMapping("/quick-report")
 	public String getQuickReport() {
 		return "quickreport";
+	}
+	
+	@GetMapping("/reportdownload")
+	public String getReportDownload(ModelMap modelMap, @RequestParam("code") String secret) {
+		if(secret != null && secret.length() > 0 &&	reportAccessService.isUrlcodeValid(secret))
+		{ 
+			ReportAccessModel confirm = new ReportAccessModel();
+			confirm.setSecret(secret);
+			modelMap.put(MODEL_KEY_FORM_MODEL, confirm);
+			modelMap.put(MODEL_KEY_ACTION_STATUS, "normal");			
+		}
+		else
+		{
+			modelMap.put(MODEL_KEY_FORM_MODEL, new ReportAccessModel());
+			modelMap.put(MODEL_KEY_ACTION_STATUS, "invalid");
+		}
+		return "reportdownload";
+	}
+	
+	@PostMapping("/reportdownload")
+	public String postReportDownload(ModelMap modelMap, HttpServletResponse response, @RequestBody ReportAccessModel reportAccess) {
+		reportAccessService.download(reportAccess.getSecret(), reportAccess.getPasscode(), response);
+		if(reportAccess.getSecret() != null && reportAccess.getSecret().length() > 0 &&	
+				reportAccessService.isUrlcodeValid(reportAccess.getSecret()))
+		{ 
+			ReportAccessModel confirm = new ReportAccessModel();
+			confirm.setSecret(reportAccess.getSecret());
+			modelMap.put(MODEL_KEY_FORM_MODEL, confirm);
+			modelMap.put(MODEL_KEY_ACTION_STATUS, "normal");			
+		}
+		else
+		{
+			modelMap.put(MODEL_KEY_FORM_MODEL, new ReportAccessModel());
+			modelMap.put(MODEL_KEY_ACTION_STATUS, "invalid");
+		}
+		return "reportdownload";
 	}
 	
 	@GetMapping("/")

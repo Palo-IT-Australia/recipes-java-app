@@ -1,0 +1,35 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragments/layout/head :: head">
+    <title id="pageTitle">Account Confirmation</title>
+</head>
+<body>
+
+	<div th:replace="fragments/layout/simpleheader :: simpleheader"></div>
+	
+	<div class="section">
+
+		<div class="wrapper">
+			<h2 th:if="${status=='error'}">The passcode is wrong.</h2>
+			<h1 th:if="${status=='invalid'}">URL is invalid or has been expired.</h1>
+			<div th:if="${status=='normal' || status=='error'}">
+				<h2>Enter your SMS passcode to download report.</h2>
+				<form name="f" th:action="@{/reportdownload}" th:object="${fmodel}" method="post">  
+					<input th:field="*{passcode}" class="field-text w-input" placeholder="SMS Passcode" type="text" />
+					<input th:field="*{secret}" name="secret" type="hidden"/>
+          <div class="form-actions">
+              <button type="submit" class="link-info button-primary w-button full-width">Download</button>
+          </div>
+				</form>		
+				<ul style="color:#3a3a3a;">
+					<li>Your email link and SMS passcode are valid for 1 day only.</li>
+					<li>You have three attempts to successfully enter the code.</li>
+				</ul>
+			</div>
+		</div>
+
+	</div>
+
+	<div th:replace="fragments/layout/footer :: footer"></div>
+</body>
+</html>
