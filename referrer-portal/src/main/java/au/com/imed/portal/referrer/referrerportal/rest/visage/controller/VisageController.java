@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 import au.com.imed.common.active.directory.manager.ImedActiveDirectoryLdapManager;
 import au.com.imed.portal.referrer.referrerportal.common.PortalConstant;
 import au.com.imed.portal.referrer.referrerportal.common.syslog.ReferrerEvent;
+import au.com.imed.portal.referrer.referrerportal.common.util.Aes128Util;
 import au.com.imed.portal.referrer.referrerportal.common.util.AuthenticationUtil;
 import au.com.imed.portal.referrer.referrerportal.common.util.StringConversionUtil;
 import au.com.imed.portal.referrer.referrerportal.jpa.history.model.ReportFcmTokenEntity;
@@ -32,19 +33,23 @@ import au.com.imed.portal.referrer.referrerportal.jpa.history.model.ReportNotifi
 import au.com.imed.portal.referrer.referrerportal.jpa.history.repository.ReportFcmTokenJPARepository;
 import au.com.imed.portal.referrer.referrerportal.jpa.history.repository.ReportNotificationJPARepository;
 import au.com.imed.portal.referrer.referrerportal.ldap.ReferrerAccountService;
+import au.com.imed.portal.referrer.referrerportal.rest.consts.OrderStatusConst;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.model.HospitalOrderSummary;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.model.HospitalUserPreferences;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.model.Order;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.model.OrderDetails;
+import au.com.imed.portal.referrer.referrerportal.rest.visage.model.OrderDetails.Report;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.model.Patient;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.model.PatientHistory;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.model.PatientOrder;
+import au.com.imed.portal.referrer.referrerportal.rest.visage.model.QuickReport;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.model.Referrer;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.model.RefreshedToken;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.model.ReportNotify;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.model.ReportNotifyRegister;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.model.SearchHospitalOrders;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.model.SearchOrders;
+import au.com.imed.portal.referrer.referrerportal.rest.visage.model.ShareReport;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.model.Tokens;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.model.UserPreferences;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.model.UsernamePassword;
@@ -136,6 +141,172 @@ public class VisageController {
 		return "V0.1 (Migrating)";
 	}
 	
+	//
+	// Quick Report
+	//
+	
+	private static final String NO_IMAGE_ALERT = "<div class=\"alert alert-warning\" role=\"alert\">Report is unavailable or not shared.</div>";
+  private static final String REPORT_NOT_COMPLTED_ALERT_MSG = "The Report has been addended and is not yet verified.";
+  private static final String REPORT_NOT_COMPLTED_ALERT_HTML = "<div class=\"alert alert-warning\" role=\"alert\">" + REPORT_NOT_COMPLTED_ALERT_MSG + "</div>";
+  @GetMapping("/quickReport")
+  public ResponseEntity<QuickReport> quickReport(@RequestParam(PortalConstant.PARAM_IMED_SECIRITY) String imsec) {
+    ResponseEntity<QuickReport> entity = new ResponseEntity<>(HttpStatus.METHOD_NOT_ALLOWED);
+    final ShareReport sharedReport = Aes128Util.getAccessionNumberFromSecurityCode(imsec);
+    if(sharedReport.getAccessionNumber() != null) {
+      QuickReport quickReport = new QuickReport();
+      Map<String, String> omap = new HashMap<>(1);
+      omap.put("accessionNum", sharedReport.getAccessionNumber());
+      omap.put("searchType", "all");
+      ResponseEntity<SearchOrders> oentity = searchOrdersService.doRestGet(PortalConstant.REP_VISAGE_USER, omap, SearchOrders.class);
+      if(HttpStatus.OK.equals(oentity.getStatusCode())) {
+        List<Order> orders = oentity.getBody().getOrders();
+        if(orders != null && orders.size() > 0) {
+          Order order = orders.get(0);
+          quickReport.setOrderUri(order.getUri());
+          boolean isAccessible = order.isAccessible();
+          quickReport.setAccessible(isAccessible);
+          
+          // Order details
+          Map<String, String> dmap = new HashMap<>(1);
+          dmap.put("orderUri", order.getUri());
+          if(!isAccessible) {
+            dmap.put("breakGlass", "true");
+          }
+          OrderDetails orderDetails = obtainOrderDetails(PortalConstant.REP_VISAGE_USER, dmap);
+          if(orderDetails != null) {
+            orderDetails.setDicom(dicomService.findDicomList(orderDetails));
+          }
+          quickReport.setOrder(orderDetails);
+          
+          // Patient
+          Map<String, String> pmap = new HashMap<>(1);
+          pmap.put("patientUri", order.getPatient().getUri());
+          if(!isAccessible) {
+            pmap.put("breakGlass", "true");
+          }
+          ResponseEntity<Patient> pentity = getPatientService.doRestGet(PortalConstant.REP_VISAGE_USER, pmap, Patient.class);
+          if(HttpStatus.OK.equals(pentity.getStatusCode())) {
+            quickReport.setPatient(pentity.getBody());
+          }
+          
+          if(orderDetails != null) {
+            // Report
+            String str = NO_IMAGE_ALERT;
+            if(sharedReport.getItem().contains("report")) {
+              if (OrderStatusConst.STATUS_GROUP_COMPLETE.equalsIgnoreCase(orderDetails.getStatus()))
+              {
+                Map<String, String> rmap = new HashMap<>(1);
+                rmap.put("reportUri", orderDetails.getReportUri());
+                if(!isAccessible) {
+                  rmap.put("breakGlass", "true");
+                }
+                ResponseEntity<byte[]> rentity = viewHtmlReportService.doRestGet(PortalConstant.REP_VISAGE_USER, rmap, byte[].class);
+                try {
+                  str = new String(rentity.getBody(), "UTF-8");
+                } 
+                catch (Exception ex) {
+                  ex.printStackTrace();
+                }
+              }else{
+                str = REPORT_NOT_COMPLTED_ALERT_HTML;
+              }
+            } else {
+              // Clear report uri to prevent access to report
+              Report rpt = orderDetails.getReport();
+              rpt.setUri("");
+              orderDetails.setReport(rpt);
+              quickReport.setOrder(orderDetails);
+            }
+            quickReport.setReport(str);
+            
+            // Image
+            if(sharedReport.getItem().contains("image")) {
+              Map<String, String> vmap = new HashMap<>(2);
+              vmap.put("orderUri", order.getUri());
+              vmap.put("viewer", "3");
+              ResponseEntity<String> ventity = viewImageService.generateUrl(PortalConstant.REP_VISAGE_USER, vmap, orderDetails);  
+              if(HttpStatus.OK.equals(ventity.getStatusCode())) {
+                quickReport.setViewUrl(ventity.getBody());
+              }
+            }
+          }
+        }
+      }
+      entity = new ResponseEntity<>(quickReport, HttpStatus.OK);
+    }
+    
+    return entity;
+  }
+  
+  @GetMapping("/quickReportPdf")
+  public ResponseEntity<byte []> quickReportPdf(@RequestParam(PortalConstant.PARAM_IMED_SECIRITY) String imsec) {
+    ResponseEntity<byte[]> entity = new ResponseEntity<>(HttpStatus.METHOD_NOT_ALLOWED);
+    OrderDetails orderDetails = obtainQuickReportOrderDetails(imsec);
+    if(orderDetails != null) {
+      if(OrderStatusConst.STATUS_GROUP_COMPLETE.equalsIgnoreCase(orderDetails.getStatus()))
+      {
+        Map<String, String> paramMap = new HashMap<>(2);
+        paramMap.put("breakGlass", "true");
+        paramMap.put("reportUri", orderDetails.getReportUri());
+        entity = pdfReportService.doRestGet(PortalConstant.REP_VISAGE_USER, paramMap, byte[].class);
+      }else{
+        entity = new ResponseEntity<>(REPORT_NOT_COMPLTED_ALERT_MSG.getBytes(), HttpStatus.OK);
+      }
+    }
+    return entity;
+  }
+  
+  @GetMapping("/quickReferral")
+  public ResponseEntity<byte []> quickAttachment(@RequestParam(PortalConstant.PARAM_IMED_SECIRITY) String imsec) {
+    ResponseEntity<byte[]> entity = new ResponseEntity<>(HttpStatus.METHOD_NOT_ALLOWED);
+    OrderDetails orderDetails = obtainQuickReportOrderDetails(imsec);
+    if(orderDetails != null) {
+      OrderDetails.Attachment [] docs = orderDetails.getAttachments();
+      String attachmentUri = null;
+      for(OrderDetails.Attachment at : docs) {
+        if("Request".equalsIgnoreCase(at.getAttachmentType()) && at.getContents()!= null && at.getContents().length > 0) {
+          attachmentUri = at.getContents()[0].getUri();
+          break;
+        }
+      }
+      if(attachmentUri != null) {
+        Map<String, String> paramMap = new HashMap<>(2);
+        paramMap.put("breakGlass", "true");
+        paramMap.put("attachmentUri", attachmentUri);
+        entity = attachmentService.doRestGet(PortalConstant.REP_VISAGE_USER, paramMap, byte[].class);
+      }
+    }
+    return entity;
+  }
+  
+  private OrderDetails obtainQuickReportOrderDetails(final String imsec) {
+    OrderDetails orderDetails = null;
+    final ShareReport sharedReport = Aes128Util.getAccessionNumberFromSecurityCode(imsec);
+    if(sharedReport.getAccessionNumber() != null) {
+      Map<String, String> omap = new HashMap<>(2);
+      omap.put("accessionNum", sharedReport.getAccessionNumber());
+      omap.put("searchType", "all");
+      ResponseEntity<SearchOrders> oentity = searchOrdersService.doRestGet(PortalConstant.REP_VISAGE_USER, omap, SearchOrders.class);
+      if(HttpStatus.OK.equals(oentity.getStatusCode())) {
+        List<Order> orders = oentity.getBody().getOrders();
+        if(orders != null && orders.size() > 0) {
+          Order order = orders.get(0);
+          
+          Map<String, String> dmap = new HashMap<>(1);
+          dmap.put("orderUri", order.getUri());
+          if(!order.isAccessible()) {
+            dmap.put("breakGlass", "true");
+          }
+          orderDetails = obtainOrderDetails(PortalConstant.REP_VISAGE_USER, dmap);
+        }
+      }
+    }
+    return orderDetails;
+  }
+	
+	///
+	/// Hospital
+	///
 	@GetMapping("/searchHospitalOrders")
   public ResponseEntity<List<HospitalOrderSummary>> searchHospitalOrders(@RequestParam Map<String, String> paramMap, @RequestHeader(value=PortalConstant.HEADER_AUTHENTICATION, required=false) String authentication) {
     String userName = AuthenticationUtil.getAuthenticatedUserName(authentication);
@@ -155,7 +326,7 @@ public class VisageController {
         //        ResponseEntity<HospitalOrderDetails> orderEntity = hospitalOrderService.doRestGet(userName, opmap, HospitalOrderDetails.class);
         //        if(HttpStatus.OK.equals(orderEntity.getStatusCode())) {
         //          final String desc = orderEntity.getBody().getPriorityType().getDescription();
-        //          System.out.println("Priority is " + desc + " for Acc# " + summary.getAccessionNumber());
+        //          logger.info("Priority is " + desc + " for Acc# " + summary.getAccessionNumber());
         //          if("In-Patient".equalsIgnoreCase(desc)) {
         //            filteredList.add(summary);
         //          }
@@ -192,7 +363,11 @@ public class VisageController {
     }
     return entity;
   }
-
+  
+  //
+  // Results
+  //
+  
 	@GetMapping("/searchOrders")
 	public ResponseEntity<List<Order>> searchOrders(@RequestParam Map<String, String> paramMap,
 			@RequestHeader(value = PortalConstant.HEADER_AUTHENTICATION, required = false) String authentication) {
@@ -251,7 +426,7 @@ public class VisageController {
 					orderDetails.setDicom(dicomService.findDicomList(orderDetails));
 					// Add patient info
 					String patientUri = orderDetails.getPatientUri();
-					System.out.println("patientUri : " + patientUri);
+					logger.info("patientUri : " + patientUri);
 					if (patientUri != null && patientUri.length() > 0) {
 						Map<String, String> params = new HashMap<>(1);
 						params.put("patientUri", patientUri);
@@ -266,7 +441,7 @@ public class VisageController {
 							entity = new ResponseEntity<OrderDetails>(entity.getHeaders(), entity.getStatusCode());
 						}
 					} else {
-						System.out.println("No patient uri in order.");
+						logger.info("No patient uri in order.");
 						orderDetails.setPatientDob("");
 						entity = new ResponseEntity<OrderDetails>(orderDetails, entity.getHeaders(), HttpStatus.OK);
 					}
@@ -328,7 +503,7 @@ public class VisageController {
 				ref.setEmail(detail.getEmail());
 				ref.setName(detail.getName());
 				ref.setMobile(detail.getMobile());
-				System.out.println("/user overwriting with LDAP information");
+				logger.info("/user overwriting with LDAP information");
 				entity = new ResponseEntity<Referrer>(ref, HttpStatus.OK);
 			}
 		}
@@ -399,7 +574,7 @@ public class VisageController {
 					list.add(rf);
 				}
 				if (list.size() > 0) {
-					System.out.println(
+					logger.info(
 							"reportNotifyRecent() uid : " + userName + " have " + list.size() + " new reports.");
 				}
 			}
@@ -709,7 +884,7 @@ public class VisageController {
 		boolean valid = true;
 		if (userName != null && userName.length() > 0) {
 			if (!auditService.isUnderRateLimitRequest(userName)) {
-				System.out.println("Too many requests from " + userName);
+				logger.info("Too many requests from " + userName);
 				valid = false;
 				preferenceService.updateTermsAndCondition(userName, PortalConstant.TERMS_AND_CONDITIONS_SHOW);
 				auditService.auditRateLimit(userName);
@@ -735,7 +910,7 @@ public class VisageController {
 				if (order.isAccessible()) {
 					filtered.add(order);
 				} else {
-					System.out.println(
+					logger.info(
 							"Filtered out this inaccessible order as parameters not enough : " + order.getUri());
 				}
 			}
@@ -782,7 +957,7 @@ public class VisageController {
 				order = entity.getBody();
 			}
 		} else {
-			System.out.println("obtainOrderDetails() Not enough parameters provided.");
+			logger.info("obtainOrderDetails() Not enough parameters provided.");
 		}
 		return order;
 	}

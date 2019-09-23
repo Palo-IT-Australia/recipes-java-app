@@ -21,6 +21,7 @@ import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.PdfStamper;
 import com.itextpdf.text.pdf.PdfWriter;
 
+import au.com.imed.portal.referrer.referrerportal.common.PortalConstant;
 import au.com.imed.portal.referrer.referrerportal.email.ReferrerMailService;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.entity.ReportAccessEntity;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.repository.ReportAccessRepository;
@@ -42,8 +43,6 @@ public class ReportAccessService {
 
 	private static final int MAX_FAILURES = 3;
 	
-	private static final String REP_VISAGE_USER = "huehara";
-
 	@Autowired
 	private SearchOrdersService searchOrderSerive;
 
@@ -71,7 +70,7 @@ public class ReportAccessService {
 			paramMap.put("searchType", "all");
 			paramMap.put("patientId", patientId.trim());
 			paramMap.put("orderStatus", "in progress,complete");
-			list = searchOrderSerive.doRestGet(REP_VISAGE_USER, paramMap, SearchOrders.class).getBody().getOrders();
+			list = searchOrderSerive.doRestGet(PortalConstant.REP_VISAGE_USER, paramMap, SearchOrders.class).getBody().getOrders();
 		}
 		return list;
 	}
@@ -99,7 +98,7 @@ public class ReportAccessService {
 			Map<String, String> paramMap = new HashMap<>(2);
 			paramMap.put("patientUri", patientUri);
 
-			ResponseEntity<Patient> patientEntity = patientService.doRestGet(REP_VISAGE_USER, paramMap, Patient.class);
+			ResponseEntity<Patient> patientEntity = patientService.doRestGet(PortalConstant.REP_VISAGE_USER, paramMap, Patient.class);
 			System.out.println("available() status code " + patientEntity.getStatusCode());
 			if(HttpStatus.OK.equals(patientEntity.getStatusCode())) {
 				Patient patient = patientEntity.getBody();
@@ -171,7 +170,7 @@ public class ReportAccessService {
 						Map<String, String> paramMap = new HashMap<>(2);
 						paramMap.put("orderUri", reportAccess.getOrderUri());
 						paramMap.put("reportUri", reportAccess.getReportUri());
-						ResponseEntity<byte []> entity = reportService.doRestGet(REP_VISAGE_USER, paramMap, byte[].class);
+						ResponseEntity<byte []> entity = reportService.doRestGet(PortalConstant.REP_VISAGE_USER, paramMap, byte[].class);
 						if(HttpStatus.OK.equals(entity.getStatusCode())) {
 							response.setContentType("application/pdf; name=I-MEDRadiology_Report.pdf");
 							response.addHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=I-MEDRadiology_Report.pdf"); // inline=open on browser, attachment=download

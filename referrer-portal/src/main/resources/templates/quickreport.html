@@ -1,0 +1,21 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragments/layout/head :: head">
+    <title id="pageTitle">Report and Image</title>
+</head>
+<body>
+
+	<div th:replace="fragments/layout/simpleheader :: simpleheader"></div>
+	
+	<div class="section">
+		<div th:url="@{/}" id="quickreportapiroot"></div>
+		<link th:href="@{/js/public/quickreport/dist/styles.bundle.css}" rel="stylesheet"/>
+		<qkrp-root></qkrp-root>
+		<script type="text/javascript" th:src="@{/js/public/quickreport/dist/inline.bundle.js}"></script>
+		<script type="text/javascript" th:src="@{/js/public/quickreport/dist/polyfills.bundle.js}"></script>	
+		<script type="text/javascript" th:src="@{/js/public/quickreport/dist/scripts.bundle.js}"></script>
+		<script type="text/javascript" th:src="@{/js/public/quickreport/dist/main.bundle.js}"></script>
+	</div>
+	
+</body>
+</html>

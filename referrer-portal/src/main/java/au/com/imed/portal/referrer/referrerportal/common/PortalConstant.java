@@ -55,4 +55,6 @@ public final class PortalConstant {
 	public static final double FINDER_RADIUS = 100.00;
 	public static final int MAX_CLINICS = 16;
 
+	// Anon visage user
+	public static final String REP_VISAGE_USER = "huehara";
 }

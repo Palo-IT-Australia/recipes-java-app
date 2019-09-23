@@ -355,6 +355,11 @@ public class ReferrerPortalMvcController {
 		return "resetconfirm";
 	}
 
+	@GetMapping("/quick-report")
+	public String getQuickReport() {
+		return "quickreport";
+	}
+	
 	@GetMapping("/")
 	public String getHome(Model model) {
 		return "home";
