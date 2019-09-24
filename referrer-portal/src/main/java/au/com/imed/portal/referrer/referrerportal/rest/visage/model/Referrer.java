@@ -9,6 +9,7 @@ public class Referrer {
   private String email;
   private String mobile;
   private Practice [] practices;
+  // TODO private Hospital [] hospitals;
   
   public String getUri() {
     return uri;

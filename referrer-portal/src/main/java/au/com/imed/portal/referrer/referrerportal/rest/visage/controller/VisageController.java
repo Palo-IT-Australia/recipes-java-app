@@ -316,23 +316,12 @@ public class VisageController {
       {
         ResponseEntity<SearchHospitalOrders> entity = hospitalSearchOrderService.doRestGet(userName, paramMap, SearchHospitalOrders.class);
         List<HospitalOrderSummary> originalList = entity.getBody().getOrders();
-        //      List<HospitalOrderSummary> filteredList = new ArrayList<>();
-        //      for(HospitalOrderSummary summary : originalList) {
-        //        Map<String, String> opmap = new HashMap<>(1);
-        //        opmap.put("orderUri", summary.getUri());
-        //        if(!summary.isAccessible()) {
-        //          opmap.put("breakGlass", "true");
-        //        }
-        //        ResponseEntity<HospitalOrderDetails> orderEntity = hospitalOrderService.doRestGet(userName, opmap, HospitalOrderDetails.class);
-        //        if(HttpStatus.OK.equals(orderEntity.getStatusCode())) {
-        //          final String desc = orderEntity.getBody().getPriorityType().getDescription();
-        //          logger.info("Priority is " + desc + " for Acc# " + summary.getAccessionNumber());
-        //          if("In-Patient".equalsIgnoreCase(desc)) {
-        //            filteredList.add(summary);
-        //          }
-        //        }
-        //      }
-        //      return new ResponseEntity<>(filteredList, entity.getHeaders(), entity.getStatusCode());
+
+        // May add search by urn etc.
+//        if(paramMap.containsKey("urn")) {
+//        	originalList.stream().filter(o -> o.getPatient().getUrn() == paramMap.get("urn")).collect(Collectors.toList());
+//        }
+        
         return new ResponseEntity<>(originalList, entity.getHeaders(), entity.getStatusCode());
       }
       else
