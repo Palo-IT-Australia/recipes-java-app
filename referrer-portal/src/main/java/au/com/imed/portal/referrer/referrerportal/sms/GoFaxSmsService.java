@@ -74,4 +74,10 @@ public class GoFaxSmsService {
     //System.out.println("getSmsUrl() URI = " + rUri);
     return rUri;
   }
+  
+  private static final String SHARE_REPORT_MESSAGE_FMT = "Please visit %s to access shared report.";
+  public void sendShareReportMessage(final String mobile, final String shareUrl) throws Exception {
+    ResponseEntity<SmsSendResponse> entity = send(new String [] {mobile}, String.format(SHARE_REPORT_MESSAGE_FMT, shareUrl));
+    System.out.println("sendShareReportMessage() Sent to mobile : " + mobile + ", status : " + entity.getStatusCodeValue());
+  }
 }
