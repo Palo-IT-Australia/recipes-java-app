@@ -1,9 +1,8 @@
 User-agent: *
 Disallow: https://forms.i-medonline.com.au/*
 Disallow: https://www.bpoint.com.au/*
+Disallow: /referrer/book/*
+Disallow: /imedvisage/*
+Disallow: /referrer/imedvisage/*
+Disallow: /referrer/rest/*
 Disallow: /book/*
-Disallow: /imedvisagepatient/*
-Disallow: /rest/*
-Disallow: /myimed/book/*
-Disallow: /myimed/imedvisagepatient/*
-Disallow: /myimed/rest/*

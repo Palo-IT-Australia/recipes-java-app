@@ -5,16 +5,20 @@ import static au.com.imed.portal.referrer.referrerportal.common.PortalConstant.M
 import static au.com.imed.portal.referrer.referrerportal.common.PortalConstant.MODEL_KEY_FORM_MODEL;
 import static au.com.imed.portal.referrer.referrerportal.common.PortalConstant.MODEL_KEY_SUCCESS_MSG;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URLEncoder;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -438,4 +442,50 @@ public class ReferrerPortalMvcController {
 	public String getFeedback(Model model) {
 		return "feedback";
 	}
+	
+	@GetMapping("/robots.txt")
+	public void getRobotsTxt(HttpServletResponse response) {
+		InputStream resourceAsStream = null;
+    try {
+        ClassPathResource cpr = new ClassPathResource("static/files/robots.txt");
+        response.addHeader("Content-disposition", "filename=robot.txt");
+        response.setContentType("text/plain");
+        resourceAsStream = cpr.getInputStream();
+        IOUtils.copy(resourceAsStream, response.getOutputStream());
+        response.flushBuffer();
+    } catch (Exception e) {
+        logger.error("Problem with displaying robot.txt", e);
+    } finally {
+        if(resourceAsStream != null) {
+        	try {
+						resourceAsStream.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+        }
+    }
+	}
+	
+	@GetMapping("/sitemap.xml")
+	public void getSitemapXml(HttpServletResponse response) {
+		InputStream resourceAsStream = null;
+    try {
+        ClassPathResource cpr = new ClassPathResource("static/files/sitemap.xml");
+        response.setContentType("application/xml");
+        resourceAsStream = cpr.getInputStream();
+        IOUtils.copy(resourceAsStream, response.getOutputStream());
+        response.flushBuffer();
+    } catch (Exception e) {
+        logger.error("Problem with displaying robot.txt", e);
+    } finally {
+        if(resourceAsStream != null) {
+        	try {
+						resourceAsStream.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+        }
+    }
+	}
+	
 }
