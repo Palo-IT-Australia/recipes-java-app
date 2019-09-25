@@ -89,7 +89,7 @@ public class ReferrerCreateAccountService extends ReferrerAccountService {
 	}
 
 	public void createPortalStagingUser(final ExternalUser imedExternalUser, final String proposedUid) throws Exception {
-		createReferrerUser(getReferrerStagingLdapTemplate(), imedExternalUser, proposedUid);
+		createReferrerUser(getReferrerStagingLdapTemplate(), imedExternalUser, proposedUid, "true");
 	}
 	
 	/**
@@ -99,10 +99,10 @@ public class ReferrerCreateAccountService extends ReferrerAccountService {
 	 * @throws Exception
 	 */
 	public void createPortalReferrerUser(final ExternalUser imedExternalUser, final String proposedUid) throws Exception {
-		createReferrerUser(getReferrerLdapTemplate(), imedExternalUser, proposedUid);
+		createReferrerUser(getReferrerLdapTemplate(), imedExternalUser, proposedUid, "false");
 	}
 	
-	private void createReferrerUser(LdapTemplate ldapTemplate, final ExternalUser imedExternalUser, final String proposedUid) throws Exception {
+	private void createReferrerUser(LdapTemplate ldapTemplate, final ExternalUser imedExternalUser, final String proposedUid, final String lock) throws Exception {
   	Name dn = LdapNameBuilder
   			.newInstance()
   			.add("uid", imedExternalUser.getUserid())
@@ -132,7 +132,7 @@ public class ReferrerCreateAccountService extends ReferrerAccountService {
 		} else {
 			context.setAttributeValue("physicalDeliveryOfficeName", imedExternalUser.getPreferredPhone());			
 		}
-		context.setAttributeValue(PortalConstant.PARAM_ATTR_ACC_LOCKED, "true");
+		context.setAttributeValue(PortalConstant.PARAM_ATTR_ACC_LOCKED, lock);
 
     ldapTemplate.bind(context);
   }
