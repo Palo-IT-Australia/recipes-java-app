@@ -1,18 +1,18 @@
 <!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org">
 <head th:include="fragments/layout/head :: head">
-    <title id="pageTitle">Admin</title>
+    <title id="pageTitle">Editor</title>
 </head>
 <body>
 	<div th:replace="fragments/layout/header :: header">...</div>
 
 	<div class="section">
-		<h1>Admin</h1>
+		<h1>Editor</h1>
 		<div class="half-rule"></div>
 		<div class="wrapper">
 			<div class="list-group">
-				<a th:href="@{/admin/approve}" class="list-group-item">Account Approver</a><br/>
-				<a th:href="@{/admin/account}" class="list-group-item">Account Manager</a>
+				<a th:href="@{/editor/dbmanager}" class="list-group-item">DB Manager</a><br/>
+				<a th:href="@{/editor/crmmanager}" class="list-group-item">CRM Manager</a><br/>
 			</div>
 		</div>
 	</div>

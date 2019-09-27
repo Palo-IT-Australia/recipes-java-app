@@ -1,0 +1,60 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragments/layout/head :: head">
+    <title id="pageTitle">CRM Manager</title>
+</head>
+<body>
+	<div th:replace="fragments/layout/header :: header">...</div>
+
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>      
+   <link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet">
+	<script src="https://unpkg.com/filepond/dist/filepond.js"></script>      
+
+	<div class="section wrapper">
+	
+		<h2>CRM Manager</h2>
+		<div class="half-rule"></div>
+		
+		      <form class="col s12" name="uploadForm" th:action="@{/editor/crmmanager}" enctype="multipart/form-data" method="post">
+        <div class="row">
+          <div class="input-field col s12">
+            <input id="password" name="passcode" type="password" class="validate">
+            <label for="password">Passcode</label>
+          </div>
+        </div>
+        <div class="file-field input-field">
+          <div class="btn">
+            <span>Exel</span>
+            <input type="file" name="file">
+          </div>
+          <div class="file-path-wrapper">
+            <input class="file-path validate" type="text" placeholder="Excel">
+          </div>
+        </div>
+        <div class="file-field input-field">
+        	<div class="btn">
+            <span>Images</span>
+            <input type="file" name="profiles" multiple="multiple">
+          </div>
+          <div class="file-path-wrapper">
+            <input class="file-path validate" type="text" placeholder="crm name.png">
+          </div>
+          <!-- 
+        	<input multiple accept="image/png" type="file" name="profiles" data-max-file-size="5MB" data-max-files="10">
+        	 -->
+        </div>
+
+        <button class="waves-effect waves-light btn-large" type="submit" name="action">Upload
+        </button>
+        <p th:text="${okmsg}"></p>
+        <p style="color:red;" th:text="${errmsg}"></p>
+        <p th:text="${imgokmsg}"></p>
+        <p style="color:red;" th:text="${imgerrmsg}"></p>
+      </form>
+		
+	</div>
+
+	<div th:replace="fragments/layout/footer :: footer">...</div>
+</body>
+</html>

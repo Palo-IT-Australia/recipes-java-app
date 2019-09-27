@@ -1,0 +1,676 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragments/layout/head :: head">
+    <title id="pageTitle">DB Manager</title>
+</head>
+<body>
+	<div th:replace="fragments/layout/header :: header">...</div>
+
+<%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
+
+<portlet:defineObjects />
+
+<portlet:resourceURL var="getRadiologistList" id="getRadiologistList">
+</portlet:resourceURL>
+<portlet:resourceURL var="getRadiologistImage" id="getRadiologistImage">
+</portlet:resourceURL>
+<portlet:resourceURL var="putRadiologist" id="putRadiologist">
+</portlet:resourceURL>
+<portlet:resourceURL var="saveRadiologist" id="saveRadiologist">
+</portlet:resourceURL>
+<portlet:resourceURL var="deleteRadiologist" id="deleteRadiologist">
+</portlet:resourceURL>
+
+<portlet:resourceURL var="getClinicList" id="getClinicList">
+</portlet:resourceURL>
+<portlet:resourceURL var="getClinicImage" id="getClinicImage">
+</portlet:resourceURL>
+<portlet:resourceURL var="putClinic" id="putClinic">
+</portlet:resourceURL>
+<portlet:resourceURL var="saveClinic" id="saveClinic">
+</portlet:resourceURL>
+<portlet:resourceURL var="deleteClinic" id="deleteClinic">
+</portlet:resourceURL>
+<portlet:resourceURL var="getClinicInfofile" id="getClinicInfofile">
+</portlet:resourceURL>
+
+<!-- 
+<link rel="stylesheet" href="<%=request.getContextPath()%>/resources/bootstrap/css/bootstrap.min.css">
+<link rel="stylesheet" href="<%=request.getContextPath()%>/resources/font-awesome/css/font-awesome.min.css">
+ -->
+ 
+<script src="<%=request.getContextPath()%>/resources/angular/angular.min.js"></script>
+<script src="<%=request.getContextPath()%>/resources/angular/angular-sanitize.min.js"></script>
+<script src="<%=request.getContextPath()%>/resources/plugins/txtang.min.js"></script>
+<script src="<%=request.getContextPath()%>/resources/plugins/ag-grid.min.js"></script>
+
+<style>
+	.radio-choice {
+		font-size:16px;
+		font-weight:130;	
+	}
+	.http-alert {
+		font-size:12px;
+		font-weight:100;	
+	}
+	.form-group label, .form-group input, .form-group span {
+		font-size:14px;
+		font-weight:100;	
+	}
+	.form-group img {
+		width: 120px;
+		height: auto;
+	}
+	span.mand {
+		color: red;
+	}
+	.form-group	.ta-editor {
+  		min-height: 150px;
+  		overflow: auto;
+  		font-family: inherit;
+	}
+	.form-group .ta-editor ul {
+		list-style-type:initial;
+	}
+	.form-group .ta-editor ol {
+		list-style-type:decimal;
+	}
+</style>
+
+<div ng-app="dbApp" ng-controller="mainCtrl">
+	<label class="radio-choice"><input type="radio" ng-model="choice" value="rad">Radiologist</label>
+	<label class="radio-choice"><input type="radio" ng-model="choice" value="cli">Clinic</label>
+	<div ng-show="choice=='rad'" ng-controller="radCtrl">
+		<!-- Radiologist Table -->
+		<div ng-show="mode=='table'">
+			<div  class="form-inline">
+				<h4>{{rowData.length}} Radiologists</h4>
+				<span class="btn-group toolbox" role="group">
+					<button type="button" class="btn btn-default" ng-click="goEdit()">
+						<span class="glyphicon glyphicon-pencil"> Edit</span>
+					</button>
+					<button type="button" class="btn btn-default" ng-click="goEdit('New')">
+						<span class="glyphicon glyphicon-plus"> New</span>
+					</button>		
+					<button type="button" class="btn btn-default" ng-click="doDelete()">
+						<span class="glyphicon glyphicon-trash"> Delete</span>
+					</button>
+					<button type="button" class="btn btn-default" ng-click="updateList()">
+						<span class="glyphicon glyphicon-refresh"> Refresh</span>
+					</button>
+				</span>
+				<input type="text" class="form-control" ng-model="filterText" placeholder="Search.." ng-change="doFilter()" />
+				<span class="alert http-alert" ng-class="[alert.clz]">{{alert.msg}}</span>
+			</div>
+			<div ag-grid="gridOptions" class="ag-blue" style="height:650px"></div>
+		</div>
+		
+		<!-- Radiologist Editor -->
+		<div ng-show="mode=='edit'">
+			<div class="form-group row">
+      			<label for="idTitle" class="col-sm-2 col-form-label">Title<span class="mand">*</span></label>
+      			<div class="col-sm-4">
+        			<input type="text" ng-model="saveModel.radiologist.title" id="idTitle" class="form-control" placeholder="e.g. Dr John Done">
+     		 	</div>
+      			<label for="idName" class="col-sm-2 col-form-label">Path<span class="mand">*</span></label>
+      			<div class="col-sm-4">
+        			<input type="text" ng-model="saveModel.radiologist.name" id="idName" class="form-control" placeholder="e.g. Dr-John-Done">
+     		 	</div>
+    		</div>
+			<div class="form-group row">
+      			<label class="col-sm-2 col-form-label">Speciality</label>
+      			<div class="col-sm-4">
+        			<input type="text" ng-model="saveModel.radiologist.speciality" class="form-control" placeholder="e.g. MBBS, FRANZCR">
+     		 	</div>
+      			<label class="col-sm-2 col-form-label">Position</label>
+      			<div class="col-sm-4">
+        			<input type="text" ng-model="saveModel.radiologist.position" class="form-control" placeholder="e.g. Campus Director">
+     		 	</div>
+    		</div>
+			<div class="form-group row">
+      			<label class="col-sm-2 col-form-label">Region</label>
+      			<div class="col-sm-10">
+      				<span ng-repeat="region in regions">
+      					<input type='checkbox' ng-checked="selectedRegions.indexOf(region) != -1" ng-click="toggleRegions(region)">{{region}}
+      				</span>
+     		 	</div>
+    		</div>
+			<div class="form-group row">
+      			<label class="col-sm-2 col-form-label">Description</label>
+      			<div class="col-sm-4">
+      				<div text-angular="text-angular" ng-model="saveModel.radiologist.description" ></div>
+<!--         			<textarea rows="7" ng-model="saveModel.radiologist.description" class="form-control" placeholder="html code.."></textarea>  -->
+     		 	</div>
+      			<label class="col-sm-2 col-form-label">Skills</label>
+      			<div class="col-sm-4">
+      				<div text-angular="text-angular" ng-model="saveModel.radiologist.skills" ></div>
+<!--         			<textarea rows="7" ng-model="saveModel.radiologist.skills" class="form-control" placeholder="html code.."></textarea> -->
+     		 	</div>
+    		</div>
+			<div class="form-group row">
+      			<label class="col-sm-2 col-form-label">Card</label>
+      			<div class="col-sm-4">
+        			<textarea rows="5" ng-model="saveModel.radiologist.card" class="form-control" placeholder="e.g. Dr John has been a.."></textarea>
+     		 	</div>
+      			<label class="col-sm-2 col-form-label">Intro</label>
+      			<div class="col-sm-4">
+        			<textarea rows="5" ng-model="saveModel.radiologist.intro" class="form-control" placeholder="e.g. Dr Done trained.."></textarea>
+     		 	</div>
+    		</div>
+			<div class="form-group row">
+      			<label for="idTitle" class="col-sm-2 col-form-label">Image</label>
+      			<div class="col-sm-4">
+      				<input type="file" id="radinputFileToLoad" onChange="updateFormImage('rad');"></input>
+      				<input type="hidden" id="radImgUrl"></input>
+      				<input type="hidden" id="radImgStr"></input>
+      			</div>
+	      		<div id="radImgDisp" class="col-sm-3">
+      			</div>
+      			<div class="col-sm-3">
+      				<img ng-hide="editMode=='New'" id="radCurrentImage" ng-src="${getRadiologistImage}?id={{saveModel.radiologist.id}}&random={{mistery}}"/>      			
+      			</div>
+			</div>
+			<div class="form-group row">
+				<div class="col-sm-8">
+    	    		<button ng-show="mandFilled()" class="btn btn-success btn-block" ng-click="doSave()">Save</button>
+    	    	</div>
+				<div class="col-sm-4">
+    	    		<button class="btn btn-default btn-block" ng-click="mode='table'">Cancel</button>
+      			</div>
+			</div>
+		</div>
+	</div>
+	<div ng-show="choice=='cli'" ng-controller="cliCtrl">
+		<!-- Clinic Table -->
+		<div ng-show="mode=='table'">
+			<div  class="form-inline">
+				<h4>{{rowData.length}} Clinics</h4>
+				<span class="btn-group toolbox" role="group">
+					<button type="button" class="btn btn-default" ng-click="goEdit()">
+						<span class="glyphicon glyphicon-pencil"> Edit</span>
+					</button>
+					<button type="button" class="btn btn-default" ng-click="goEdit('New')">
+						<span class="glyphicon glyphicon-plus"> New</span>
+					</button>		
+					<button type="button" class="btn btn-default" ng-click="doDelete()">
+						<span class="glyphicon glyphicon-trash"> Delete</span>
+					</button>
+					<button type="button" class="btn btn-default" ng-click="updateList()">
+						<span class="glyphicon glyphicon-refresh"> Refresh</span>
+					</button>
+				</span>
+				<input type="text" class="form-control" ng-model="filterText" placeholder="Search.." ng-change="doFilter()" />
+				<span class="alert http-alert" ng-class="[alert.clz]">{{alert.msg}}</span>
+			</div>
+			<div ag-grid="gridOptions" class="ag-fresh" style="height:650px"></div>
+		</div>
+		<!-- Clinic Edit -->
+		<div ng-show="mode=='edit'">
+			<div class="form-group row">
+      			<label for="idTitle" class="col-sm-2 col-form-label">Name<span class="mand">*</span></label>
+      			<div class="col-sm-4">
+        			<input type="text" ng-model="saveModel.clinic.name" id="idTitle" class="form-control" placeholder="e.g. Dee Why">
+     		 	</div>
+      			<label for="idName" class="col-sm-2 col-form-label">Path<span class="mand">*</span></label>
+      			<div class="col-sm-4">
+        			<input type="text" ng-model="saveModel.clinic.path" id="idName" class="form-control" placeholder="e.g. Dee-Why">
+     		 	</div>
+    		</div>
+			<div class="form-group row">
+      			<label class="col-sm-2 col-form-label">Address</label>
+      			<div class="col-sm-4">
+        			<input type="text" ng-model="saveModel.clinic.address" class="form-control" placeholder="e.g. 45 Victoria Road">
+     		 	</div>
+      			<label class="col-sm-2 col-form-label">Suburb</label>
+      			<div class="col-sm-4">
+        			<input type="text" ng-model="saveModel.clinic.suburb" class="form-control" placeholder="e.g. Erina">
+     		 	</div>
+    		</div>
+			<div class="form-group row">
+      			<label class="col-sm-2 col-form-label">State</label>
+      			<div class="col-sm-4">
+        			<select ng-model="saveModel.clinic.state" ng-options="state for state in states" class="form-control"></select>
+     		 	</div>
+      			<label class="col-sm-2 col-form-label">Postcode</label>
+      			<div class="col-sm-4">
+        			<input type="text" ng-model="saveModel.clinic.postcode" class="form-control" placeholder="e.g. 2065">
+     		 	</div>
+    		</div>
+			<div class="form-group row">
+      			<label class="col-sm-2 col-form-label">Region</label>
+      			<div class="col-sm-4">
+        			<select ng-model="saveModel.clinic.region" ng-options="region for region in regions" class="form-control"></select>
+     		 	</div>
+      			<label class="col-sm-2 col-form-label">Hours</label>
+      			<div class="col-sm-4">
+        			<input type="text" ng-model="saveModel.clinic.hours" class="form-control" placeholder="e.g. Mon-Thur,8am-6pm;Fri,8am-5:30pm;Sat,9am-12pm">
+     		 	</div>
+    		</div>
+			<div class="form-group row">
+      			<label class="col-sm-2 col-form-label">Phone</label>
+      			<div class="col-sm-4">
+        			<input type="text" ng-model="saveModel.clinic.phone" class="form-control" placeholder="e.g. 03 9786 7765">
+     		 	</div>
+      			<label class="col-sm-2 col-form-label">Fax</label>
+      			<div class="col-sm-4">
+        			<input type="text" ng-model="saveModel.clinic.fax" class="form-control" placeholder="e.g. 02 9857 1234">
+     		 	</div>
+    		</div>
+			<div class="form-group row">
+      			<label class="col-sm-2 col-form-label">Longitude</label>
+      			<div class="col-sm-4">
+        			<input type="text" ng-model="saveModel.clinic.lon" class="form-control" placeholder="e.g. 144.701008">
+     		 	</div>
+      			<label class="col-sm-2 col-form-label">Latitude</label>
+      			<div class="col-sm-4">
+        			<input type="text" ng-model="saveModel.clinic.lat" class="form-control" placeholder="e.g. -37.885092">
+     		 	</div>
+    		</div>
+    		<div class="form-group row">
+      			<label class="col-sm-2 col-form-label">Map URL</label>
+      			<div class="col-sm-4">
+        			<input type="text" ng-model="saveModel.clinic.mapurl" class="form-control" placeholder="e.g. https://www.google.com/maps/embed?...">
+     		 	</div>
+      			<label class="col-sm-2 col-form-label">Book URL</label>
+      			<div class="col-sm-4">
+        			<input type="text" ng-model="saveModel.clinic.bookurl" class="form-control" placeholder="e.g. https://booki-med.com.au">
+     		 	</div>
+    		</div>
+			<div class="form-group row">
+      			<label class="col-sm-2 col-form-label">Parking</label>
+      			<div class="col-sm-4">
+        			<textarea rows="2" ng-model="saveModel.clinic.parking" class="form-control" placeholder="e.g. Parking outside"></textarea>
+     		 	</div>
+      			<label class="col-sm-2 col-form-label">Transport</label>
+      			<div class="col-sm-4">
+        			<textarea rows="2" ng-model="saveModel.clinic.transport" class="form-control" placeholder="e.g. Bus Route 515"></textarea>
+     		 	</div>
+    		</div>
+			<div class="form-group row">
+      			<label class="col-sm-2 col-form-label">Procedures</label>
+      			<div class="col-sm-4">
+        			<textarea rows="2" ng-model="saveModel.clinic.procedures" class="form-control" placeholder="e.g. CT,Ultrasound,Dental X-ray"></textarea>
+     		 	</div>
+      			<label class="col-sm-2 col-form-label">Intro</label>
+      			<div class="col-sm-4">
+        			<textarea rows="2" ng-model="saveModel.clinic.intro" class="form-control" placeholder="e.g. Our clinic provides.."></textarea>
+     		 	</div>
+    		</div>
+			<div class="form-group row">
+      			<label class="col-sm-2 col-form-label">Appointment Emails</label>
+      			<div class="col-sm-4">
+        			<input type="text" ng-model="saveModel.clinic.appointmentEmails" class="form-control" placeholder="e.g. one@g.com,two@y.com"></textarea>
+     		 	</div>
+     		 	<label class="col-sm-2 col-form-label">Information File</label>
+     		 	<div class="col-sm-4">
+      				<input type="file" id="cliInfofileInput" onChange="updateInfoFile();"></input>
+      				<span>{{saveModel.clinic.infofilename}}</span>
+      				<input type="hidden" id="cliInfofileStr"></input>
+      				<input type="hidden" id="cliInfofileName"></input>
+      			</div>
+    		</div>
+			<div class="form-group row">
+      			<label for="idTitle" class="col-sm-2 col-form-label">Image</label>
+      			<div class="col-sm-4">
+      				<input type="file" id="cliinputFileToLoad" onChange="updateFormImage('cli');"></input>
+      				<input type="hidden" id="cliImgUrl"></input>
+      				<input type="hidden" id="cliImgStr"></input>
+      			</div>
+	      		<div id="cliImgDisp" class="col-sm-3">
+      			</div>
+      			<div class="col-sm-3">
+      				<img ng-hide="editMode=='New'" id="cliCurrentImage" ng-src="${getClinicImage}?id={{saveModel.clinic.id}}&random={{mistery}}"/>      			
+      			</div>
+			</div>
+			<div class="form-group row">
+				<div class="col-sm-8">
+    	    		<button ng-show="mandFilled()" class="btn btn-success btn-block" ng-click="doSave()">Save</button>
+    	    	</div>
+				<div class="col-sm-4">
+    	    		<button class="btn btn-default btn-block" ng-click="mode='table'">Cancel</button>
+      			</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+	function updateFormImage(prefix) {
+		var filesSelected = document.getElementById(prefix + "inputFileToLoad").files;
+		if (filesSelected.length > 0) {
+			var fileToLoad = filesSelected[0];
+
+			var fileReader = new FileReader();
+
+			fileReader.onload = function(fileLoadedEvent) {
+				var srcData = fileLoadedEvent.target.result; // <--- data: base64
+
+				var newImage = document.createElement('img');
+				newImage.src = srcData;
+
+				document.getElementById(prefix + "ImgDisp").innerHTML = newImage.outerHTML;
+				document.getElementById(prefix + "ImgStr").value = srcData;
+				document.getElementById(prefix + "ImgUrl").value = fileToLoad.name;
+			};
+			fileReader.readAsDataURL(fileToLoad);
+		}
+	}
+	
+	function updateInfoFile() {
+		var filesSelected = document.getElementById("cliInfofileInput").files;
+		if (filesSelected.length > 0) {
+			var fileToLoad = filesSelected[0];
+
+			var fileReader = new FileReader();
+
+			fileReader.onload = function(fileLoadedEvent) {
+				var srcData = fileLoadedEvent.target.result; // <--- data: base64 pdf
+				document.getElementById("cliInfofileStr").value = srcData;
+				document.getElementById("cliInfofileName").value = fileToLoad.name;
+			};
+			fileReader.readAsDataURL(fileToLoad);
+		}
+	}
+</script>
+<script>
+agGrid.initialiseAgGridWithAngular1(angular);
+angular.module('dbApp',["agGrid","textAngular"])
+.controller('mainCtrl', function ($scope, $http, $filter, $timeout, $location, $sce) {
+	$scope.loading = false;
+	$scope.choice = "rad"; //rad or cli
+})
+.controller('radCtrl', function ($scope, $http, $filter, $timeout, $location, $sce) {
+	$scope.rowData = [];
+	$scope.regions = ${REGION_NAMES};
+	$scope.regions.push("JV InSight");
+	$scope.selectedRegions = [];
+	$scope.selectedRow = null;
+	$scope.filterText = "";
+	$scope.saveModel = null;
+	$scope.editMode = "New";
+	$scope.mode = "table"; // table or edit
+	$scope.mistery = "0";
+	$scope.alert = {clz:"hidden", msg:""};
+	
+	var columnDefs = [
+        {headerName: "Title", field: "title", editable:true, pinned:"left"},
+        {headerName: "Path", field: "name", editable:true},
+        {headerName: "Region", field: "region", editable:true},
+        {headerName: "Speciality", field: "speciality", editable:true},
+        {headerName: "Description", field: "description", editable:true, cellEditor: 'largeText'},
+        {headerName: "Skills", field: "skills", editable:true, cellEditor: 'largeText'},
+        {headerName: "Card", field: "card", editable:true, cellEditor: 'largeText'},
+        {headerName: "Intro", field: "intro", editable:true, cellEditor: 'largeText'},
+        {headerName: "Position", field: "position", editable:true},
+        {headerName: "Image", field: "id", editable:false, suppressSorting:true, cellRenderer:function(params){return "<img width=\"20\" height=\"20\" src=\"${getRadiologistImage}?id=" + params.value + "&random=" + Math.random() + "\"/>";}}
+    ];
+
+	$scope.updateSelection = function() {
+		$scope.selectedRow = $scope.gridOptions.api.getSelectedRows()[0];
+		console.log($scope.selectedRow);
+	};
+	
+    $scope.gridOptions = {
+        columnDefs: columnDefs,
+        rowData: $scope.rowData,
+		enableFilter: true,
+		enableSorting: true,
+		enableColResize: true,
+		rowSelection: 'single',
+		onSelectionChanged: $scope.updateSelection,
+		onCellEditingStopped: function (event) {
+			console.log(event.data);
+			$scope.alert = {clz:"alert-info", msg:"Updating.."};
+			$http.put("${putRadiologist}", event.data).then(
+				function(obj){
+					$scope.alert = {clz:"alert-success", msg:obj.data.msg};
+				},
+				function() {
+					$scope.alert = {clz:"alert-danger", msg:"Failed to Update"};
+				}
+			);
+		}
+    };
+    
+    $scope.clearSaveModel = function() {
+    	$scope.saveModel = {imgstr:"",radiologist:{name:"",title:"",imgurl:"",keyword:"",region:"",speciality:"",description:"",skills:"",intro:"",card:"",position:""}};
+    	document.getElementById("radImgUrl").value = "";
+    	document.getElementById("radImgStr").value = "";
+    	document.getElementById("radImgDisp").innerHTML = "";
+    };
+    
+    $scope.mandFilled = function() {
+    	return $scope.saveModel.radiologist.name && $scope.saveModel.radiologist.name.length > 0 
+    		&& $scope.saveModel.radiologist.title && $scope.saveModel.radiologist.title.length > 0; 
+    };
+    
+    $scope.toggleRegions = function(region) {
+    	console.log(region);
+    	if ($scope.selectedRegions.indexOf(region) < 0) {
+            $scope.selectedRegions.push(region);
+        } else {
+            $scope.selectedRegions.splice($scope.selectedRegions.indexOf(region), 1);
+        }
+        console.log($scope.selectedRegions);
+        $scope.saveModel.radiologist.region = $scope.selectedRegions.join();
+    };
+    
+    $scope.doFilter = function() {
+		$scope.gridOptions.api.setQuickFilter($scope.filterText);
+	};
+    
+    $scope.goEdit = function(mode) {
+    	if(mode != 'New' && !$scope.selectedRow) {
+    		alert("Pleas select a row");
+    		return;
+    	}else if(mode == 'New') {
+    		$scope.clearSaveModel();
+    	}else{
+    		$scope.clearSaveModel();
+    		$scope.saveModel.radiologist = $scope.selectedRow; 
+    		document.getElementById("radImgUrl").value = $scope.selectedRow.imgurl;
+    		$scope.selectedRegions = $scope.selectedRow.region.split(",");
+    	}
+    	$scope.mode = 'edit';
+    	$scope.editMode = mode;
+    	$scope.mistery = Math.random();
+		console.log($scope.selectedRow);
+    };
+    
+    $scope.doSave = function() {
+    	$scope.saveModel.imgstr = document.getElementById("radImgStr").value;
+    	$scope.saveModel.radiologist.imgurl = document.getElementById("radImgUrl").value;
+    	console.log($scope.saveModel);
+    	$scope.mode = 'table';
+    	$scope.alert = {clz:"alert-info", msg:"Saving.."};
+    	$http.put("${saveRadiologist}", $scope.saveModel).then(function(obj){
+    		$scope.alert = {clz:"alert-success", msg:obj.data.msg};    		
+    		$scope.updateList();
+		}, function() {
+    		$scope.alert = {clz:"alert-danger", msg:"Failed to Save"};    		
+		});
+    };
+    
+    $scope.doDelete = function() {
+    	if(!$scope.selectedRow) {
+    		alert("Pleas select a row");
+    		return;
+    	}
+    	var wmsg = "Are you sure to remove this radiologist?";
+		if(confirm(wmsg)) {
+	    	$scope.alert = {clz:"alert-info", msg:"Deleting.."};
+			$http.get("${deleteRadiologist}?id=" + $scope.selectedRow.id).then(function(obj){
+	    		$scope.alert = {clz:"alert-success", msg:"Deleted"};    		
+				$scope.updateList();
+			}, function(){
+	    		$scope.alert = {clz:"alert-danger", msg:"Failed to Delete"};    		
+			});
+		}
+    };
+    
+    $scope.updateList = function() {
+    	$http.get("${getRadiologistList}").then(function(obj){
+			$scope.rowData = obj.data;
+			$scope.gridOptions.api.setRowData($scope.rowData);
+			$scope.gridOptions.api.refreshView();
+		}, function(){
+    		$scope.alert = {clz:"alert-danger", msg:"Failed to Get List"};    				
+		});
+    };
+    
+    // Boot with list
+    $scope.clearSaveModel();
+    $scope.updateList();
+})
+.controller('cliCtrl', function ($scope, $http, $filter, $timeout, $location, $sce) {
+	$scope.rowData = [];
+	$scope.regions = ${REGION_NAMES};
+	$scope.regions.push("JV InSight");
+	$scope.states = ["ACT","NSW","NT","QLD","SA","TAS","VIC","WA"];
+	$scope.selectedRow = null;
+	$scope.filterText = "";
+	$scope.saveModel = null;
+	$scope.editMode = "New";
+	$scope.mode = "table"; // table or edit
+	$scope.mistery = "0";
+	$scope.alert = {clz:"hidden", msg:""};
+	
+	var columnDefs = [
+        {headerName: "Name", field: "name", editable:true, pinned:"left"},
+        {headerName: "Path", field: "path", editable:true},
+        {headerName: "Address", field: "address", editable:true, cellEditor: 'largeText'},
+        {headerName: "Suburb", field: "suburb", editable:true},
+        {headerName: "State", field: "state", editable:true, cellEditor:'select', cellEditorParams:{values:$scope.states}},
+        {headerName: "Postcode", field: "postcode", editable:true},
+        {headerName: "Region", field: "region", editable:true, cellEditor:'select', cellEditorParams:{values:$scope.regions}},
+        {headerName: "Phone", field: "phone", editable:true},
+        {headerName: "Fax", field: "fax", editable:true},
+        {headerName: "Longitude", field: "lon", editable:true},
+        {headerName: "Latidute", field: "lat", editable:true},
+        {headerName: "Map URL", field: "mapurl", editable:true},
+        {headerName: "Book URL", field: "bookurl", editable:true},
+        {headerName: "Procedures", field: "procedures", editable:true, cellEditor: 'largeText'},
+        {headerName: "Hours", field: "hours", editable:true, cellEditor: 'largeText'},
+        {headerName: "Parking", field: "parking", editable:true, cellEditor: 'largeText'},
+        {headerName: "Transport", field: "transport", editable:true, cellEditor: 'largeText'},
+        {headerName: "Intro", field: "intro", editable:true, cellEditor: 'largeText'},
+        {headerName: "Appointment Emails", field: "appointmentEmails", editable:true},
+        {headerName: "Info File", field: "infofilename", editable:false, suppressSorting:true, cellRenderer:function(params){return params.value ? "<a href=\"${getClinicInfofile}?id=" + params.data.id + "&random=" + Math.random() + "\">" + params.value + "</a>" : "";}},
+        {headerName: "Image", field: "id", editable:false, suppressSorting:true, cellRenderer:function(params){return "<img width=\"20\" height=\"20\" src=\"${getClinicImage}?id=" + params.value + "&random=" + Math.random() + "\"/>";}}
+    ];
+
+	$scope.updateSelection = function() {
+		$scope.selectedRow = $scope.gridOptions.api.getSelectedRows()[0];
+		console.log($scope.selectedRow);
+	};
+	
+    $scope.gridOptions = {
+        columnDefs: columnDefs,
+        rowData: $scope.rowData,
+		enableFilter: true,
+		enableSorting: true,
+		enableColResize: true,
+		rowSelection: 'single',
+		onSelectionChanged: $scope.updateSelection,
+		onCellEditingStopped: function (event) {
+	 		$scope.alert = {clz:"alert-info", msg:"Updating.."};    					
+			$http.put("${putClinic}", event.data).then(function(obj){
+		 		$scope.alert = {clz:"alert-success", msg:obj.data.msg};    					
+			}, function(){
+		 		$scope.alert = {clz:"alert-danger", msg:"Failed to Update"};    					
+			});
+		}
+    };
+    
+    $scope.clearSaveModel = function() {
+    	$scope.saveModel = {infofilestr:"",imgstr:"",clinic:{name:"",path:"",address:"",suburb:"",state:"",postcode:"",region:"",keyword:"",phone:"",lon:"",lat:"",mapurl:"",bookurl:"",procedures:"",hours:"",fax:"",parking:"",transport:"",intro:"",imgurl:""}};
+    	document.getElementById("cliImgUrl").value = "";
+    	document.getElementById("cliImgStr").value = "";
+    	document.getElementById("cliImgDisp").innerHTML = "";
+    	document.getElementById("cliInfofileStr").value = "";
+    };
+    
+    $scope.mandFilled = function() {
+    	return $scope.saveModel.clinic.name && $scope.saveModel.clinic.name.length > 0 
+    		&& $scope.saveModel.clinic.path && $scope.saveModel.clinic.path.length > 0; 
+    };
+    
+    $scope.doFilter = function() {
+		$scope.gridOptions.api.setQuickFilter($scope.filterText);
+	};
+    
+    $scope.goEdit = function(mode) {
+    	if(mode != 'New' && !$scope.selectedRow) {
+    		alert("Pleas select a row");
+    		return;
+    	}else if(mode == 'New') {
+    		$scope.clearSaveModel();
+    	}else{
+    		$scope.clearSaveModel();
+    		$scope.saveModel.clinic = $scope.selectedRow; 
+    		document.getElementById("cliImgUrl").value = $scope.selectedRow.imgurl;
+    		$scope.selectedRegions = $scope.selectedRow.region.split(",");
+    	}
+    	document.getElementById("cliInfofileInput").value = null;
+    	$scope.mode = 'edit';
+    	$scope.editMode = mode;
+    	$scope.mistery = Math.random();
+		console.log($scope.selectedRow);
+    };
+    
+    $scope.doSave = function() {
+    	$scope.saveModel.imgstr = document.getElementById("cliImgStr").value;
+    	$scope.saveModel.clinic.imgurl = document.getElementById("cliImgUrl").value;
+    	$scope.saveModel.infofilestr = document.getElementById("cliInfofileStr").value;
+    	$scope.saveModel.clinic.infofilename = $scope.saveModel.infofilestr && $scope.saveModel.infofilestr.length > 0 ? document.getElementById("cliInfofileName").value : "";
+    	console.log($scope.saveModel);
+    	$scope.mode = 'table';
+    	$scope.alert = {clz:"alert-info", msg:"Saving.."};    					   	
+    	$http.put("${saveClinic}", $scope.saveModel).then(function(obj){
+    		$scope.alert = {clz:"alert-success", msg:obj.data.msg};    					
+    		$scope.updateList();
+		}, function(){
+			$scope.alert = {clz:"alert-danger", msg:"Failed to Save"};    					
+		});
+    };
+    
+    $scope.doDelete = function() {
+    	if(!$scope.selectedRow) {
+    		alert("Pleas select a row");
+    		return;
+    	}
+    	var wmsg = "Are you sure to remove this clinic?";
+		if(confirm(wmsg)) {
+			console.log($scope.selectedRow);
+			$scope.alert = {clz:"alert-info", msg:"Deleting.."};    					
+			$http.get("${deleteClinic}?id=" + $scope.selectedRow.id).then(function(obj){
+				$scope.alert = {clz:"alert-success", msg:obj.data.msg};    					
+				$scope.updateList();
+			}, function(){
+				$scope.alert = {clz:"alert-danger", msg:"Failed to Delete"};    					
+			});
+		}
+    };
+    
+    $scope.updateList = function() {
+    	$http.get("${getClinicList}").then(function(obj){
+			$scope.rowData = obj.data;
+			$scope.gridOptions.api.setRowData($scope.rowData);
+			$scope.gridOptions.api.refreshView();
+		}, function(){
+			$scope.alert = {clz:"alert-danger", msg:"Failed to get list"};    					
+		});
+    };
+    
+    // Boot with list
+    $scope.clearSaveModel();
+    $scope.updateList();
+})
+;
+</script>
+
+	<div th:replace="fragments/layout/footer :: footer">...</div>
+</body>
+</html>

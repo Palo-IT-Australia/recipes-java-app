@@ -130,11 +130,21 @@ public class ReferrerPortalMvcController {
 		return "account";
 	}
 	
-	@GetMapping("/book")
-	public String getBook() {
-		return "book";
+	@GetMapping("/editor")
+	public String getEditor() {
+		return "editor";
 	}
-
+	
+	@GetMapping("/editor/dbmanager")
+	public String getEditorDBManager() {
+		return "dbmanager";
+	}
+	
+	@GetMapping("/editor/crmmanager")
+	public String getEditorCrmManager() {
+		return "crmmanager";
+	}
+	
 	@GetMapping("/profile")
 	public String getProfile(Model model, Authentication authentication) {
 		model.addAttribute("ChangeModel", new ChangeModel());
