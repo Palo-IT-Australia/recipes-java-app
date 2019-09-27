@@ -10,7 +10,7 @@ import javax.persistence.Table;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
-@Table(name = "RADIOLOGIST", catalog = "dbo")
+@Table(name = "RADIOLOGIST")
 public class RadiologistEntity {
   @Id
   @GeneratedValue(strategy=GenerationType.IDENTITY)

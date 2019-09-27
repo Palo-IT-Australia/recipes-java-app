@@ -6,45 +6,11 @@
 <body>
 	<div th:replace="fragments/layout/header :: header">...</div>
 
-<%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
-<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
-<%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
-
-<portlet:defineObjects />
-
-<portlet:resourceURL var="getRadiologistList" id="getRadiologistList">
-</portlet:resourceURL>
-<portlet:resourceURL var="getRadiologistImage" id="getRadiologistImage">
-</portlet:resourceURL>
-<portlet:resourceURL var="putRadiologist" id="putRadiologist">
-</portlet:resourceURL>
-<portlet:resourceURL var="saveRadiologist" id="saveRadiologist">
-</portlet:resourceURL>
-<portlet:resourceURL var="deleteRadiologist" id="deleteRadiologist">
-</portlet:resourceURL>
-
-<portlet:resourceURL var="getClinicList" id="getClinicList">
-</portlet:resourceURL>
-<portlet:resourceURL var="getClinicImage" id="getClinicImage">
-</portlet:resourceURL>
-<portlet:resourceURL var="putClinic" id="putClinic">
-</portlet:resourceURL>
-<portlet:resourceURL var="saveClinic" id="saveClinic">
-</portlet:resourceURL>
-<portlet:resourceURL var="deleteClinic" id="deleteClinic">
-</portlet:resourceURL>
-<portlet:resourceURL var="getClinicInfofile" id="getClinicInfofile">
-</portlet:resourceURL>
-
-<!-- 
-<link rel="stylesheet" href="<%=request.getContextPath()%>/resources/bootstrap/css/bootstrap.min.css">
-<link rel="stylesheet" href="<%=request.getContextPath()%>/resources/font-awesome/css/font-awesome.min.css">
- -->
- 
-<script src="<%=request.getContextPath()%>/resources/angular/angular.min.js"></script>
-<script src="<%=request.getContextPath()%>/resources/angular/angular-sanitize.min.js"></script>
-<script src="<%=request.getContextPath()%>/resources/plugins/txtang.min.js"></script>
-<script src="<%=request.getContextPath()%>/resources/plugins/ag-grid.min.js"></script>
+	<link rel="stylesheet" th:href="@{/css/public/font-awesome/css/font-awesome.min.css}">
+	<script th:src="@{/js/public/angular.min.js}"></script>
+	<script th:src="@{/js/public/angular-sanitize.min.js}"></script>
+	<script th:src="@{/js/public/plugins/txtang.min.js}"></script>
+	<script th:src="@{/js/public/plugins/ag-grid.min.js}"></script>
 
 <style>
 	.radio-choice {
@@ -169,7 +135,7 @@
 	      		<div id="radImgDisp" class="col-sm-3">
       			</div>
       			<div class="col-sm-3">
-      				<img ng-hide="editMode=='New'" id="radCurrentImage" ng-src="${getRadiologistImage}?id={{saveModel.radiologist.id}}&random={{mistery}}"/>      			
+      				<img ng-hide="editMode=='New'" id="radCurrentImage" ng-src="{{restRoot}}/getRadiologistImage?id={{saveModel.radiologist.id}}&random={{mistery}}"/>      			
       			</div>
 			</div>
 			<div class="form-group row">
@@ -321,7 +287,7 @@
 	      		<div id="cliImgDisp" class="col-sm-3">
       			</div>
       			<div class="col-sm-3">
-      				<img ng-hide="editMode=='New'" id="cliCurrentImage" ng-src="${getClinicImage}?id={{saveModel.clinic.id}}&random={{mistery}}"/>      			
+      				<img ng-hide="editMode=='New'" id="cliCurrentImage" ng-src="{{restRoot}}/getClinicImage?id={{saveModel.clinic.id}}&random={{mistery}}"/>      			
       			</div>
 			</div>
 			<div class="form-group row">
@@ -374,7 +340,7 @@
 		}
 	}
 </script>
-<script>
+<script th:inline="javascript">
 agGrid.initialiseAgGridWithAngular1(angular);
 angular.module('dbApp',["agGrid","textAngular"])
 .controller('mainCtrl', function ($scope, $http, $filter, $timeout, $location, $sce) {
@@ -383,8 +349,7 @@ angular.module('dbApp',["agGrid","textAngular"])
 })
 .controller('radCtrl', function ($scope, $http, $filter, $timeout, $location, $sce) {
 	$scope.rowData = [];
-	$scope.regions = ${REGION_NAMES};
-	$scope.regions.push("JV InSight");
+	$scope.regions = ["Sydney North","Sydney West","Central Coast","Armidale","Coffs Harbour","Brisbane Central","Brisbane North","Ipswich","QLD Central","Gympie","ACT","RIL Border","RIL Riverina","RIL Gippsland","RIL Northern Tasmania","RIL Southern Tasmania","RIL NT","RIL Sunraysia","MIA","JV Dr Jones","JV Wesley","JV InSight","JV Sunshine","JV St Stephen","JV St Andrew","JV Savage","JV North Shore","JV Uniting Care","Sydney Southern"]
 	$scope.selectedRegions = [];
 	$scope.selectedRow = null;
 	$scope.filterText = "";
@@ -393,6 +358,7 @@ angular.module('dbApp',["agGrid","textAngular"])
 	$scope.mode = "table"; // table or edit
 	$scope.mistery = "0";
 	$scope.alert = {clz:"hidden", msg:""};
+	$scope.restRoot = /*[[@{/editorrest/dbmanager}]]*/ "/editorrest/dbmanager";
 	
 	var columnDefs = [
         {headerName: "Title", field: "title", editable:true, pinned:"left"},
@@ -404,7 +370,7 @@ angular.module('dbApp',["agGrid","textAngular"])
         {headerName: "Card", field: "card", editable:true, cellEditor: 'largeText'},
         {headerName: "Intro", field: "intro", editable:true, cellEditor: 'largeText'},
         {headerName: "Position", field: "position", editable:true},
-        {headerName: "Image", field: "id", editable:false, suppressSorting:true, cellRenderer:function(params){return "<img width=\"20\" height=\"20\" src=\"${getRadiologistImage}?id=" + params.value + "&random=" + Math.random() + "\"/>";}}
+        {headerName: "Image", field: "id", editable:false, suppressSorting:true, cellRenderer:function(params){return "<img width=\"20\" height=\"20\" src=\"" + $scope.restRoot + "/getRadiologistImage?id=" + params.value + "&random=" + Math.random() + "\"/>";}}
     ];
 
 	$scope.updateSelection = function() {
@@ -423,7 +389,7 @@ angular.module('dbApp',["agGrid","textAngular"])
 		onCellEditingStopped: function (event) {
 			console.log(event.data);
 			$scope.alert = {clz:"alert-info", msg:"Updating.."};
-			$http.put("${putRadiologist}", event.data).then(
+			$http.put($scope.restRoot + "/putRadiologist", event.data).then(
 				function(obj){
 					$scope.alert = {clz:"alert-success", msg:obj.data.msg};
 				},
@@ -485,7 +451,7 @@ angular.module('dbApp',["agGrid","textAngular"])
     	console.log($scope.saveModel);
     	$scope.mode = 'table';
     	$scope.alert = {clz:"alert-info", msg:"Saving.."};
-    	$http.put("${saveRadiologist}", $scope.saveModel).then(function(obj){
+    	$http.put($scope.restRoot + "/saveRadiologist", $scope.saveModel).then(function(obj){
     		$scope.alert = {clz:"alert-success", msg:obj.data.msg};    		
     		$scope.updateList();
 		}, function() {
@@ -501,7 +467,7 @@ angular.module('dbApp',["agGrid","textAngular"])
     	var wmsg = "Are you sure to remove this radiologist?";
 		if(confirm(wmsg)) {
 	    	$scope.alert = {clz:"alert-info", msg:"Deleting.."};
-			$http.get("${deleteRadiologist}?id=" + $scope.selectedRow.id).then(function(obj){
+			$http.get($scope.restRoot + "/deleteRadiologist?id=" + $scope.selectedRow.id).then(function(obj){
 	    		$scope.alert = {clz:"alert-success", msg:"Deleted"};    		
 				$scope.updateList();
 			}, function(){
@@ -511,7 +477,7 @@ angular.module('dbApp',["agGrid","textAngular"])
     };
     
     $scope.updateList = function() {
-    	$http.get("${getRadiologistList}").then(function(obj){
+    	$http.get($scope.restRoot + "/getRadiologistList").then(function(obj){
 			$scope.rowData = obj.data;
 			$scope.gridOptions.api.setRowData($scope.rowData);
 			$scope.gridOptions.api.refreshView();
@@ -526,8 +492,7 @@ angular.module('dbApp',["agGrid","textAngular"])
 })
 .controller('cliCtrl', function ($scope, $http, $filter, $timeout, $location, $sce) {
 	$scope.rowData = [];
-	$scope.regions = ${REGION_NAMES};
-	$scope.regions.push("JV InSight");
+	$scope.regions = ["Sydney North","Sydney West","Central Coast","Armidale","Coffs Harbour","Brisbane Central","Brisbane North","Ipswich","QLD Central","Gympie","ACT","RIL Border","RIL Riverina","RIL Gippsland","RIL Northern Tasmania","RIL Southern Tasmania","RIL NT","RIL Sunraysia","MIA","JV Dr Jones","JV Wesley","JV InSight","JV Sunshine","JV St Stephen","JV St Andrew","JV Savage","JV North Shore","JV Uniting Care","Sydney Southern"]
 	$scope.states = ["ACT","NSW","NT","QLD","SA","TAS","VIC","WA"];
 	$scope.selectedRow = null;
 	$scope.filterText = "";
@@ -536,6 +501,7 @@ angular.module('dbApp',["agGrid","textAngular"])
 	$scope.mode = "table"; // table or edit
 	$scope.mistery = "0";
 	$scope.alert = {clz:"hidden", msg:""};
+	$scope.restRoot = /*[[@{/editorrest/dbmanager}]]*/ "/editorrest/dbmanager";
 	
 	var columnDefs = [
         {headerName: "Name", field: "name", editable:true, pinned:"left"},
@@ -557,8 +523,8 @@ angular.module('dbApp',["agGrid","textAngular"])
         {headerName: "Transport", field: "transport", editable:true, cellEditor: 'largeText'},
         {headerName: "Intro", field: "intro", editable:true, cellEditor: 'largeText'},
         {headerName: "Appointment Emails", field: "appointmentEmails", editable:true},
-        {headerName: "Info File", field: "infofilename", editable:false, suppressSorting:true, cellRenderer:function(params){return params.value ? "<a href=\"${getClinicInfofile}?id=" + params.data.id + "&random=" + Math.random() + "\">" + params.value + "</a>" : "";}},
-        {headerName: "Image", field: "id", editable:false, suppressSorting:true, cellRenderer:function(params){return "<img width=\"20\" height=\"20\" src=\"${getClinicImage}?id=" + params.value + "&random=" + Math.random() + "\"/>";}}
+        {headerName: "Info File", field: "infofilename", editable:false, suppressSorting:true, cellRenderer:function(params){return params.value ? "<a href=\"" + $scope.restRoot + "/getClinicInfofile?id=" + params.data.id + "&random=" + Math.random() + "\">" + params.value + "</a>" : "";}},
+        {headerName: "Image", field: "id", editable:false, suppressSorting:true, cellRenderer:function(params){return "<img width=\"20\" height=\"20\" src=\"" + $scope.restRoot + "/getClinicImage?id=" + params.value + "&random=" + Math.random() + "\"/>";}}
     ];
 
 	$scope.updateSelection = function() {
@@ -576,7 +542,7 @@ angular.module('dbApp',["agGrid","textAngular"])
 		onSelectionChanged: $scope.updateSelection,
 		onCellEditingStopped: function (event) {
 	 		$scope.alert = {clz:"alert-info", msg:"Updating.."};    					
-			$http.put("${putClinic}", event.data).then(function(obj){
+			$http.put($scope.restRoot + "/putClinic", event.data).then(function(obj){
 		 		$scope.alert = {clz:"alert-success", msg:obj.data.msg};    					
 			}, function(){
 		 		$scope.alert = {clz:"alert-danger", msg:"Failed to Update"};    					
@@ -628,7 +594,7 @@ angular.module('dbApp',["agGrid","textAngular"])
     	console.log($scope.saveModel);
     	$scope.mode = 'table';
     	$scope.alert = {clz:"alert-info", msg:"Saving.."};    					   	
-    	$http.put("${saveClinic}", $scope.saveModel).then(function(obj){
+    	$http.put($scope.restRoot + "/saveClinic", $scope.saveModel).then(function(obj){
     		$scope.alert = {clz:"alert-success", msg:obj.data.msg};    					
     		$scope.updateList();
 		}, function(){
@@ -645,7 +611,7 @@ angular.module('dbApp',["agGrid","textAngular"])
 		if(confirm(wmsg)) {
 			console.log($scope.selectedRow);
 			$scope.alert = {clz:"alert-info", msg:"Deleting.."};    					
-			$http.get("${deleteClinic}?id=" + $scope.selectedRow.id).then(function(obj){
+			$http.get($scope.restRoot + "/deleteClinic?id=" + $scope.selectedRow.id).then(function(obj){
 				$scope.alert = {clz:"alert-success", msg:obj.data.msg};    					
 				$scope.updateList();
 			}, function(){
@@ -655,7 +621,7 @@ angular.module('dbApp',["agGrid","textAngular"])
     };
     
     $scope.updateList = function() {
-    	$http.get("${getClinicList}").then(function(obj){
+    	$http.get($scope.restRoot + "/getClinicList").then(function(obj){
 			$scope.rowData = obj.data;
 			$scope.gridOptions.api.setRowData($scope.rowData);
 			$scope.gridOptions.api.refreshView();
