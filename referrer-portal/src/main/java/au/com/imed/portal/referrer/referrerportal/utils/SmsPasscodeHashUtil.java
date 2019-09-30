@@ -24,7 +24,7 @@ public class SmsPasscodeHashUtil {
 //    matched = validatePassword("password", places[1], places[0]);
 //    System.out.println(matched);
 //  }
-  
+
   private static final String CHARSET = "0123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"; // No IlO to avoid confusion
   private static SecureRandom rnd = new SecureRandom();
 
