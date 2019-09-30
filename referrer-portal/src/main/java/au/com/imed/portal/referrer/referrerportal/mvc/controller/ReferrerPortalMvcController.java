@@ -260,7 +260,7 @@ public class ReferrerPortalMvcController {
 						if(mobile.startsWith("04")) {
 							try {
 								final String  passcode = SmsPasscodeHashUtil.randomString(8);
-								ReferrerPasswordResetEntity saved = confirmProcessDataService.savePasswordReset(userDetails.getName(), passcode);
+								ReferrerPasswordResetEntity saved = confirmProcessDataService.savePasswordReset(userDetails.getUid(), passcode);
 								final String confirmParam = URLEncoder.encode(UrlCodeAes128Util.encrypt(saved.getUrlCode()), "UTF-8");
 								if("prod".equals(ACTIVE_PROFILE)) {
 									emailService.sendPasswordResetHtml(new String[] {email}, APPLICATION_URL + "/resetconfirm?secret=" + confirmParam);
