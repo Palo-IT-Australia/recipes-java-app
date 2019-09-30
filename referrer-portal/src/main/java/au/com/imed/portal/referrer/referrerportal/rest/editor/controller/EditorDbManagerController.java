@@ -4,6 +4,7 @@ import java.io.OutputStream;
 import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.transaction.Transactional;
 
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -116,6 +117,7 @@ public class EditorDbManagerController {
 		return new ResponseEntity<List<ClinicContentEntity>>(list, HttpStatus.OK);
 	}
 	
+	@Transactional
   @GetMapping("/getClinicImage")
   public void getClinicImage(HttpServletResponse response, @RequestParam(value="id") int id) 
   {

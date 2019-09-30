@@ -359,7 +359,8 @@ angular.module('dbApp',["agGrid","textAngular"])
 	$scope.mistery = "0";
 	$scope.alert = {clz:"hidden", msg:""};
 	$scope.restRoot = /*[[@{/editorrest/dbmanager}]]*/ "/editorrest/dbmanager";
-	
+	$scope.token = $("meta[name='_csrf']").attr("content");
+
 	var columnDefs = [
         {headerName: "Title", field: "title", editable:true, pinned:"left"},
         {headerName: "Path", field: "name", editable:true},
@@ -389,7 +390,9 @@ angular.module('dbApp',["agGrid","textAngular"])
 		onCellEditingStopped: function (event) {
 			console.log(event.data);
 			$scope.alert = {clz:"alert-info", msg:"Updating.."};
-			$http.put($scope.restRoot + "/putRadiologist", event.data).then(
+			$http.put($scope.restRoot + "/putRadiologist", event.data, {headers: {
+				 "X-XSRF-TOKEN": $scope.token
+			}}).then(
 				function(obj){
 					$scope.alert = {clz:"alert-success", msg:obj.data.msg};
 				},
@@ -451,13 +454,15 @@ angular.module('dbApp',["agGrid","textAngular"])
     	console.log($scope.saveModel);
     	$scope.mode = 'table';
     	$scope.alert = {clz:"alert-info", msg:"Saving.."};
-    	$http.put($scope.restRoot + "/saveRadiologist", $scope.saveModel).then(function(obj){
+    	$http.put($scope.restRoot + "/saveRadiologist", $scope.saveModel, {headers: {
+			 "X-XSRF-TOKEN": $scope.token
+			}}).then(function(obj){
     		$scope.alert = {clz:"alert-success", msg:obj.data.msg};    		
     		$scope.updateList();
-		}, function() {
-    		$scope.alert = {clz:"alert-danger", msg:"Failed to Save"};    		
-		});
-    };
+			}, function() {
+	    		$scope.alert = {clz:"alert-danger", msg:"Failed to Save"};    		
+			});
+	    };
     
     $scope.doDelete = function() {
     	if(!$scope.selectedRow) {
@@ -502,7 +507,8 @@ angular.module('dbApp',["agGrid","textAngular"])
 	$scope.mistery = "0";
 	$scope.alert = {clz:"hidden", msg:""};
 	$scope.restRoot = /*[[@{/editorrest/dbmanager}]]*/ "/editorrest/dbmanager";
-	
+	$scope.token = $("meta[name='_csrf']").attr("content");
+
 	var columnDefs = [
         {headerName: "Name", field: "name", editable:true, pinned:"left"},
         {headerName: "Path", field: "path", editable:true},
@@ -542,7 +548,9 @@ angular.module('dbApp',["agGrid","textAngular"])
 		onSelectionChanged: $scope.updateSelection,
 		onCellEditingStopped: function (event) {
 	 		$scope.alert = {clz:"alert-info", msg:"Updating.."};    					
-			$http.put($scope.restRoot + "/putClinic", event.data).then(function(obj){
+			$http.put($scope.restRoot + "/putClinic", event.data, {headers: {
+				 "X-XSRF-TOKEN": $scope.token
+			}}).then(function(obj){
 		 		$scope.alert = {clz:"alert-success", msg:obj.data.msg};    					
 			}, function(){
 		 		$scope.alert = {clz:"alert-danger", msg:"Failed to Update"};    					
@@ -594,7 +602,9 @@ angular.module('dbApp',["agGrid","textAngular"])
     	console.log($scope.saveModel);
     	$scope.mode = 'table';
     	$scope.alert = {clz:"alert-info", msg:"Saving.."};    					   	
-    	$http.put($scope.restRoot + "/saveClinic", $scope.saveModel).then(function(obj){
+    	$http.put($scope.restRoot + "/saveClinic", $scope.saveModel, {headers: {
+			 "X-XSRF-TOKEN": $scope.token
+			}}).then(function(obj){
     		$scope.alert = {clz:"alert-success", msg:obj.data.msg};    					
     		$scope.updateList();
 		}, function(){
