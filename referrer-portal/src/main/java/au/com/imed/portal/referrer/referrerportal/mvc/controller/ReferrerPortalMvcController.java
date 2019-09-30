@@ -424,33 +424,38 @@ public class ReferrerPortalMvcController {
 	}
 	
 	@GetMapping("/about")
-	public String getAbout(Model model) {
+	public String getAbout() {
 		return "about";
 	}
 	
 	@GetMapping("/support")
-	public String getSupport(Model model) {
+	public String getSupport() {
 		return "support";
 	}
 	
 	@GetMapping("/privacy")
-	public String getPrivacy(Model model) {
+	public String getPrivacy() {
 		return "privacy";
 	}
 	
 	@GetMapping("/termsofuse")
-	public String getTermsOfUse(Model model) {
+	public String getTermsOfUse() {
 		return "termsofuse";
 	}
 	
 	@GetMapping("/mycrm")
-	public String getMyCrm(Model model) {
+	public String getMyCrm() {
 		return "mycrm";
 	}
 	
 	@GetMapping("/feedback")
-	public String getFeedback(Model model) {
+	public String getFeedback() {
 		return "feedback";
+	}
+	
+	@GetMapping("/book")
+	public String getBook() {
+		return "book";
 	}
 	
 	@GetMapping("/robots.txt")

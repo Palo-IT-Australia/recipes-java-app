@@ -44,6 +44,7 @@ public class EditorDbManagerController {
     return new ResponseEntity<List<RadiologistEntity>>(list, HttpStatus.OK);
   }
   
+  @Transactional
   @GetMapping("/getRadiologistImage")
   public void getRadiologistImage(HttpServletResponse response, @RequestParam("id") int id) 
   {
@@ -61,6 +62,7 @@ public class EditorDbManagerController {
     }
   }
   
+  @Transactional
   @RequestMapping("/putRadiologist")
   public ResponseEntity<SimpleResultModel> putRadiologist(@RequestBody RadiologistEntity entity) 
   {
@@ -73,6 +75,7 @@ public class EditorDbManagerController {
     return new ResponseEntity<SimpleResultModel>(new SimpleResultModel("Updated " + entity.getName(), "sucess"), HttpStatus.OK);
   }
   
+  @Transactional
   @RequestMapping("/saveRadiologist")
   public ResponseEntity<SimpleResultModel> saveRadiologist(@RequestBody RadiologistSaveModel model) 
   {
@@ -154,6 +157,7 @@ public class EditorDbManagerController {
     }
   }
   
+  @Transactional
   @RequestMapping("/putClinic")
   public ResponseEntity<SimpleResultModel> putClinic(@RequestBody ClinicContentEntity entity) 
   {
@@ -168,6 +172,7 @@ public class EditorDbManagerController {
     return new ResponseEntity<SimpleResultModel>(new SimpleResultModel("Updated " + entity.getName(), "sucess"), HttpStatus.OK);
   }
   
+  @Transactional
   @RequestMapping("/saveClinic")
   public ResponseEntity<SimpleResultModel> saveClinic(@RequestBody ClinicContentSaveModel model) 
   {

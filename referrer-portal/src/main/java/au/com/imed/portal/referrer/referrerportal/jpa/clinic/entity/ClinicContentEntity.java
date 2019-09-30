@@ -8,8 +8,11 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import org.hibernate.annotations.Proxy;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+@Proxy(lazy = false)
 @Entity
 @Table(name = "CLINIC_CONTENT")
 public class ClinicContentEntity {
