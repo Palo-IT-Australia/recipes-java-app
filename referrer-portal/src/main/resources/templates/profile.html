@@ -258,7 +258,7 @@
 		$scope.checkEmailAvailable = function() {
 			var email = $scope.detailUser.email;
 			if(email && email.length > 3) {
-				var restRoot = /*[[@{/imedvisage}]]*/ "/imedvisage";
+				var restRoot = /*[[@{/referreraccount}]]*/ "/referreraccount";
 				$http.get(restRoot + "/isEmailAvailable", {params:{email:email}}).then(function(obj){
 					$scope.emailAvailable = obj.data.available;			
 				}
