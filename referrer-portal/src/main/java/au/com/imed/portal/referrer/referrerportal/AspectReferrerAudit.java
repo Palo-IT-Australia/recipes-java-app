@@ -15,6 +15,7 @@ import au.com.imed.portal.referrer.referrerportal.jpa.history.repository.Request
 import au.com.imed.portal.referrer.referrerportal.rest.visage.service.AttachmentService;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.service.GetOrderService;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.service.GetPatientOrdersService;
+import au.com.imed.portal.referrer.referrerportal.rest.visage.service.GetReferrerService;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.service.ReportService;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.service.SearchOrdersService;
 
@@ -33,6 +34,7 @@ public class AspectReferrerAudit {
   public void auditVisageResult(JoinPoint jp, String userName, Map<String, String> requestParams) {
     Object target = jp.getTarget();
     if("true".equalsIgnoreCase(requestParams.get(BREAK_GLASS)) || 
+    		GetReferrerService.class.isAssignableFrom(target.getClass()) || 
         ReportService.class.isAssignableFrom(target.getClass()) || 
         GetOrderService.class.isAssignableFrom(target.getClass()) || 
         GetPatientOrdersService.class.isAssignableFrom(target.getClass()) || 
