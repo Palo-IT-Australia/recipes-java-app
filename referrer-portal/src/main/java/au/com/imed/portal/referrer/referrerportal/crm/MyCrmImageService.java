@@ -29,7 +29,6 @@ public class MyCrmImageService {
 			if(list.size() > 0) {
 				CrmProfileEntity entity = list.get(0);
 				String bsf = new String(Base64.getEncoder().encode(file.getBytes()), "UTF-8");
-				logger.info(bsf);
 				entity.setImgstr(bsf);
 				logger.info("Saving Image name " + name);
 				profileRepository.saveAndFlush(entity);
