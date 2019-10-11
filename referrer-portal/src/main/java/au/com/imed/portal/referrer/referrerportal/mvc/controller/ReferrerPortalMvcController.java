@@ -8,6 +8,7 @@ import static au.com.imed.portal.referrer.referrerportal.common.PortalConstant.M
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLEncoder;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -28,8 +29,12 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
+import au.com.imed.portal.referrer.referrerportal.crm.MyCrmExcelService;
+import au.com.imed.portal.referrer.referrerportal.crm.MyCrmImageService;
 import au.com.imed.portal.referrer.referrerportal.email.ReferrerMailService;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.entity.ReferrerPasswordResetEntity;
 import au.com.imed.portal.referrer.referrerportal.ldap.ReferrerCreateAccountService;
@@ -85,6 +90,12 @@ public class ReferrerPortalMvcController {
 	
 	@Autowired
 	private ReportAccessService reportAccessService;
+	
+	@Autowired
+	private MyCrmExcelService myCrmExcelService;
+	
+	@Autowired
+	private MyCrmImageService myCrmImageService;
 
 	@GetMapping("/login")
 	public ModelAndView getLogin() {
@@ -142,6 +153,33 @@ public class ReferrerPortalMvcController {
 	
 	@GetMapping("/editor/crmmanager")
 	public String getEditorCrmManager() {
+		return "crmmanager";
+	}
+	
+	@PostMapping("/editor/crmmanager")
+	public String postmycrm(Model model, @RequestPart(name="file",required=false) MultipartFile file,
+			@RequestPart(name="profiles",required=false) List<MultipartFile> profiles) {
+		logger.info("file = " + file + "profiles " + profiles);
+		try {
+			if(file != null) {
+				myCrmExcelService.saveData(file.getInputStream());
+				model.addAttribute("okmsg", "Excel uploaded successfully");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			model.addAttribute("errmsg", "Failed to upload excel.");
+		}
+
+		try {
+			if(profiles != null) {
+				myCrmImageService.saveImages(profiles);
+				model.addAttribute("imgokmsg", "Images uploaded successfully");
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+			model.addAttribute("imgerrmsg", "Failed to upload images.");
+		}
+
 		return "crmmanager";
 	}
 	
