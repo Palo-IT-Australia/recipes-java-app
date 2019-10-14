@@ -121,7 +121,7 @@ public class UserMessageUtil {
         sb.append("As requested, your I-MED Online password has been reset. Please log in with the following:\n\n");
         //sb.append("User id: " + user.getUid() + "\n");
         sb.append("Password: " + password + "\n\n");
-        sb.append("Browse to https://portal.i-med.com.au to login.\n");
+        sb.append("Browse to https://i-medonline.com.au to login.\n");
         sb.append("If you did not request this change, please contact us on " + getSupportPhone() + " as soon as possible.\n");
         sb.append(getSignature());
 
@@ -133,7 +133,7 @@ public class UserMessageUtil {
 
         sb.append("Welcome to I-MED Online.\n");
         sb.append("We are pleased to advise your account has been approved - User id " + user.getUid() + "\n");
-        sb.append("Please follow this link https://portal.i-med.com.au to login or copy and paste it into your browser.\n");
+        sb.append("Please follow this link https://i-medonline.com.au to login or copy and paste it into your browser.\n");
         sb.append("You may like to save the Homepage to your favourites toolbar for easy reference.\n");
         sb.append("If you have any questions please call our Support line on " + getSupportPhone() + "\n");
         sb.append(getSignature());

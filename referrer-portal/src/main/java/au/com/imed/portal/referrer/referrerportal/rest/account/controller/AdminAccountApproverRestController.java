@@ -1,5 +1,6 @@
 package au.com.imed.portal.referrer.referrerportal.rest.account.controller;
 
+import java.util.Date;
 import java.util.List;
 
 import org.jose4j.json.internal.json_simple.JSONObject;
@@ -18,9 +19,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import au.com.imed.common.active.directory.manager.ImedActiveDirectoryLdapManager;
 import au.com.imed.portal.referrer.referrerportal.email.ReferrerMailService;
+import au.com.imed.portal.referrer.referrerportal.jpa.audit.entity.ReferrerActivationEntity;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.entity.ReferrerProviderEntity;
+import au.com.imed.portal.referrer.referrerportal.jpa.audit.repository.ReferrerActivationJpaRepository;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.repository.ReferrerProviderJpaRepository;
 import au.com.imed.portal.referrer.referrerportal.ldap.ReferrerAccountService;
+import au.com.imed.portal.referrer.referrerportal.model.LdapUserDetails;
 import au.com.imed.portal.referrer.referrerportal.model.StageUser;
 import au.com.imed.portal.referrer.referrerportal.model.StagingUserList;
 import au.com.imed.portal.referrer.referrerportal.rest.account.model.AccountApproving;
@@ -42,6 +46,9 @@ public class AdminAccountApproverRestController {
 	
 	@Autowired
 	private ReferrerProviderJpaRepository referrerProviderJpaRepository;
+	
+	@Autowired
+	private ReferrerActivationJpaRepository referrerActivationEntityJapRepository;
 	
 	@GetMapping("/getStageUsers")
 	public ResponseEntity<StagingUserList> getStagingUserList() {
@@ -120,6 +127,24 @@ public class AdminAccountApproverRestController {
   				user.setEmail("Hidehiro.Uehara@i-med.com.au");
   			}
   			emailService.emailAccountApproved(user);
+  			List<LdapUserDetails> details = referrerAccountService.findReferrerAccountsByUid(uid);
+  			if(details.size() > 0) {
+  				LdapUserDetails userDetail = details.get(0);
+  				ReferrerActivationEntity rae = new ReferrerActivationEntity();
+  				rae.setUid(userDetail.getUid());
+  				rae.setAhpra(userDetail.getAhpra());
+  				rae.setEmail(userDetail.getEmail());
+  				rae.setMobile(userDetail.getMobile());
+  				rae.setFirstName(userDetail.getGivenName());
+  				rae.setLastName(userDetail.getSurname());
+  				rae.setActivatedAt(new Date());
+  				referrerActivationEntityJapRepository.saveAndFlush(rae);
+  				logger.info("Saved to activation DB : " + userDetail);
+  			}
+  			else
+  			{
+  				logger.info("Failed to retrieve stageUser for " + uid);
+  			}
   			sts = HttpStatus.OK;
   		} catch (Exception e) {
   			e.printStackTrace();

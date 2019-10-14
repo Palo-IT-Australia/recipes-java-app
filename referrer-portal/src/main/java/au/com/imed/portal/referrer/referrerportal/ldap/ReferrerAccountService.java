@@ -292,6 +292,13 @@ public class ReferrerAccountService extends ABasicAccountService {
 				.or("sn").is(word);
 		return getReferrerLdapTemplate().search(query, new LdapUserDetailsUserAttributeMapper());
 	}
+	
+	public List<LdapUserDetails> findReferrerAccountsByUid(final String uid) throws Exception {
+		LdapQuery query = query()
+				.attributes("ibm-pwdAccountLocked", "cn", "uid", "givenName", "sn", "mail", "ahpra", "createTimeStamp", "BusinessUnit", "employeeType", "homePhone", "mobile", "physicalDeliveryOfficeName")
+				.where("uid").is(uid);
+		return getReferrerLdapTemplate().search(query, new LdapUserDetailsUserAttributeMapper());
+	}
 
 	//
 	// Approver

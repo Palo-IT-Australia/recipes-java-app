@@ -163,7 +163,7 @@ public class Referrer {
     }
 
     @JsonIgnoreProperties(ignoreUnknown=true)
-    static class Address {
+    public static class Address {
       private String line1;
       private String line2;
       private String line3;

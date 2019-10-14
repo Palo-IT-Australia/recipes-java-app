@@ -14,4 +14,7 @@ public interface VisageRequestAuditJPARepository extends JpaRepository<VisageReq
 	public List<VisageRequestAuditEntity> getBetween(String startDate, String endDate);
 
 	public Integer countByUsernameAndAuditAtGreaterThan(String username, Date from);
+	
+	@Query(value = "SELECT DISTINCT username from VISAGE_REQUEST_AUDIT as VRA where VRA.audit_at >= ?1 and VRA.audit_at < ?2", nativeQuery = true)
+	public List<String> getDistinctUsernamesBetween(Date from, Date to);
 }
