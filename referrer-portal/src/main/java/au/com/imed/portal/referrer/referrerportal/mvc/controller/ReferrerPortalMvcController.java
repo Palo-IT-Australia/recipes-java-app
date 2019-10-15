@@ -167,7 +167,7 @@ public class ReferrerPortalMvcController {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			model.addAttribute("errmsg", "Failed to upload excel.");
+			model.addAttribute("errmsg", "Failed to upload excel or excel not provided.");
 		}
 
 		try {
@@ -177,7 +177,7 @@ public class ReferrerPortalMvcController {
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
-			model.addAttribute("imgerrmsg", "Failed to upload images.");
+			model.addAttribute("imgerrmsg", "Failed to upload images or image not provided.");
 		}
 
 		return "crmmanager";
