@@ -71,7 +71,7 @@ public class AccountActivationScheduler {
 	@Scheduled(cron = "0 0 1 ? * MON-FRI")
 	public void scheduleAccountReminderTask() {
 		try {
-			if(SCHEDULER_SERVER_NAME.equals(InetAddress.getLocalHost().getHostName())) { // TODO
+			if(SCHEDULER_SERVER_NAME.equals(InetAddress.getLocalHost().getHostName())) { 
 				final Date now = new Date();    
 		    Calendar cal = Calendar.getInstance();
 		    int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
@@ -91,9 +91,11 @@ public class AccountActivationScheduler {
 		    
 		    for(ReferrerActivationEntity acnt : accounts) {
 		    	String uid = acnt.getUid();
+		    	logger.info("Checking if any audit for uid : " + uid);
 		    	if(auditRepository.countByUsernameAndAuditAtGreaterThan(uid, acnt.getActivatedAt()) == 0) {
 		    		CrmProfileEntity crm = getCrm(getReferrerPostcode(uid));
 		    		String email = acnt.getEmail();
+		    		logger.info("Sending referrer email : " + email + ", crm = " + crm);
 		    		if("prod".equals(ACTIVE_PROFILE)) {
 		    			// TODO
 		    			//acnt.getEmail()
@@ -151,6 +153,7 @@ public class AccountActivationScheduler {
 			    	if(plist.size() == 0 || !"hide".equals(plist.get(0).getHelp())) {
 			    		CrmProfileEntity crm = getCrm(getReferrerPostcode(uid));
 			    		AccountDetail details = accountService.getReferrerAccountDetail(uid);
+			    		logger.info("Sending referrer : " + details + ", crm = " + crm);
 			    		if("prod".equals(ACTIVE_PROFILE)) {
 	    					// TODO
 	    					if(crm != null) {
