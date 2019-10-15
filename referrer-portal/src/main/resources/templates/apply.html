@@ -14,9 +14,24 @@
 			<div th:if="${errorMsg}" th:text="'Error: ' + ${errorMsg}" class="alert alert-danger" role="alert">    
 				Error: Unexpected problem occurred.
 			</div>
-      <div th:if="${successMsg}" class="alert alert-success" role="alert"> 
-      	Thank you for registering for I-MED Online 2.0! Your application will be processed within one business day. You will receive and email confirmation with your username once complete. Note: You may need to check your junk folder for the email. If you do not receive your email within 2 days please contact your local CRM (Find service <a href="https://i-med.com.au/doctors/referrer-support">here</a>).
-      </div>
+      <!-- <div th:if="${successMsg}" class="alert alert-success" role="alert"> 
+      	Thank you for registering for I-MED Online 2.0! Your application will be processed within one business day. You will receive and email confirmation with your username once complete. Note: You may need to check your junk folder for the email. If you do not receive your email within 2 days please contact your local CRM (Find service <a href="javascript:void(0);" onclick="window.open('https://i-med.com.au/doctors/referrer-support');">here</a>).
+      </div> -->
+      
+      <div th:if="${successMsg}" id="succsessMsgDialog" class="ref-portal-instant-dialog-overlay">
+		    <div class="ref-portal-instant-dialog intro-text" style="height:32%;">
+	        <div>
+	        	<h3>Thank you for registering for I-MED Online 2.0!</h3>
+	        	Your application will be processed within one business day.<br/>
+	        	You will receive and email confirmation with your username once complete.<br/>
+	        	Note: You may need to check your junk folder for the email.<br/>
+	        	If you do not receive your email within 2 business days please contact your local CRM (Find service <a href="javascript:void(0);" onclick="window.open('https://i-med.com.au/doctors/referrer-support');">here</a>).
+	        </div>
+	        <div style="margin-top:20px;">    
+	        	<button class="btn btn-warning btn-block" onclick="$('#succsessMsgDialog').hide();">Close</button>
+	        </div>
+		    </div>
+			</div>
 
 			<div class="row w-row">
 				<div class="col-1-2 col-1-2-padding-left w-col w-col-6 col-centre">	
