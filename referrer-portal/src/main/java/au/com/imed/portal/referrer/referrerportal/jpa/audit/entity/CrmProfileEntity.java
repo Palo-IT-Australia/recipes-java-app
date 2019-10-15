@@ -24,9 +24,7 @@ public class CrmProfileEntity {
   @Column(name = "phone")
   private String phone;
   @Column(name = "email")
-  private String email;
-  
-  @JsonIgnore
+  private String email;  
   @Column(name = "imgstr")
   private String imgstr;
   

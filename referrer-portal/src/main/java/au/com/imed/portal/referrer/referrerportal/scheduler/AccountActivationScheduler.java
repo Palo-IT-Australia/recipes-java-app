@@ -72,6 +72,7 @@ public class AccountActivationScheduler {
 	public void scheduleAccountReminderTask() {
 		try {
 			if(SCHEDULER_SERVER_NAME.equals(InetAddress.getLocalHost().getHostName())) { 
+				logger.info("scheduleAccountReminderTask() starting...");
 				final Date now = new Date();    
 		    Calendar cal = Calendar.getInstance();
 		    int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);

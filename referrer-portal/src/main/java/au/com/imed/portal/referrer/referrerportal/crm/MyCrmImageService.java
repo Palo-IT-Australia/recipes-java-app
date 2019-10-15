@@ -15,6 +15,8 @@ import au.com.imed.portal.referrer.referrerportal.jpa.audit.repository.CrmProfil
 
 @Service
 public class MyCrmImageService {
+	private final static String PNG = "data:image/png;base64,";
+	
 	@Autowired
 	private CrmProfileJpaRepository profileRepository;
 			
@@ -29,7 +31,7 @@ public class MyCrmImageService {
 			if(list.size() > 0) {
 				CrmProfileEntity entity = list.get(0);
 				String bsf = new String(Base64.getEncoder().encode(file.getBytes()), "UTF-8");
-				entity.setImgstr(bsf);
+				entity.setImgstr(PNG + bsf);
 				logger.info("Saving Image name " + name);
 				profileRepository.saveAndFlush(entity);
 			}
@@ -43,7 +45,7 @@ public class MyCrmImageService {
 	public String getImageString(final String name) {
 		List<CrmProfileEntity> list = profileRepository.findByName(name);
 		if(list.size() > 0) {
-			return "data:image/png;base64," + list.get(0).getImgstr();
+			return PNG + list.get(0).getImgstr();
 		}
 		else
 		{
