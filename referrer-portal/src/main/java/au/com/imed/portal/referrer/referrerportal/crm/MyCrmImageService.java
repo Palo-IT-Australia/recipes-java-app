@@ -45,7 +45,7 @@ public class MyCrmImageService {
 	public String getImageString(final String name) {
 		List<CrmProfileEntity> list = profileRepository.findByName(name);
 		if(list.size() > 0) {
-			return PNG + list.get(0).getImgstr();
+			return list.get(0).getImgstr();
 		}
 		else
 		{
