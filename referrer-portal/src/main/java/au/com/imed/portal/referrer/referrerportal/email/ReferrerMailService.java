@@ -107,13 +107,13 @@ public class ReferrerMailService {
 	}
 
 	private static final String LOGIN_PROMPT_SUBJECT = "I-MED Radiology Network: Please login I-MED Online 2.0";
-	private static final String LOGIN_PROMPT_CONTENT_FMT = "Hello %s %s,<br><br>,You have not logged in I-MED Online 2.0 since your account %s was approved.<br><br>Kind regards from the team at I-MED Radiology.";
+	private static final String LOGIN_PROMPT_CONTENT_FMT = "Hello %s %s,<br><br>You have not logged in I-MED Online 2.0 since your account %s was approved.<br><br>Kind regards from the team at I-MED Radiology.";
 	public void sendLoginPrompt(final String[] toEmails, final String firstName, final String lastName, final String uid) throws Exception {
 		sendHtmlMail(toEmails, LOGIN_PROMPT_SUBJECT, String.format(LOGIN_PROMPT_CONTENT_FMT, firstName, lastName, uid));
 	}
 	
 	private static final String TANDC_PROMPT_SUBJECT = "I-MED Radiology Network: Please accept terms and conditions for I-MED Online 2.0";
-	private static final String TANDC_PROMPT_CONTENT_FMT = "Hello %s %,<br><br>,You have not accepted terms and conditions for I-MED Online 2.0 since you logged in the last time.<br><br>Kind regards from the team at I-MED Radiology.";
+	private static final String TANDC_PROMPT_CONTENT_FMT = "Hello %s %s,<br><br>You have not accepted terms and conditions for I-MED Online 2.0 since you logged in the last time.<br><br>Kind regards from the team at I-MED Radiology.";
 	public void sendTandcPrompt(final String[] toEmails, final String firstName, final String lastName) throws Exception {
 		sendHtmlMail(toEmails, TANDC_PROMPT_SUBJECT, String.format(TANDC_PROMPT_CONTENT_FMT, firstName, lastName));
 	}
