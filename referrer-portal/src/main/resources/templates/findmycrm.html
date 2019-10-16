@@ -1,0 +1,15 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:include="fragments/layout/head :: head">
+	<title id="pageTitle">Find My CRM</title>
+	<link rel="stylesheet" th:href="@{/js/public/mycrm/dist/styles.css}">
+</head>
+<body>
+  <dbmycrm-root></dbmycrm-root>
+	<script type="text/javascript" th:src="@{/js/public/mycrm/dist/runtime.js}"></script>
+	<script type="text/javascript" th:src="@{/js/public/mycrm/dist/es2015-polyfills.js}" nomodule></script>
+	<script type="text/javascript" th:src="@{/js/public/mycrm/dist/polyfills.js}"></script>
+	<script type="text/javascript" th:src="@{/js/public/mycrm/dist/main.js}"></script>				
+</body>
+</html>

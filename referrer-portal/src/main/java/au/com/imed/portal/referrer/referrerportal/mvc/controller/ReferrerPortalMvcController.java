@@ -486,6 +486,11 @@ public class ReferrerPortalMvcController {
 		return "mycrm";
 	}
 	
+	@GetMapping("/findmycrm")
+	public String getFindMyCrm() {
+		return "findmycrm";
+	}
+	
 	@GetMapping("/feedback")
 	public String getFeedback() {
 		return "feedback";
