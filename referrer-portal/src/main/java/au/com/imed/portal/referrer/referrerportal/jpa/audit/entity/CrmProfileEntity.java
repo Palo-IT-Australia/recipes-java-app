@@ -6,6 +6,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -25,8 +26,13 @@ public class CrmProfileEntity {
   private String phone;
   @Column(name = "email")
   private String email;  
+  
+  @JsonIgnore
   @Column(name = "imgstr")
   private String imgstr;
+  
+  @Transient
+  private String postcode;
   
 	public int getId() {
 		return id;
@@ -64,6 +70,11 @@ public class CrmProfileEntity {
 	public void setImgstr(String imgstr) {
 		this.imgstr = imgstr;
 	}
-  
+	public String getPostcode() {
+		return postcode;
+	}
+	public void setPostcode(String postcode) {
+		this.postcode = postcode;
+	}
   
 }

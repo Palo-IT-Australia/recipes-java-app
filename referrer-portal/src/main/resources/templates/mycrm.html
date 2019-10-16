@@ -9,61 +9,6 @@
 	<div th:replace="fragments/layout/header :: header">...</div>
 
 	<div class="top-bottom-space">
-		<!-- lm:control dynamic spot injects markup of layout control -->
-		<!-- asa.overlay marks the node that the AsaOverlayWidget will be placed in -->
-		<div style="position: relative; z-index: 1;">
-			<div class="analytics.overlay"></div>
-		</div>
-
-		<script type="text/javascript"
-			src="/wps/wcm/connect/doctor/801ed042-c5c5-4fc0-840a-885dd01c3e44/sppreference.js?MOD=AJPERES&amp;CACHEID=ROOTWORKSPACE.Z18_0246I882K05N10AVE1ST1V1CA1-801ed042-c5c5-4fc0-840a-885dd01c3e44-mI0LE07&amp;subtype=javascript"></script>
-		<script>
-			var ns_Z7_0246I882K0S8A0QIMMOLMM3084_spHelper = (function() {
-				return {
-					getPreferenceURI : function() {
-						return "/wps/contenthandler/doctor/!ut/p/digest!ZQfubgkPZDGR6Jj0DFQsLA/portlet/Z7_0246I882K0S8A0QIMMOLMM3084@Z6_0246I882K0S8A0QIMMOLMM3004/preferences/all";
-					},
-					getPortletPreferences : function() {
-						if (typeof i$ == "undefined") //set error promise
-							return new ErrorPromise(
-									function(resolve, reject) {
-										var reason = new Error(
-												'Error0001:Preference data is not available in this context.');
-										reject(reason);
-									});
-						return spInstanceHelper
-								.getPortletPreferences(ns_Z7_0246I882K0S8A0QIMMOLMM3084_spHelper
-										.getPreferenceURI());
-					},
-					setPortletPreferences : function(data) {
-						if (typeof i$ == "undefined") //set error promise
-							return new ErrorPromise(
-									function(resolve, reject) {
-										var reason = new Error(
-												'Error0001:Preference data is not available in this context.');
-										reject(reason);
-									});
-						return spInstanceHelper.setPortletPreferences(
-								ns_Z7_0246I882K0S8A0QIMMOLMM3084_spHelper
-										.getPreferenceURI(), data);
-					},
-					userName : "",
-					userId : "",
-					userCn : "",
-					userSn : "",
-					userLanguage : "",
-					renderingLocale : "en-US"
-				};
-			})();
-		</script>
-
-
-
-
-
-		<style>
-</style>
-
 		<div class="wrapper">
 			<img
 				src="images/public/CRM_Group_Photo.jpg">
@@ -82,22 +27,19 @@
 			<div class="row w-row">
 				<div class="w-col w-col-4"></div>
 				<div class="w-col w-col-4">
-					<iframe src="https://connections.i-medonline.com.au/images/mycrm"
-						frameborder="0" height="1200px" style="width: 100%; border: 0px;"></iframe>
+					<!-- <iframe src="https://connections.i-medonline.com.au/images/mycrm"
+						frameborder="0" height="1200px" style="width: 100%; border: 0px;"></iframe>  -->
+					<link rel="stylesheet" th:href="@{/js/public/mycrm/dist/styles.css}">
+				  <dbmycrm-root></dbmycrm-root>
+					<script type="text/javascript" th:src="@{/js/public/mycrm/dist/runtime.js}"></script>
+					<script type="text/javascript" th:src="@{/js/public/mycrm/dist/es2015-polyfills.js}" nomodule></script>
+					<script type="text/javascript" th:src="@{/js/public/mycrm/dist/polyfills.js}"></script>
+					<script type="text/javascript" th:src="@{/js/public/mycrm/dist/main.js}"></script>				
 				</div>
 				<div class="w-col w-col-4"></div>
 			</div>
 		</div>
-		<script>
-			document.title = "My CRM";
-		</script>
-		<script>
-			
-		</script>
-
-		<div class="wpthemeClear"></div>
 	</div>
-
 
 	<div th:replace="fragments/layout/footer :: footer">...</div>
 </body>
