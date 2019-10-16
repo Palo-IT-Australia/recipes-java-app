@@ -45,7 +45,7 @@ public class CrmRestController {
 	public Set<CrmProfileEntity> searchCrms(@RequestParam("word") String word) {
 		Set<CrmProfileEntity> list = new HashSet<CrmProfileEntity>();
 		if(word != null && word.length() >= 3) {
-			List<CrmPostcodeEntity> postcodes = postcodeRepository.findByPostcodeOrSuburbLike(word, "%" + word + "%");
+			List<CrmPostcodeEntity> postcodes = postcodeRepository.findByPostcodeOrSuburbLike(word, word + "%");
 			for(CrmPostcodeEntity pc : postcodes) {
 				List<CrmProfileEntity> profiles = profileRepository.findByName(pc.getName());
 				for(CrmProfileEntity profile : profiles) {
