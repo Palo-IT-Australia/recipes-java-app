@@ -20,9 +20,9 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.ClassPathResource;
@@ -35,9 +35,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import au.com.imed.portal.referrer.referrerportal.jpa.audit.entity.ReferrerActivationEntity;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.entity.ReferrerProviderEntity;
 import au.com.imed.portal.referrer.referrerportal.model.AddPractice;
 import au.com.imed.portal.referrer.referrerportal.model.ExternalUser;
+import au.com.imed.portal.referrer.referrerportal.model.LdapUserDetails;
 import au.com.imed.portal.referrer.referrerportal.model.StageUser;
 import au.com.imed.portal.referrer.referrerportal.security.DetailedLdapUserDetails;
 
@@ -104,11 +106,16 @@ public class ReferrerMailService {
 		sendHtmlMail(new String[] { to }, SHARE_REPORT_SUBJECT, String.format(SHARE_REPORT_HTML_BODY_FMT, url));
 	}
 
-	private static final String APPLY_SUBJECT = "I-MED Radiology Network:  Final steps to completing your My I-MED account";
-	private static final String APPLY_CONTENT_FMT = "Welcome and thank you for applying for your 'My I-MED' account.  Click <a href=\"%s\">here</a>  to access your account application. Please note you will need the passcode we sent you by SMS to complete your application.<br>This link will expire in three days.<br><br>Kind regards from the team at I-MED Radiology.";
-
-	public void sendApplyHtml(final String[] toEmails, final String url) throws Exception {
-		sendHtmlMail(toEmails, APPLY_SUBJECT, String.format(APPLY_CONTENT_FMT, url));
+	private static final String LOGIN_PROMPT_SUBJECT = "I-MED Radiology Network: Please login I-MED Online 2.0";
+	private static final String LOGIN_PROMPT_CONTENT_FMT = "Hello %s %s,<br><br>,You have not logged in I-MED Online 2.0 since your account %s was approved.<br><br>Kind regards from the team at I-MED Radiology.";
+	public void sendLoginPrompt(final String[] toEmails, final String firstName, final String lastName, final String uid) throws Exception {
+		sendHtmlMail(toEmails, LOGIN_PROMPT_SUBJECT, String.format(LOGIN_PROMPT_CONTENT_FMT, firstName, lastName, uid));
+	}
+	
+	private static final String TANDC_PROMPT_SUBJECT = "I-MED Radiology Network: Please accept terms and conditions for I-MED Online 2.0";
+	private static final String TANDC_PROMPT_CONTENT_FMT = "Hello %s %,<br><br>,You have not accepted terms and conditions for I-MED Online 2.0 since you logged in the last time.<br><br>Kind regards from the team at I-MED Radiology.";
+	public void sendTandcPrompt(final String[] toEmails, final String firstName, final String lastName) throws Exception {
+		sendHtmlMail(toEmails, TANDC_PROMPT_SUBJECT, String.format(TANDC_PROMPT_CONTENT_FMT, firstName, lastName));
 	}
 
 	public void sendHtmlMail(final String[] toEmails, final String subject, final String content) throws Exception {
@@ -462,5 +469,13 @@ public class ReferrerMailService {
 
   public void emailSupportTeamRegistrationError(Exception e, String stage, ExternalUser user) {
     sendMail(UserMessageUtil.ADMIN_USER_EMAIL, "Account Registration Error", UserMessageUtil.getRegistrationErrorBody(e,stage,user));
+  }
+  
+  public void emailNotLoginPrompt(final String to, final ReferrerActivationEntity entity) {
+  	sendMail(to, "I-MED Online 2.0 : Account not yet logged in", UserMessageUtil.getNotLoginPromptBody(entity));
+  }
+  
+  public void emailTandCPrompt(final String to, final LdapUserDetails detail) {
+  	sendMail(to, "I-MED Online 2.0 : Account not yet logged in", UserMessageUtil.getTandcPromptBody(detail));
   }
 }

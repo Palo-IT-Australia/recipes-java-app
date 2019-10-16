@@ -1,11 +1,13 @@
 package au.com.imed.portal.referrer.referrerportal.email;
 
+import au.com.imed.portal.referrer.referrerportal.jpa.audit.entity.ReferrerActivationEntity;
 import au.com.imed.portal.referrer.referrerportal.model.ExternalPractice;
 import au.com.imed.portal.referrer.referrerportal.model.ExternalUser;
+import au.com.imed.portal.referrer.referrerportal.model.LdapUserDetails;
 import au.com.imed.portal.referrer.referrerportal.model.StageUser;
 
 public class UserMessageUtil {
-  public static final String ADMIN_USER_EMAIL = "Nathaniel.Dash@i-med.com.au";
+  public static final String ADMIN_USER_EMAIL = "Hidehiro.Uehara@i-med.com.au";
 
   public static String getPasswordChangedBody(String userid) {
       StringBuffer sb = new StringBuffer();
@@ -80,6 +82,36 @@ public class UserMessageUtil {
       sb.append("Please browse to Portal User Approval to action this request.");
 
       return sb.toString();
+  }
+  
+  
+  public static String getNotLoginPromptBody(final ReferrerActivationEntity entity) {
+  	StringBuffer sb = new StringBuffer();
+
+    sb.append("A new I-MED Online 2.0 account : " + entity.getUid() + " has not logged in yet.\n");
+    sb.append("\n");
+    sb.append("First name: " + entity.getFirstName() + "\n");
+    sb.append("Last name: " + entity.getLastName() + "\n");
+    sb.append("Email: " + entity.getEmail() + "\n");
+    sb.append("AHPRA: " + entity.getAhpra() + "\n");
+    sb.append("Mobile: " + entity.getMobile() + "\n");
+    sb.append("Approved at: " + entity.getActivatedAt() + "\n");
+    
+    return sb.toString();
+  }
+  
+  public static String getTandcPromptBody(final LdapUserDetails entity) {
+  	StringBuffer sb = new StringBuffer();
+
+    sb.append("A new I-MED Online 2.0 account : " + entity.getUid() + " has not accepted terms and conditions after logging in.\n");
+    sb.append("\n");
+    sb.append("First name: " + entity.getGivenName() + "\n");
+    sb.append("Last name: " + entity.getSurname() + "\n");
+    sb.append("Email: " + entity.getEmail() + "\n");
+    sb.append("AHPRA: " + entity.getAhpra() + "\n");
+    sb.append("Mobile: " + entity.getMobile() + "\n");
+    
+    return sb.toString();
   }
 
   public static String getNewAccountBody() {

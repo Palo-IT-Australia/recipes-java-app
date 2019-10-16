@@ -3,6 +3,7 @@ package au.com.imed.portal.referrer.referrerportal.scheduler;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -29,7 +30,7 @@ import au.com.imed.portal.referrer.referrerportal.jpa.audit.repository.UserPrefe
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.repository.VisageRequestAuditJPARepository;
 import au.com.imed.portal.referrer.referrerportal.jpa.history.model.UserPreferencesEntity;
 import au.com.imed.portal.referrer.referrerportal.ldap.ReferrerAccountService;
-import au.com.imed.portal.referrer.referrerportal.model.AccountDetail;
+import au.com.imed.portal.referrer.referrerportal.model.LdapUserDetails;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.model.Referrer;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.model.Referrer.Practice;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.service.GetReferrerService;
@@ -88,8 +89,7 @@ public class AccountActivationScheduler {
 		    cal.add(Calendar.DATE, -8);
 		    final Date from = cal.getTime();
 		    
-		    List<ReferrerActivationEntity> accounts = activationRepository.findByActivatedAtBetween(from, to);
-		    
+		    List<ReferrerActivationEntity> accounts = activationRepository.findByActivatedAtBetween(from, to);		    
 		    for(ReferrerActivationEntity acnt : accounts) {
 		    	String uid = acnt.getUid();
 		    	logger.info("Checking if any audit for uid : " + uid);
@@ -98,18 +98,27 @@ public class AccountActivationScheduler {
 		    		String email = acnt.getEmail();
 		    		logger.info("Sending referrer email : " + email + ", crm = " + crm);
 		    		if("prod".equals(ACTIVE_PROFILE)) {
-		    			// TODO
-		    			//acnt.getEmail()
+							try {
+								// TODO
+								//emailService.sendLoginPrompt(new String [] {acnt.getEmail()}, acnt.getFirstName(), acnt.getLastName(), uid);
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
+
 		    			if(crm != null) {
 		    				//TODO
-		    				//crm.getEmail()
+		    				//emailService.emailNotLoginPrompt(crm.getEmail(), acnt);
 		    			}
 		    		}
 		    		else
 		    		{
-		    			emailService.sendMail("Hidehiro.Uehara@i-med.com.au", "Please login", "Please login. " + uid);
+		    			try {
+								emailService.sendLoginPrompt(new String [] {"Hidehiro.Uehara@i-med.com.au"}, acnt.getFirstName(), acnt.getLastName(), uid);
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
 		    			if(crm != null) {
-		    				emailService.sendMail("Hidehiro.Uehara@i-med.com.au", "CRM not yet login", "CRM not yet login." + uid);
+		    				emailService.emailNotLoginPrompt("Hidehiro.Uehara@i-med.com.au", acnt);
 		    			}
 		    		}
 
@@ -153,21 +162,39 @@ public class AccountActivationScheduler {
 			    	List<UserPreferencesEntity> plist = preferencesRepository.findByUsername(uid);
 			    	if(plist.size() == 0 || !"hide".equals(plist.get(0).getHelp())) {
 			    		CrmProfileEntity crm = getCrm(getReferrerPostcode(uid));
-			    		AccountDetail details = accountService.getReferrerAccountDetail(uid);
-			    		logger.info("Sending referrer : " + details + ", crm = " + crm);
-			    		if("prod".equals(ACTIVE_PROFILE)) {
-	    					// TODO
-	    					if(crm != null) {
-	    						//TODO
-	    					}
-	    				}
-	    				else
-	    				{
-	    					emailService.sendMail("Hidehiro.Uehara@i-med.com.au", "Please accept t&c", "Please accept t&c." + details);
-	    					if(crm != null) {
-		    					emailService.sendMail("Hidehiro.Uehara@i-med.com.au", "CRM not yet to accept t&c", "CRM not yet to accept t&c." + details);
-	    					}
-	    				}
+			    		List<LdapUserDetails> dlist;
+							try {
+								dlist = accountService.findReferrerAccountsByUid(uid);
+							} catch (Exception e1) {
+								dlist = new ArrayList<>(0);
+								e1.printStackTrace();
+							}
+			    		logger.info("Sending referrer : " + dlist + ", crm = " + crm);
+			    		if(dlist.size() > 0) {
+				    		if("prod".equals(ACTIVE_PROFILE)) {
+				    			try {
+				    				// TODO
+										//emailService.sendTandcPrompt(new String [] {details.getEmail()}, dlist.get(0).getGivenName(), dlist.get(0).getSurname());
+									} catch (Exception e) {
+										e.printStackTrace();
+									}
+		    					if(crm != null) {
+		    						//TODO
+			    					//emailService.emailTandCPrompt(crm.getEmail(), dlist.get(0));
+		    					}
+		    				}
+		    				else
+		    				{
+		    					try {
+										emailService.sendTandcPrompt(new String [] {"Hidehiro.Uehara@i-med.com.au"}, dlist.get(0).getGivenName(), dlist.get(0).getSurname());
+									} catch (Exception e) {
+										e.printStackTrace();
+									}
+		    					if(crm != null) {
+			    					emailService.emailTandCPrompt("Hidehiro.Uehara@i-med.com.au", dlist.get(0));
+		    					}
+		    				}
+			    		}
 			    	}
 			    }
 		    }
