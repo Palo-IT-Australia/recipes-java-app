@@ -476,6 +476,6 @@ public class ReferrerMailService {
   }
   
   public void emailTandCPrompt(final String to, final LdapUserDetails detail) {
-  	sendMail(to, "I-MED Online 2.0 : Account not yet logged in", UserMessageUtil.getTandcPromptBody(detail));
+  	sendMail(to, "I-MED Online 2.0 : Account not accepted T&C", UserMessageUtil.getTandcPromptBody(detail));
   }
 }
