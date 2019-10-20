@@ -33,6 +33,7 @@ public class SearchOrdersService extends AVisageRestClientService<Map<String, St
 					String[] stses = val.split(",");
 					for (String stskey : stses) {
 						String[] stsary = OrderStatusConst.STATUS_GROUP_MAP.get(stskey);
+						System.out.println(stskey + " : " + stsary);
 						if (stsary != null) {
 							for (String reqsts : stsary) {
 								System.out.println("setParameters() setting status " + reqsts);
