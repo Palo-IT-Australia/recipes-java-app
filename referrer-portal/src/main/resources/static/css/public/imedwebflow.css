@@ -802,7 +802,7 @@ strong {
 }
 
 .nav-link.home {
-	margin-right: 35px;
+	margin-right: 25px;
 	padding-right: 0;
 	padding-left: 0;
 	background-image: none;
@@ -811,7 +811,7 @@ strong {
 }
 
 .nav-link.home.w--current {
-	margin-right: 25px
+	margin-right: 20px
 }
 
 .link-larger {
