@@ -1,0 +1,75 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+	<div class="footer section" th:fragment="mobile"> 
+	  <style>
+		    .ref-portal-mobile-overlay {
+		        width: 100%;
+		        height: 100%;
+		        position: fixed;
+		        top: 0;
+		        left: 0;
+		        background-color: rgba(0, 0, 0, 0.4);
+		        z-index: 18999;
+		    }
+		    
+		    .ref-portal-mobile-dialog {
+		      z-index: 19000;
+		      position: fixed;
+		      right: 0;
+		      left: 0;
+		      top: 20%;
+		      margin-right: auto;
+		      margin-left: auto;
+		      height: 20%;
+		      width: 50%;
+		      overflow-y: auto;
+		      background-color: #FFFFFF;
+		      padding: 12px;
+		      box-shadow: 0 7px 8px -4px rgba(0, 0, 0, 0.2), 0 13px 19px 2px rgba(0, 0, 0, 0.14), 0 5px 24px 4px rgba(0, 0, 0, 0.12);
+		    }
+		</style>
+		
+		<div id="refPortalMobileDialog" class="ref-portal-mobile-overlay" style="display:none;">
+	    <div class="ref-portal-mobile-dialog">
+	        <div class="dialog-content">
+	        	<p class="intro-text">Please note your have not registered valid Australian mobile number yet.<br/>Please update your mobile number on My Account page.</p>
+	        </div>
+	        <div class="dialog-botton-bar-warning">
+	          <button class="btn btn-primary btn-block" onClick='hideMobileDialog();'>Close</button>
+	        </div>
+	    </div>
+		</div>
+		
+	<script type="text/javascript" th:inline="javascript">
+	    $(document).ready(function () {
+	    	var restRoot = /*[[@{/imedvisage/v1}]]*/ "imedvisage/v1";
+				$.ajax({
+					type: 'GET',
+	        cache: false,
+	        headers: { "cache-control": "no-cache" },
+	        url: restRoot + "/mobileWarning",
+	        success: function( data ) {
+	          if(data.msg == 'warn') {
+	              showMobileDialog();
+	          }
+	          else {
+	              hideMobileDialog();
+	          }
+	        }, 
+	        contentType: "application/json",
+					dataType: 'json'
+				});
+			});
+	    
+	    function showMobileDialog(){
+	    	$("#refPortalMobileDialog").css('display','block');
+	    }
+	    function hideMobileDialog(){
+	      $("#refPortalMobileDialog").css('display','none');
+	    }
+	
+	</script>
+	</div>
+</body>
+</html>

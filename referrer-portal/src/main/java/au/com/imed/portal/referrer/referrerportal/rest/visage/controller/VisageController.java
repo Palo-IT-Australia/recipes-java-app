@@ -1,6 +1,7 @@
 package au.com.imed.portal.referrer.referrerportal.rest.visage.controller;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -8,6 +9,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.jose4j.json.internal.json_simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +32,7 @@ import au.com.imed.portal.referrer.referrerportal.common.util.AuthenticationUtil
 import au.com.imed.portal.referrer.referrerportal.common.util.StringConversionUtil;
 import au.com.imed.portal.referrer.referrerportal.jpa.history.model.ReportFcmTokenEntity;
 import au.com.imed.portal.referrer.referrerportal.jpa.history.model.ReportNotificationEntity;
+import au.com.imed.portal.referrer.referrerportal.jpa.history.model.RequestAuditEntity;
 import au.com.imed.portal.referrer.referrerportal.jpa.history.repository.ReportFcmTokenJPARepository;
 import au.com.imed.portal.referrer.referrerportal.jpa.history.repository.ReportNotificationJPARepository;
 import au.com.imed.portal.referrer.referrerportal.ldap.ReferrerAccountService;
@@ -717,10 +720,42 @@ public class VisageController {
 			@RequestHeader(value = PortalConstant.HEADER_AUTHENTICATION, required = false) String authentication) {
 		return preferenceService.getPreferences(AuthenticationUtil.getAuthenticatedUserName(authentication));
 	}
-
+	
 	@GetMapping("/terms")
 	public ResponseEntity<String> tandc() {
 		return portalAccountService.getTermsAndConditions();
+	}
+	
+	@SuppressWarnings("unchecked")
+	@GetMapping("/mobileWarning")
+	public ResponseEntity<JSONObject> getMobileWarning(@RequestHeader(value = PortalConstant.HEADER_AUTHENTICATION, required = false) String authentication) {
+		final String userName = AuthenticationUtil.getAuthenticatedUserName(authentication);
+		HttpStatus sts = HttpStatus.OK;
+		JSONObject reps = new JSONObject();
+		if(userName != null) {
+			boolean warn = false;
+			List<RequestAuditEntity> list = auditService.findByUsernameAndCommand(userName, "Login");
+			if(list.size() == 1 || list.size() == 5) {
+		    Calendar cal = Calendar.getInstance();
+		    cal.setTime(new Date());
+		    cal.add(Calendar.MINUTE, list.size() == 1 ? -3 : -1);
+		    final Date from = cal.getTime();
+				if(list.stream().filter(e -> e.getAuditAt().after(from)).count() > 0) {
+					AccountDetail details = portalAccountService.getReferrerAccountDetail(userName);
+					logger.info("getMobileWarning() AccountDetails : " + details);
+					if(details != null && (details.getMobile() == null || !details.getMobile().startsWith("04"))) {
+						warn = true;
+					}
+				}
+			}
+			reps.put("msg", warn ? "warn" : "ok");
+		}
+		else
+		{
+			sts = HttpStatus.UNAUTHORIZED;
+			reps.put("msg", "unauthorized");
+		}
+		return ResponseEntity.status(sts).body(reps);
 	}
 
 	@PostMapping("/user/checkEmail")

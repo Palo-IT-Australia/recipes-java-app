@@ -16,5 +16,5 @@ public interface RequestAuditJPARepository extends JpaRepository<RequestAuditEnt
   
   public Integer countByUsernameAndAuditAtGreaterThan(String username, Date from);
   
-  public List<RequestAuditEntity> findByUsernameAndCommand(String usermane, String command);
+  public List<RequestAuditEntity> findByUsernameAndCommand(String username, String command);
 }

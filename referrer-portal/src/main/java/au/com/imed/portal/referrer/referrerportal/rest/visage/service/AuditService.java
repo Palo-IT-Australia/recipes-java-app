@@ -89,4 +89,8 @@ public class AuditService {
 		entity.setAuditAt(new Date());
 		requestAuditJPARepository.saveAndFlush(entity);
 	}
+	
+	public List<RequestAuditEntity> findByUsernameAndCommand(final String username, final String command) {
+		return requestAuditJPARepository.findByUsernameAndCommand(username, command);
+	}
 }
