@@ -1,5 +1,6 @@
 package au.com.imed.portal.referrer.referrerportal.email;
 
+import au.com.imed.portal.referrer.referrerportal.jpa.audit.entity.CrmProfileEntity;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.entity.ReferrerActivationEntity;
 import au.com.imed.portal.referrer.referrerportal.model.ExternalPractice;
 import au.com.imed.portal.referrer.referrerportal.model.ExternalUser;
@@ -7,6 +8,8 @@ import au.com.imed.portal.referrer.referrerportal.model.LdapUserDetails;
 import au.com.imed.portal.referrer.referrerportal.model.StageUser;
 
 public class UserMessageUtil {
+	private static final String BR = "<br/>";
+	private static final String BRS = "<br/><br/>";
   public static final String ADMIN_USER_EMAIL = "Hidehiro.Uehara@i-med.com.au";
 
   public static String getPasswordChangedBody(String userid) {
@@ -84,36 +87,64 @@ public class UserMessageUtil {
       return sb.toString();
   }
   
+  public static final String getLoginPromptCrmSubject(final ReferrerActivationEntity acnt) {
+  	return String.format("Dr %s %s not logged into IOL2 yet", acnt.getFirstName(), acnt.getLastName());
+  }
   
-  public static String getNotLoginPromptBody(final ReferrerActivationEntity entity) {
+  public static String getNotLoginPromptBody(final ReferrerActivationEntity acnt, final CrmProfileEntity crm) {
   	StringBuffer sb = new StringBuffer();
-
-    sb.append("A new I-MED Online 2.0 account : " + entity.getUid() + " has not logged in yet.\n");
-    sb.append("\n");
-    sb.append("User Id: " + entity.getUid() + "\n");
-    sb.append("First name: " + entity.getFirstName() + "\n");
-    sb.append("Last name: " + entity.getLastName() + "\n");
-    sb.append("Email: " + entity.getEmail() + "\n");
-    sb.append("AHPRA: " + entity.getAhpra() + "\n");
-    sb.append("Mobile: " + entity.getMobile() + "\n");
-    sb.append("Approved at: " + entity.getActivatedAt() + "\n");
-    
+  	sb.append(getCrmGreeting(crm));
+  	sb.append("Doctor ");
+  	sb.append(acnt.getFirstName());
+  	sb.append(" ");
+  	sb.append(acnt.getLastName());
+  	sb.append(" has not logged in their I-MED Online 2.0 after 7 days. A reminder has been sent today.");
+  	sb.append("\n\n");
+  	sb.append("Doctor's details\n");
+    sb.append("User Id: " + acnt.getUid() + "\n");
+    sb.append("First name: " + acnt.getFirstName() + "\n");
+    sb.append("Last name: " + acnt.getLastName() + "\n");
+    sb.append("Email: " + acnt.getEmail() + "\n");
+    sb.append("AHPRA: " + acnt.getAhpra() + "\n");
+    sb.append("Mobile: " + acnt.getMobile() + "\n");
+    sb.append("\n\n");
+    sb.append("Regards,\n");
+    sb.append("I-MED Radiology");
     return sb.toString();
   }
   
-  public static String getTandcPromptBody(final LdapUserDetails entity) {
+  public static final String getTandcPromptCrmSubject(final LdapUserDetails details) {
+  	return String.format("Dr %s %s IOL2 account T&C's not accepted", details.getGivenName(), details.getSurname());
+  }
+  
+  public static String getTandcPromptBody(final LdapUserDetails details, final CrmProfileEntity crm) {
   	StringBuffer sb = new StringBuffer();
-
-    sb.append("A new I-MED Online 2.0 account : " + entity.getUid() + " has not accepted terms and conditions after logging in.\n");
-    sb.append("\n");
-    sb.append("User Id: " + entity.getUid() + "\n");
-    sb.append("First name: " + entity.getGivenName() + "\n");
-    sb.append("Last name: " + entity.getSurname() + "\n");
-    sb.append("Email: " + entity.getEmail() + "\n");
-    sb.append("AHPRA: " + entity.getAhpra() + "\n");
-    sb.append("Mobile: " + entity.getMobile() + "\n");
-    
+  	sb.append(getCrmGreeting(crm));
+  	sb.append("Doctor ");
+  	sb.append(details.getGivenName());
+  	sb.append(" ");
+  	sb.append(details.getSurname());
+  	sb.append(" has not accepted the terms and conditions for their I-MED Online 2.0 account, 3 days post account login. A reminder has been sent today.");
+  	sb.append("\n\n");
+  	sb.append("Doctor's details\n");
+    sb.append("User Id: " + details.getUid() + "\n");
+    sb.append("First name: " + details.getGivenName() + "\n");
+    sb.append("Last name: " + details.getSurname() + "\n");
+    sb.append("Email: " + details.getEmail() + "\n");
+    sb.append("AHPRA: " + details.getAhpra() + "\n");
+    sb.append("Mobile: " + details.getMobile() + "\n");
+    sb.append("\n\n");
+    sb.append("Regards,\n");
+    sb.append("I-MED Radiology");
     return sb.toString();
+  }
+  
+  private static String getCrmGreeting(final CrmProfileEntity crm) {
+  	StringBuffer sb = new StringBuffer();
+  	sb.append("Hi ");
+  	sb.append(crm.getName().split(" ")[0]);
+  	sb.append("\n\n");
+  	return sb.toString();
   }
 
   public static String getNewAccountBody() {
@@ -217,5 +248,55 @@ public class UserMessageUtil {
         StringBuffer sb = new StringBuffer();
         sb.append("1300 147 852");
         return sb.toString();
+    }
+    
+  	public static final String LOGIN_PROMPT_SUBJECT = "Your I-MED Online 2.0 report and image access is available";
+    public static final String getLoginPromptHtmlContent(final ReferrerActivationEntity acnt, final CrmProfileEntity crm, final String rootUrl) {
+    	StringBuffer sb = new StringBuffer();
+    	sb.append("Dear Doctor");
+    	sb.append(BRS);
+    	sb.append("Thank you for your recent application for I-MED Online 2.0 I-MED's web and app enabled report and image access system.");
+    	sb.append(BRS);
+    	sb.append("We have noticed that you have not logged into your account as yet so would like to make sure everything is ok. If you have any questions, support is available through your local Customer service representative ");
+    	sb.append(getPromptHtmlFooter(crm, rootUrl));
+    	return sb.toString();
+    }
+
+    public static final String TANDC_PROMPT_SUBJECT = "Your I-MED Online 2.0 Account";
+    public static final String getTandcPromptHtmlContent(final LdapUserDetails details, final CrmProfileEntity crm, final String rootUrl) {
+    	StringBuffer sb = new StringBuffer();
+    	sb.append("Dear Doctor");
+    	sb.append(BRS);
+    	sb.append("Thank you for your recent application for I-MED Online 2.0 I-MED's web and app enabled report and image access system.");
+    	sb.append(BRS);
+    	sb.append("We have noticed that you have not yet accepted the terms and conditions and would like to make sure everything is ok. If you have any questions, support is available through your local Customer service representative so please make contact if you have any concerns ");
+    	sb.append(getPromptHtmlFooter(crm, rootUrl));
+    	return sb.toString();
+    }
+    
+    private static String getPromptHtmlFooter(final CrmProfileEntity crm, final String rootUrl) {
+    	StringBuffer sb = new StringBuffer();
+    	if(crm != null) {
+    		sb.append(": ");
+    		sb.append(crm.getName());
+    		sb.append(" email:");
+    		sb.append(crm.getEmail());
+    		sb.append(", phone:");
+    		sb.append(crm.getPhone());
+    	}
+    	else {
+    		sb.append("(please find <a href='");
+    		sb.append(rootUrl);
+    		sb.append("/mycrm");
+    		sb.append("'>here<a/>)");
+    	}
+    	sb.append(".");
+    	sb.append(BRS);
+    	sb.append("We trust you enjoy the features of I-MED Online 2.0.");
+    	sb.append(BRS);
+    	sb.append("Regards,");
+    	sb.append(BR);
+    	sb.append("I-MED Radiology");
+    	return sb.toString();
     }
 }

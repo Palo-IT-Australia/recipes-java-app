@@ -20,6 +20,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import au.com.imed.portal.referrer.referrerportal.email.ReferrerMailService;
+import au.com.imed.portal.referrer.referrerportal.email.UserMessageUtil;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.entity.CrmPostcodeEntity;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.entity.CrmProfileEntity;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.entity.ReferrerActivationEntity;
@@ -69,6 +70,9 @@ public class AccountActivationScheduler {
 	@Value("${spring.profiles.active}")
 	private String ACTIVE_PROFILE;
 	
+  @Value("#{servletContext.contextPath}")
+  private String APPLICAION_CONTEXT_PATH;
+	
 	@Scheduled(cron = "0 0 1 ? * MON-FRI")
 	public void scheduleAccountReminderTask() {
 		try {
@@ -113,12 +117,16 @@ public class AccountActivationScheduler {
 		    		else
 		    		{
 		    			try {
-								emailService.sendLoginPrompt(new String [] {"Hidehiro.Uehara@i-med.com.au"}, acnt.getFirstName(), acnt.getLastName(), uid);
+								emailService.sendHtmlMail(new String [] {"Hidehiro.Uehara@i-med.com.au"},
+										UserMessageUtil.LOGIN_PROMPT_SUBJECT, 
+										UserMessageUtil.getLoginPromptHtmlContent(acnt, crm, APPLICAION_CONTEXT_PATH));
 							} catch (Exception e) {
 								e.printStackTrace();
 							}
 		    			if(crm != null) {
-		    				emailService.emailNotLoginPrompt("Hidehiro.Uehara@i-med.com.au", acnt);
+		    				emailService.sendMail("Hidehiro.Uehara@i-med.com.au", 
+		    						UserMessageUtil.getLoginPromptCrmSubject(acnt),
+		    						UserMessageUtil.getNotLoginPromptBody(acnt, crm));
 		    			}
 		    		}
 
@@ -171,6 +179,7 @@ public class AccountActivationScheduler {
 							}
 			    		logger.info("Sending referrer : " + dlist + ", crm = " + crm);
 			    		if(dlist.size() > 0) {
+			    			LdapUserDetails doctorDetails = dlist.get(0);
 				    		if("prod".equals(ACTIVE_PROFILE)) {
 				    			try {
 				    				// TODO
@@ -186,12 +195,16 @@ public class AccountActivationScheduler {
 		    				else
 		    				{
 		    					try {
-										emailService.sendTandcPrompt(new String [] {"Hidehiro.Uehara@i-med.com.au"}, dlist.get(0).getGivenName(), dlist.get(0).getSurname());
+										emailService.sendHtmlMail(new String [] {"Hidehiro.Uehara@i-med.com.au"},
+												UserMessageUtil.TANDC_PROMPT_SUBJECT, 
+												UserMessageUtil.getTandcPromptHtmlContent(doctorDetails, crm, APPLICAION_CONTEXT_PATH));
 									} catch (Exception e) {
 										e.printStackTrace();
 									}
 		    					if(crm != null) {
-			    					emailService.emailTandCPrompt("Hidehiro.Uehara@i-med.com.au", dlist.get(0));
+				    				emailService.sendMail("Hidehiro.Uehara@i-med.com.au", 
+				    						UserMessageUtil.getTandcPromptCrmSubject(doctorDetails),
+				    						UserMessageUtil.getTandcPromptBody(doctorDetails, crm));
 		    					}
 		    				}
 			    		}
