@@ -116,17 +116,20 @@ public class AccountActivationScheduler {
 		    		}
 		    		else
 		    		{
+    					String [] testEmails = new String [] {"Hidehiro.Uehara@i-med.com.au", "Martin.Cox@i-med.com.au", "Julie-Ann.Evans@i-med.com.au"};
 		    			try {
-								emailService.sendHtmlMail(new String [] {"Hidehiro.Uehara@i-med.com.au"},
+								emailService.sendHtmlMail(testEmails,
 										UserMessageUtil.LOGIN_PROMPT_SUBJECT, 
 										UserMessageUtil.getLoginPromptHtmlContent(acnt, crm, APPLICAION_CONTEXT_PATH));
 							} catch (Exception e) {
 								e.printStackTrace();
 							}
 		    			if(crm != null) {
-		    				emailService.sendMail("Hidehiro.Uehara@i-med.com.au", 
+		    				for(String em : testEmails) {
+		    					emailService.sendMail(em, 
 		    						UserMessageUtil.getLoginPromptCrmSubject(acnt),
 		    						UserMessageUtil.getNotLoginPromptBody(acnt, crm));
+		    				}
 		    			}
 		    		}
 
@@ -194,17 +197,20 @@ public class AccountActivationScheduler {
 		    				}
 		    				else
 		    				{
+		    					String [] testEmails = new String [] {"Hidehiro.Uehara@i-med.com.au", "Martin.Cox@i-med.com.au", "Julie-Ann.Evans@i-med.com.au"};
 		    					try {
-										emailService.sendHtmlMail(new String [] {"Hidehiro.Uehara@i-med.com.au"},
+										emailService.sendHtmlMail(testEmails,
 												UserMessageUtil.TANDC_PROMPT_SUBJECT, 
 												UserMessageUtil.getTandcPromptHtmlContent(doctorDetails, crm, APPLICAION_CONTEXT_PATH));
 									} catch (Exception e) {
 										e.printStackTrace();
 									}
 		    					if(crm != null) {
-				    				emailService.sendMail("Hidehiro.Uehara@i-med.com.au", 
+		    						for(String em : testEmails) {
+		    							emailService.sendMail(em, 
 				    						UserMessageUtil.getTandcPromptCrmSubject(doctorDetails),
 				    						UserMessageUtil.getTandcPromptBody(doctorDetails, crm));
+		    						}
 		    					}
 		    				}
 			    		}
