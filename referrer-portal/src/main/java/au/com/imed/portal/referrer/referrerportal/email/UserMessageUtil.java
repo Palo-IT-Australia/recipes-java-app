@@ -90,6 +90,7 @@ public class UserMessageUtil {
 
     sb.append("A new I-MED Online 2.0 account : " + entity.getUid() + " has not logged in yet.\n");
     sb.append("\n");
+    sb.append("User Id: " + entity.getUid() + "\n");
     sb.append("First name: " + entity.getFirstName() + "\n");
     sb.append("Last name: " + entity.getLastName() + "\n");
     sb.append("Email: " + entity.getEmail() + "\n");
@@ -105,6 +106,7 @@ public class UserMessageUtil {
 
     sb.append("A new I-MED Online 2.0 account : " + entity.getUid() + " has not accepted terms and conditions after logging in.\n");
     sb.append("\n");
+    sb.append("User Id: " + entity.getUid() + "\n");
     sb.append("First name: " + entity.getGivenName() + "\n");
     sb.append("Last name: " + entity.getSurname() + "\n");
     sb.append("Email: " + entity.getEmail() + "\n");

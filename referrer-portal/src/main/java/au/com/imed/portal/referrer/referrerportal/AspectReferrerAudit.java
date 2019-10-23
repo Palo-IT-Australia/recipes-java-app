@@ -34,7 +34,6 @@ public class AspectReferrerAudit {
   public void auditVisageResult(JoinPoint jp, String userName, Map<String, String> requestParams) {
     Object target = jp.getTarget();
     if("true".equalsIgnoreCase(requestParams.get(BREAK_GLASS)) || 
-    		GetReferrerService.class.isAssignableFrom(target.getClass()) || 
         ReportService.class.isAssignableFrom(target.getClass()) || 
         GetOrderService.class.isAssignableFrom(target.getClass()) || 
         GetPatientOrdersService.class.isAssignableFrom(target.getClass()) || 

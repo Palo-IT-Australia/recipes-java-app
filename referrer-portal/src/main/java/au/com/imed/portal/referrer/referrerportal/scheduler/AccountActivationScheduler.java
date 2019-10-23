@@ -157,7 +157,7 @@ public class AccountActivationScheduler {
 			    cal.add(Calendar.DATE, daysFrom);
 			    final Date fromDate = cal.getTime();
 			    
-			    List<String> uidList = auditRepository.getDistinctUsernamesBetween(fromDate, toDate);
+			    List<String> uidList = auditRepository.getDistinctLoginUsernamesBetween(fromDate, toDate);
 			    for(String uid : uidList) {
 			    	List<UserPreferencesEntity> plist = preferencesRepository.findByUsername(uid);
 			    	if(plist.size() == 0 || !"hide".equals(plist.get(0).getHelp())) {

@@ -17,4 +17,7 @@ public interface VisageRequestAuditJPARepository extends JpaRepository<VisageReq
 	
 	@Query(value = "SELECT DISTINCT username from VISAGE_REQUEST_AUDIT as VRA where VRA.audit_at >= ?1 and VRA.audit_at < ?2", nativeQuery = true)
 	public List<String> getDistinctUsernamesBetween(Date from, Date to);
+
+	@Query(value = "SELECT DISTINCT username from VISAGE_REQUEST_AUDIT as VRA where VRA.command = 'Login' and VRA.audit_at >= ?1 and VRA.audit_at < ?2", nativeQuery = true)
+	public List<String> getDistinctLoginUsernamesBetween(Date from, Date to);
 }
