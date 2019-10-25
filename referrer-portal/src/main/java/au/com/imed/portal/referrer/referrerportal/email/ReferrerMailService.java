@@ -142,7 +142,7 @@ public class ReferrerMailService {
 		MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED, "utf-8");
 		helper.addAttachment(LOGO_KEY, IMED_LOGO);
 		helper.addAttachment(BANNER_KEY, IMED_BANNER);
-		helper.setText(INLINE_BANNER + content + INLINE_LOGO, true);
+		helper.setText(INLINE_BANNER + "<div style='font-family: Arial;'>" + content + "</div>" + INLINE_LOGO, true);
 		helper.setTo(toEmails);
 		helper.setCc(ccEmails);
 		helper.setSubject(subject);
