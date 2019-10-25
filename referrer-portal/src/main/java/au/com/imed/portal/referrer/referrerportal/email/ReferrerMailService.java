@@ -57,7 +57,7 @@ public class ReferrerMailService {
   private final static String NL = "\n";
 	private static final ClassPathResource IMED_BANNER = new ClassPathResource("static/images/public/banner.jpg");
 	private static final String BANNER_KEY = "banner.jpg";
-	private static final String INLINE_BANNER = "<br/><img src=\"cid:banner.jpg\"></img><br/>";
+	private static final String INLINE_BANNER = "<br/><img src=\"cid:banner.jpg\"></img><br/><br/>";
 
   
   private final static Map<String, String> IMG_CID_MAP_APPROVED = new HashMap<>();
