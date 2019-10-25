@@ -98,18 +98,26 @@ public class UserMessageUtil {
   	sb.append(acnt.getFirstName());
   	sb.append(" ");
   	sb.append(acnt.getLastName());
-  	sb.append(" has not logged in their I-MED Online 2.0 after 7 days. A reminder has been sent today.");
-  	sb.append("\n\n");
-  	sb.append("Doctor's details\n");
-    sb.append("User Id: " + acnt.getUid() + "\n");
-    sb.append("First name: " + acnt.getFirstName() + "\n");
-    sb.append("Last name: " + acnt.getLastName() + "\n");
-    sb.append("Email: " + acnt.getEmail() + "\n");
-    sb.append("AHPRA: " + acnt.getAhpra() + "\n");
-    sb.append("Mobile: " + acnt.getMobile() + "\n");
-    sb.append("\n\n");
-    sb.append("Regards,\n");
-    sb.append("I-MED Radiology");
+  	sb.append(" has not logged in their I-MED Online 2.0 account since creating it over 7 days ago. A reminder email has been sent to this referrer today, suggesting they contact their CRM if they need help.");
+  	sb.append(BRS);
+  	sb.append("Doctor's details");
+  	sb.append(BR);
+    sb.append("User Id: " + acnt.getUid());
+  	sb.append(BR);
+    sb.append("First name: " + acnt.getFirstName());
+  	sb.append(BR);
+    sb.append("Last name: " + acnt.getLastName());
+  	sb.append(BR);
+    sb.append("Email: " + acnt.getEmail());
+  	sb.append(BR);
+    sb.append("AHPRA: " + acnt.getAhpra());
+  	sb.append(BR);
+    sb.append("Mobile: " + acnt.getMobile());
+    sb.append(BRS);
+    sb.append("Regards,");
+    sb.append(BRS);
+    sb.append("The team from I-MED Radiology");
+    sb.append(BRS);
     return sb.toString();
   }
   
@@ -124,18 +132,26 @@ public class UserMessageUtil {
   	sb.append(details.getGivenName());
   	sb.append(" ");
   	sb.append(details.getSurname());
-  	sb.append(" has not accepted the terms and conditions for their I-MED Online 2.0 account, 3 days post account login. A reminder has been sent today.");
-  	sb.append("\n\n");
-  	sb.append("Doctor's details\n");
-    sb.append("User Id: " + details.getUid() + "\n");
-    sb.append("First name: " + details.getGivenName() + "\n");
-    sb.append("Last name: " + details.getSurname() + "\n");
-    sb.append("Email: " + details.getEmail() + "\n");
-    sb.append("AHPRA: " + details.getAhpra() + "\n");
-    sb.append("Mobile: " + details.getMobile() + "\n");
-    sb.append("\n\n");
-    sb.append("Regards,\n");
-    sb.append("I-MED Radiology");
+  	sb.append(" has not accepted the terms and conditions for their I-MED Online 2.0 account, three days post account login. A reminder email has been sent to this referrer today, suggesting they contact their CRM if they need help.");
+  	sb.append(BRS);
+  	sb.append("Doctor's details");
+  	sb.append(BR);
+    sb.append("User Id: " + details.getUid());
+  	sb.append(BR);
+    sb.append("First name: " + details.getGivenName());
+  	sb.append(BR);
+    sb.append("Last name: " + details.getSurname());
+  	sb.append(BR);
+    sb.append("Email: " + details.getEmail());
+  	sb.append(BR);
+    sb.append("AHPRA: " + details.getAhpra());
+  	sb.append(BR);
+    sb.append("Mobile: " + details.getMobile());
+    sb.append(BRS);
+    sb.append("Regards,");
+    sb.append(BRS);
+    sb.append("The team from I-MED Radiology");
+    sb.append(BRS);
     return sb.toString();
   }
   
@@ -143,7 +159,7 @@ public class UserMessageUtil {
   	StringBuffer sb = new StringBuffer();
   	sb.append("Hi ");
   	sb.append(crm.getName().split(" ")[0]);
-  	sb.append("\n\n");
+  	sb.append(BRS);
   	return sb.toString();
   }
 
@@ -253,11 +269,11 @@ public class UserMessageUtil {
   	public static final String LOGIN_PROMPT_SUBJECT = "Your I-MED Online 2.0 report and image access is available";
     public static final String getLoginPromptHtmlContent(final ReferrerActivationEntity acnt, final CrmProfileEntity crm, final String rootUrl) {
     	StringBuffer sb = new StringBuffer();
-    	sb.append("Dear Doctor");
+    	sb.append("Dear Practitioner");
     	sb.append(BRS);
-    	sb.append("Thank you for your recent application for I-MED Online 2.0 I-MED's web and app enabled report and image access system.");
+    	sb.append("Thank you for your recent application for I-MED Online 2.0.  With I-MED Online 2.0 you can easily access patient reports and images via desktop, mobile or app.");
     	sb.append(BRS);
-    	sb.append("We have noticed that you have not logged into your account as yet so would like to make sure everything is ok. If you have any questions, support is available through your local Customer service representative ");
+    	sb.append("As we’ve noticed you’ve not yet logged into your I-MED Online 2.0 account, we’d like to make sure everything is ok. If you have any questions, support is available through your local Customer Service Representative (CRM). ");
     	sb.append(getPromptHtmlFooter(crm, rootUrl));
     	return sb.toString();
     }
@@ -265,38 +281,40 @@ public class UserMessageUtil {
     public static final String TANDC_PROMPT_SUBJECT = "Your I-MED Online 2.0 Account";
     public static final String getTandcPromptHtmlContent(final LdapUserDetails details, final CrmProfileEntity crm, final String rootUrl) {
     	StringBuffer sb = new StringBuffer();
-    	sb.append("Dear Doctor");
+    	sb.append("Dear Practitioner");
     	sb.append(BRS);
-    	sb.append("Thank you for your recent application for I-MED Online 2.0 I-MED's web and app enabled report and image access system.");
+    	sb.append("Thank you for your recent application for I-MED Online 2.0. With I-MED Online 2.0 you can easily access patient reports and images via desktop, mobile app.");
     	sb.append(BRS);
-    	sb.append("We have noticed that you have not yet accepted the terms and conditions and would like to make sure everything is ok. If you have any questions, support is available through your local Customer service representative so please make contact if you have any concerns ");
+    	sb.append("As we've noticed you have not yet accepted the terms and conditions associated with your I-MED Online 2.0 account, we'd like to make sure everything is ok. If you have any questions, support is available through your local Customer Service Representative (CRM) so please contact them if you have any concerns. ");
     	sb.append(getPromptHtmlFooter(crm, rootUrl));
     	return sb.toString();
     }
     
     private static String getPromptHtmlFooter(final CrmProfileEntity crm, final String rootUrl) {
     	StringBuffer sb = new StringBuffer();
-    	if(crm != null) {
-    		sb.append(": ");
-    		sb.append(crm.getName());
-    		sb.append(" email:");
-    		sb.append(crm.getEmail());
-    		sb.append(", phone:");
-    		sb.append(crm.getPhone());
-    	}
-    	else {
-    		sb.append("(please find <a href='");
-    		sb.append(rootUrl);
-    		sb.append("/mycrm");
-    		sb.append("'>here<a/>)");
-    	}
-    	sb.append(".");
+    	sb.append("To locate your CRM, click <a href='https://i-med.com.au/doctors/referrer-support'>here</a>.");
+//    	if(crm != null) {
+//    		sb.append(": ");
+//    		sb.append(crm.getName());
+//    		sb.append(" email:");
+//    		sb.append(crm.getEmail());
+//    		sb.append(", phone:");
+//    		sb.append(crm.getPhone());
+//    	}
+//    	else {
+//    		sb.append("(please find <a href='");
+//    		sb.append(rootUrl);
+//    		sb.append("/mycrm");
+//    		sb.append("'>here<a/>)");
+//    	}
+//    	sb.append(".");
     	sb.append(BRS);
-    	sb.append("We trust you enjoy the features of I-MED Online 2.0.");
+    	sb.append("We hope you find the many features of I-MED Online 2.0 helpful to your practice.");
     	sb.append(BRS);
-    	sb.append("Regards,");
-    	sb.append(BR);
-    	sb.append("I-MED Radiology");
+    	sb.append("Kind regards,");
+    	sb.append(BRS);
+    	sb.append("The team from I-MED Radiology");
+    	sb.append(BRS);
     	return sb.toString();
     }
 }

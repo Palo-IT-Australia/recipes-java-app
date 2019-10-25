@@ -118,21 +118,22 @@ public class AccountActivationScheduler {
 		    		{
     					String [] testEmails = new String [] {"Hidehiro.Uehara@i-med.com.au", "Martin.Cox@i-med.com.au", "Julie-Ann.Evans@i-med.com.au"};
 		    			try {
-								emailService.sendHtmlMail(testEmails,
+								emailService.sendImoHtmlMail(testEmails, new String [] {}, 
 										UserMessageUtil.LOGIN_PROMPT_SUBJECT, 
 										UserMessageUtil.getLoginPromptHtmlContent(acnt, crm, APPLICAION_CONTEXT_PATH));
 							} catch (Exception e) {
 								e.printStackTrace();
 							}
 		    			if(crm != null) {
-		    				for(String em : testEmails) {
-		    					emailService.sendMail(em, 
-		    						UserMessageUtil.getLoginPromptCrmSubject(acnt),
-		    						UserMessageUtil.getNotLoginPromptBody(acnt, crm));
-		    				}
+	    					try {
+									emailService.sendImoHtmlMail(testEmails, new String [] {"Julie-Ann.Evans@i-med.com.au"},
+										UserMessageUtil.getLoginPromptCrmSubject(acnt),
+										UserMessageUtil.getNotLoginPromptBody(acnt, crm));
+								} catch (Exception e) {
+									e.printStackTrace();
+								}
 		    			}
 		    		}
-
 		    	}
 		    }
 		    
@@ -199,18 +200,20 @@ public class AccountActivationScheduler {
 		    				{
 		    					String [] testEmails = new String [] {"Hidehiro.Uehara@i-med.com.au", "Martin.Cox@i-med.com.au", "Julie-Ann.Evans@i-med.com.au"};
 		    					try {
-										emailService.sendHtmlMail(testEmails,
+										emailService.sendImoHtmlMail(testEmails, new String [] {},
 												UserMessageUtil.TANDC_PROMPT_SUBJECT, 
 												UserMessageUtil.getTandcPromptHtmlContent(doctorDetails, crm, APPLICAION_CONTEXT_PATH));
 									} catch (Exception e) {
 										e.printStackTrace();
 									}
 		    					if(crm != null) {
-		    						for(String em : testEmails) {
-		    							emailService.sendMail(em, 
-				    						UserMessageUtil.getTandcPromptCrmSubject(doctorDetails),
-				    						UserMessageUtil.getTandcPromptBody(doctorDetails, crm));
-		    						}
+	    							try {
+											emailService.sendImoHtmlMail(testEmails, new String [] {"Julie-Ann.Evans@i-med.com.au"}, 
+												UserMessageUtil.getTandcPromptCrmSubject(doctorDetails),
+												UserMessageUtil.getTandcPromptBody(doctorDetails, crm));
+										} catch (Exception e) {
+											e.printStackTrace();
+										}
 		    					}
 		    				}
 			    		}

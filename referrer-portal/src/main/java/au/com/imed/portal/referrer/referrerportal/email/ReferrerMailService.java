@@ -55,6 +55,10 @@ public class ReferrerMailService {
   private final static String TEMPLATE_MIDDLE_APPROVED = "tempApproveEmailMiddle.html";
   private final static String TEMPLATE_END_APPROVED = "tempApproveEmailEnd.html";
   private final static String NL = "\n";
+	private static final ClassPathResource IMED_BANNER = new ClassPathResource("static/images/public/banner.jpg");
+	private static final String BANNER_KEY = "banner.jpg";
+	private static final String INLINE_BANNER = "<br/><img src=\"cid:banner.jpg\"></img><br/>";
+
   
   private final static Map<String, String> IMG_CID_MAP_APPROVED = new HashMap<>();
   static {
@@ -80,6 +84,16 @@ public class ReferrerMailService {
 		message.setText(body);
 		mailSender.send(message);
 	}
+	
+	public void sendMailWithCc(String [] tos, String [] ccs, String subject, String body) {
+		SimpleMailMessage message = new SimpleMailMessage();
+		message.setTo(tos);
+		message.setCc(ccs);
+		message.setFrom(FROM_ADDRESS);
+		message.setSubject(subject);
+		message.setText(body);
+		mailSender.send(message);
+	}
 
 	private static final String RESET_SUBJECT = "I-MED Radiology Network : Reset your password";
 	private static final String RESET_CONTENT_FMT = "Hello,<br/><br/>As requested, your My I-MED account password is being reset. To complete the process, please click <a href=\"%s\">here</a> to open the password reset confirmation page and complete the process with your sms code.<br/>This link will expire in 24 hours.<br/><br/>Thank you<br/>I-MED Radiology";
@@ -98,8 +112,8 @@ public class ReferrerMailService {
 	public void sendHtmlMail(final String[] toEmails, final String subject, final String content) throws Exception {
 		this.sendHtmlMail(toEmails, subject, content, null);
 	}
-
-	// Send html with logo
+	
+	// Send html with imed logo
 	public void sendHtmlMail(final String[] toEmails, final String subject, final String content,
 			final MultipartFile file) throws Exception {
 		MimeMessage mimeMessage = mailSender.createMimeMessage();
@@ -116,6 +130,21 @@ public class ReferrerMailService {
 		}
 		helper.setText(content + INLINE_LOGO, true);
 		helper.setTo(toEmails);
+		helper.setSubject(subject);
+		helper.setFrom(FROM_ADDRESS);
+		mailSender.send(mimeMessage);
+	}
+	
+	//Send html with imed logo header and footer
+	public void sendImoHtmlMail(final String[] toEmails, final String [] ccEmails, final String subject, final String content) throws Exception 
+	{
+		MimeMessage mimeMessage = mailSender.createMimeMessage();
+		MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED, "utf-8");
+		helper.addAttachment(LOGO_KEY, IMED_LOGO);
+		helper.addAttachment(BANNER_KEY, IMED_BANNER);
+		helper.setText(INLINE_BANNER + content + INLINE_LOGO, true);
+		helper.setTo(toEmails);
+		helper.setCc(ccEmails);
 		helper.setSubject(subject);
 		helper.setFrom(FROM_ADDRESS);
 		mailSender.send(mimeMessage);
@@ -273,8 +302,6 @@ public class ReferrerMailService {
     helper.setFrom(FROM_ADDRESS);
     mailSender.send(mimeMessage);
   }
-  
-
 
   public void sendHtmlMail(String to, String from, String subject, String htmlBody, Map<String, String> imgmap) {
     try
