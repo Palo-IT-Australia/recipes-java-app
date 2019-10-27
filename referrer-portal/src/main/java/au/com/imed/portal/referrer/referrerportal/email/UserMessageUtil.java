@@ -271,7 +271,7 @@ public class UserMessageUtil {
     	StringBuffer sb = new StringBuffer();
     	sb.append("Dear Practitioner");
     	sb.append(BRS);
-    	sb.append("Thank you for your recent application for I-MED Online 2.0.  With I-MED Online 2.0 you can easily access patient reports and images via desktop, mobile or app.");
+    	sb.append("Thank you for your recent application for I-MED Online 2.0.  With I-MED Online 2.0 you can easily access patient reports and images via desktop, mobile and app.");
     	sb.append(BRS);
     	sb.append("As we’ve noticed you’ve not yet logged into your I-MED Online 2.0 account, we’d like to make sure everything is ok. If you have any questions, support is available through your local Customer Service Representative (CRM). ");
     	sb.append(getPromptHtmlFooter(crm, rootUrl));
@@ -283,7 +283,7 @@ public class UserMessageUtil {
     	StringBuffer sb = new StringBuffer();
     	sb.append("Dear Practitioner");
     	sb.append(BRS);
-    	sb.append("Thank you for your recent application for I-MED Online 2.0. With I-MED Online 2.0 you can easily access patient reports and images via desktop, mobile app.");
+    	sb.append("Thank you for your recent application for I-MED Online 2.0. With I-MED Online 2.0 you can easily access patient reports and images via desktop, mobile and app.");
     	sb.append(BRS);
     	sb.append("As we've noticed you have not yet accepted the terms and conditions associated with your I-MED Online 2.0 account, we'd like to make sure everything is ok. If you have any questions, support is available through your local Customer Service Representative (CRM) so please contact them if you have any concerns. ");
     	sb.append(getPromptHtmlFooter(crm, rootUrl));
