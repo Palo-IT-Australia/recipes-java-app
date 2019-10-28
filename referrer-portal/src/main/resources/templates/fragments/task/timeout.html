@@ -48,7 +48,7 @@
     var _RefPortalLogoutTime = 0;
     var _RefPortalLogoutInterval;
     $(document).ready(function () {
-        setInterval(incrementRefPortalIdleTime, 1000*60); // Repeat by 1 min
+        setInterval(incrementRefPortalIdleTime, 1000*60*60); // Repeat by 1 hour
     
         $(this).mousemove(function (e) {
             //console.log("Reset Timer by mousemove");
@@ -63,7 +63,7 @@
     function incrementRefPortalIdleTime() {
         _RefPortalIdleTime++;
         console.log("Minutes of idle " + _RefPortalIdleTime);
-        if (_RefPortalIdleTime >= 14) {  // x minus 1 min idle inerval passed 
+        if (_RefPortalIdleTime >= 4) {  // 4 hours time out for imo2.0 
             //console.log("logout warning !!!!!!!!!!");
             $("#refPortalTimeoutWarningDialog").css('display','block');
             _RefPortalIdleTime = 0;
