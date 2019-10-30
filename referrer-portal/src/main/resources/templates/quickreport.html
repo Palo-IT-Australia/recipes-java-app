@@ -1,12 +1,32 @@
 <!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org">
 <head th:include="fragments/layout/head :: head">
-    <title id="pageTitle">Report and Image</title>
+    <title id="pageTitle">Fast results access</title>
 </head>
 <body>
 
-	<div th:replace="fragments/layout/simpleheader :: simpleheader"></div>
-	
+	<div class="nav section" style="height:auto;">
+		<div class="w-nav wrapper-nav wrapper" style="padding-left:15px;">
+			<img th:src="@{/images/public/imedBanner.svg}" style="margin-left:10px;width:40%;">	
+		</div>
+ 	</div>
+	<div class="nav section" style="height: auto;">
+		<div class="w-nav wrapper-nav wrapper" style="padding-left: 15px;">
+			<div class="find-menu w-tab-menu">
+				<a style="background-image: none; padding-left: 20px;"
+					class="tab-clinic w-inline-block w-tab-link"
+					th:href="@{/apply}">
+					<div>Sign Up</div>
+				</a> 
+				<a th:href="@{/login}"
+					style="background-image: none; padding-left: 20px;"
+					class="tab-clinic w-inline-block w-tab-link">
+					<div>Log In</div>
+				</a>
+			</div>
+		</div>
+	</div>
+
 	<div class="section">
 		<div th:url="@{/}" id="quickreportapiroot"></div>
 		<link th:href="@{/js/public/quickreport/dist/styles.bundle.css}" rel="stylesheet"/>
