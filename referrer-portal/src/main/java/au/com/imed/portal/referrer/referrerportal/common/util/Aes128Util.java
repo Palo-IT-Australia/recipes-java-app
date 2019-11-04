@@ -31,10 +31,10 @@ public class Aes128Util {
   private static final byte[] IV = IV_STR.getBytes();
   // Query params
   private static final String PARAM_ACC_NUM = "accessionnumber";
-  private static final String PARAM_EXPIRED_AT = "expireat";
+  //private static final String PARAM_EXPIRED_AT = "expireat";
   public static final String PARAM_ITEM = "item";
   private static final String PARAM_PATIENT_ID = "patientId";
-  private static final String PARAM_FMT = PARAM_ACC_NUM + "=%s&" + PARAM_EXPIRED_AT + "=%s&" + PARAM_ITEM + "=%s&" + PARAM_PATIENT_ID + "=%s";
+  //private static final String PARAM_FMT = PARAM_ACC_NUM + "=%s&" + PARAM_EXPIRED_AT + "=%s&" + PARAM_ITEM + "=%s&" + PARAM_PATIENT_ID + "=%s";
  
   static {
     SECRET_KEY = createSecretKey(STR_PASSWORD);
@@ -123,13 +123,10 @@ public class Aes128Util {
         String decoded = decrypt(imsec.trim().replaceAll(" ", "+")); // Convert spaced plus signs
         logger.info("getAccessionNumberFromSecurityCode(): decoded = " + decoded);
         Map<String, String> params = getParams(decoded);
-        if(isFreshDate(params.get(PARAM_EXPIRED_AT))) {
-          sr.setAccessionNumber(params.get(PARAM_ACC_NUM));
-          sr.setItem(params.get(PARAM_ITEM));
-          sr.setPatientId(params.get(PARAM_PATIENT_ID));
-        } else {
-        	logger.info("getAccessionNumberFromSecurityCode() : Expired date is past or too many valid days.");
-        }
+        // urls are perpetual
+        sr.setAccessionNumber(params.get(PARAM_ACC_NUM));
+        sr.setItem(params.get(PARAM_ITEM));
+        sr.setPatientId(params.get(PARAM_PATIENT_ID));
       }
       catch(Exception ex) {
         logger.info("getAccessionNumberFromSecurityCode() Invalid imsec");
@@ -140,24 +137,24 @@ public class Aes128Util {
     return sr;
   }
   
-  public static String encodeShareReportParameters(final ShareReport shareReport) {
-    String imsec = null;
-    
-    if(shareReport != null) {
-      imsec = encrypt(String.format(PARAM_FMT,
-          shareReport.getAccessionNumber(),
-          new SimpleDateFormat("yyyyMMddHHmm").format(getMaxExpiryDate()),
-          shareReport.getItem(),
-          shareReport.getPatientId()));
-    }
-    
-    return imsec;
-  }
+//  public static String encodeShareReportParameters(final ShareReport shareReport) {
+//    String imsec = null;
+//    
+//    if(shareReport != null) {
+//      imsec = encrypt(String.format(PARAM_FMT,
+//          shareReport.getAccessionNumber(),
+//          new SimpleDateFormat("yyyyMMddHHmm").format(getMaxExpiryDate()),
+//          shareReport.getItem(),
+//          shareReport.getPatientId()));
+//    }
+//    
+//    return imsec;
+//  }
 
 //  public static void main(String args[]) throws Exception
 //  {
-//    final String strToEncrypt = "accessionnumber=77.160951&expireat=201909231414&item=image,report";
-//   // final String strToEncrypt = "accessionnumber=12.10720408&item=image,report&expireat=201909231417";
+//    final String strToEncrypt = "accessionnumber=77.160951&item=image,report";
+//   // final String strToEncrypt = "accessionnumber=12.10720408&item=image,report";
 //    System.out.println("String to Encrypt: " + strToEncrypt); 
 //    
 //    String encoded = encrypt(strToEncrypt.trim());
