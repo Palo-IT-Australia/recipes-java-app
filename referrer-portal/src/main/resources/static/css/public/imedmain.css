@@ -102,6 +102,10 @@ button:disabled, button:disabled:hover {
     text-align: center;
 }
 
+.blue-alert-bar a {
+    color: #fff;
+}
+
 .orange-alert-bar {
     display: block;
     padding-top: 15px;
