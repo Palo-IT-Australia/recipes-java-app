@@ -4,217 +4,225 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class Referrer {
-  private String uri;
-  private String name;
-  private String email;
-  private String mobile;
-  private Practice [] practices;
-  // TODO private Hospital [] hospitals;
-  
-  public String getUri() {
-    return uri;
-  }
+	private String uri;
+	private String name;
+	private String email;
+	private String mobile;
+	private Practice [] practices;
 
-  public void setUri(String uri) {
-    this.uri = uri;
-  }
+	public String getUri() {
+		return uri;
+	}
 
-  public String getName() {
-    return name;
-  }
+	public void setUri(String uri) {
+		this.uri = uri;
+	}
 
-  public void setName(String name) {
-    this.name = name;
-  }
+	public String getName() {
+		return name;
+	}
 
-  public String getEmail() {
-    return email;
-  }
+	public void setName(String name) {
+		this.name = name;
+	}
 
-  public void setEmail(String email) {
-    this.email = email;
-  }
+	public String getEmail() {
+		return email;
+	}
 
-  public String getMobile() {
-    return mobile;
-  }
+	public void setEmail(String email) {
+		this.email = email;
+	}
 
-  public void setMobile(String mobile) {
-    this.mobile = mobile;
-  }
+	public String getMobile() {
+		return mobile;
+	}
 
-  public Practice[] getPractices() {
-    return practices;
-  }
+	public void setMobile(String mobile) {
+		this.mobile = mobile;
+	}
 
-  public void setPractices(Practice[] practices) {
-    this.practices = practices;
-  }
+	public Practice[] getPractices() {
+		return practices;
+	}
 
-  @JsonIgnoreProperties(ignoreUnknown=true)
-  public static class Practice {    
-    private String uri;
-    private String fullName;
-    private String practiceName;
-    private String providerNumber;
-    private String speciality;
-    private String phone1;
-    private String phone2;
-    private String mobile;
-    private String email;
-    private String fax;
-    private String businessUnit;
-    private Address address;
-    
-    public String getUri() {
-      return uri;
-    }
+	public void setPractices(Practice[] practices) {
+		this.practices = practices;
+	}
 
-    public void setUri(String uri) {
-      this.uri = uri;
-    }
+	@JsonIgnoreProperties(ignoreUnknown=true)
+	public static class Practice {    
+		private String uri;
+		private String fullName;
+		private String practiceName;
+		private String providerNumber;
+		private String speciality;
+		private String phone1;
+		private String phone2;
+		private String mobile;
+		private String email;
+		private String fax;
+		private String businessUnit;
+		private Address address;
+		private Hospital [] hospitals;
 
-    public String getFullName() {
-      return fullName;
-    }
+		public Hospital[] getHospitals() {
+			return hospitals;
+		}
 
-    public void setFullName(String fullName) {
-      this.fullName = fullName;
-    }
+		public void setHospitals(Hospital[] hospitals) {
+			this.hospitals = hospitals;
+		}
 
-    public String getPracticeName() {
-      return practiceName;
-    }
+		public String getUri() {
+			return uri;
+		}
 
-    public void setPracticeName(String practiceName) {
-      this.practiceName = practiceName;
-    }
+		public void setUri(String uri) {
+			this.uri = uri;
+		}
 
-    public String getProviderNumber() {
-      return providerNumber;
-    }
+		public String getFullName() {
+			return fullName;
+		}
 
-    public void setProviderNumber(String providerNumber) {
-      this.providerNumber = providerNumber;
-    }
+		public void setFullName(String fullName) {
+			this.fullName = fullName;
+		}
 
-    public String getSpeciality() {
-      return speciality;
-    }
+		public String getPracticeName() {
+			return practiceName;
+		}
 
-    public void setSpeciality(String speciality) {
-      this.speciality = speciality;
-    }
+		public void setPracticeName(String practiceName) {
+			this.practiceName = practiceName;
+		}
 
-    public String getPhone1() {
-      return phone1;
-    }
+		public String getProviderNumber() {
+			return providerNumber;
+		}
 
-    public void setPhone1(String phone1) {
-      this.phone1 = phone1;
-    }
+		public void setProviderNumber(String providerNumber) {
+			this.providerNumber = providerNumber;
+		}
 
-    public String getPhone2() {
-      return phone2;
-    }
+		public String getSpeciality() {
+			return speciality;
+		}
 
-    public void setPhone2(String phone2) {
-      this.phone2 = phone2;
-    }
+		public void setSpeciality(String speciality) {
+			this.speciality = speciality;
+		}
 
-    public String getMobile() {
-      return mobile;
-    }
+		public String getPhone1() {
+			return phone1;
+		}
 
-    public void setMobile(String mobile) {
-      this.mobile = mobile;
-    }
+		public void setPhone1(String phone1) {
+			this.phone1 = phone1;
+		}
 
-    public String getEmail() {
-      return email;
-    }
+		public String getPhone2() {
+			return phone2;
+		}
 
-    public void setEmail(String email) {
-      this.email = email;
-    }
+		public void setPhone2(String phone2) {
+			this.phone2 = phone2;
+		}
 
-    public String getFax() {
-      return fax;
-    }
+		public String getMobile() {
+			return mobile;
+		}
 
-    public void setFax(String fax) {
-      this.fax = fax;
-    }
+		public void setMobile(String mobile) {
+			this.mobile = mobile;
+		}
 
-    public String getBusinessUnit() {
-      return businessUnit;
-    }
+		public String getEmail() {
+			return email;
+		}
 
-    public void setBusinessUnit(String businessUnit) {
-      this.businessUnit = businessUnit;
-    }
+		public void setEmail(String email) {
+			this.email = email;
+		}
 
-    public Address getAddress() {
-      return address;
-    }
+		public String getFax() {
+			return fax;
+		}
 
-    public void setAddress(Address address) {
-      this.address = address;
-    }
+		public void setFax(String fax) {
+			this.fax = fax;
+		}
 
-    @JsonIgnoreProperties(ignoreUnknown=true)
-    public static class Address {
-      private String line1;
-      private String line2;
-      private String line3;
-      private String city;
-      private String state;
-      private String postcode;
-      private String country;
-      public String getLine1() {
-        return line1;
-      }
-      public void setLine1(String line1) {
-        this.line1 = line1;
-      }
-      public String getLine2() {
-        return line2;
-      }
-      public void setLine2(String line2) {
-        this.line2 = line2;
-      }
-      public String getLine3() {
-        return line3;
-      }
-      public void setLine3(String line3) {
-        this.line3 = line3;
-      }
-      public String getCity() {
-        return city;
-      }
-      public void setCity(String city) {
-        this.city = city;
-      }
-      public String getState() {
-        return state;
-      }
-      public void setState(String state) {
-        this.state = state;
-      }
-      public String getPostcode() {
-        return postcode;
-      }
-      public void setPostcode(String postcode) {
-        this.postcode = postcode;
-      }
-      public String getCountry() {
-        return country;
-      }
-      public void setCountry(String country) {
-        this.country = country;
-      }
-      
-    }
-  }
+		public String getBusinessUnit() {
+			return businessUnit;
+		}
+
+		public void setBusinessUnit(String businessUnit) {
+			this.businessUnit = businessUnit;
+		}
+
+		public Address getAddress() {
+			return address;
+		}
+
+		public void setAddress(Address address) {
+			this.address = address;
+		}
+
+		@JsonIgnoreProperties(ignoreUnknown=true)
+		public static class Address {
+			private String line1;
+			private String line2;
+			private String line3;
+			private String city;
+			private String state;
+			private String postcode;
+			private String country;
+			public String getLine1() {
+				return line1;
+			}
+			public void setLine1(String line1) {
+				this.line1 = line1;
+			}
+			public String getLine2() {
+				return line2;
+			}
+			public void setLine2(String line2) {
+				this.line2 = line2;
+			}
+			public String getLine3() {
+				return line3;
+			}
+			public void setLine3(String line3) {
+				this.line3 = line3;
+			}
+			public String getCity() {
+				return city;
+			}
+			public void setCity(String city) {
+				this.city = city;
+			}
+			public String getState() {
+				return state;
+			}
+			public void setState(String state) {
+				this.state = state;
+			}
+			public String getPostcode() {
+				return postcode;
+			}
+			public void setPostcode(String postcode) {
+				this.postcode = postcode;
+			}
+			public String getCountry() {
+				return country;
+			}
+			public void setCountry(String country) {
+				this.country = country;
+			}
+
+		}
+	}
 
 }

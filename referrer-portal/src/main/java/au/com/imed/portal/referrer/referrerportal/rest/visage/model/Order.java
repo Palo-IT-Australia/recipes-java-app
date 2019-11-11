@@ -20,8 +20,29 @@ public class Order {
   private Procedure [] procedures;
   private Report report;
   private Referrer referrer;
+  private String serviceCategory;
+  private String visitType;
+	private HospitalInfo hospital;
   
-  public boolean isAccessible() {
+  public String getServiceCategory() {
+		return serviceCategory;
+	}
+	public void setServiceCategory(String serviceCategory) {
+		this.serviceCategory = serviceCategory;
+	}
+	public String getVisitType() {
+		return visitType;
+	}
+	public void setVisitType(String visitType) {
+		this.visitType = visitType;
+	}
+  public HospitalInfo getHospital() {
+		return hospital;
+	}
+	public void setHospital(HospitalInfo hospital) {
+		this.hospital = hospital;
+	}
+	public boolean isAccessible() {
     return accessible;
   }
   public void setAccessible(boolean accessible) {
@@ -198,5 +219,18 @@ public class Order {
     public void setDateOfBirth(String dateOfBirth) {
       this.dateOfBirth = dateOfBirth;
     }
+  }
+  
+  @JsonIgnoreProperties(ignoreUnknown=true)
+  public static class HospitalInfo {
+  	 private String uri;
+
+  	 public String getUri() {
+  	  return uri;
+  	 }
+
+  	 public void setUri(String uri) {
+  	  this.uri = uri;
+  	 }
   }
 }

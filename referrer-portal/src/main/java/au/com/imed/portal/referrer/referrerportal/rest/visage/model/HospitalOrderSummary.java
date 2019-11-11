@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import au.com.imed.portal.referrer.referrerportal.rest.visage.model.Order.HospitalInfo;
+
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class HospitalOrderSummary {
   private boolean accessible;
@@ -17,8 +19,36 @@ public class HospitalOrderSummary {
   private Procedure [] procedures;
   private Report report;
   private Referrer referrer;
-  
-  public boolean isAccessible() {
+  private String serviceCategory;
+  private String visitType;
+	private HospitalInfo hospital;
+	private ExternalIdentifier [] externalIdentifiers;
+	
+  public ExternalIdentifier[] getExternalIdentifiers() {
+		return externalIdentifiers;
+	}
+	public void setExternalIdentifiers(ExternalIdentifier[] externalIdentifiers) {
+		this.externalIdentifiers = externalIdentifiers;
+	}
+	public String getServiceCategory() {
+		return serviceCategory;
+	}
+	public void setServiceCategory(String serviceCategory) {
+		this.serviceCategory = serviceCategory;
+	}
+	public String getVisitType() {
+		return visitType;
+	}
+	public void setVisitType(String visitType) {
+		this.visitType = visitType;
+	}
+	public HospitalInfo getHospital() {
+		return hospital;
+	}
+	public void setHospital(HospitalInfo hospital) {
+		this.hospital = hospital;
+	}
+	public boolean isAccessible() {
     return accessible;
   }
   public void setAccessible(boolean accessible) {
@@ -132,6 +162,7 @@ public class HospitalOrderSummary {
     private String description;
     private String modality;
     private String procedureId;
+   
     public String getDescription() {
       return description;
     }
@@ -190,5 +221,17 @@ public class HospitalOrderSummary {
     public void setDateOfBirth(String dateOfBirth) {
       this.dateOfBirth = dateOfBirth;
     }
+  }
+  @JsonIgnoreProperties(ignoreUnknown=true)
+  public static class HospitalInfo {
+  	 private String uri;
+
+  	 public String getUri() {
+  	  return uri;
+  	 }
+
+  	 public void setUri(String uri) {
+  	  this.uri = uri;
+  	 }
   }
 }
