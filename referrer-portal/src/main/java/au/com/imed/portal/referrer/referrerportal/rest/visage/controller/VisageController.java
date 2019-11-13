@@ -317,13 +317,15 @@ public class VisageController {
     {
       if(preferenceService.isTermsAccepted(userName))
       {
+      	List<HospitalOrderSummary> originalList = new ArrayList<>(0);;
         ResponseEntity<SearchHospitalOrders> entity = hospitalSearchOrderService.doRestGet(userName, paramMap, SearchHospitalOrders.class);
-        List<HospitalOrderSummary> originalList = entity.getBody().getOrders();
-
-        // May add search by urn etc.
-//        if(paramMap.containsKey("urn")) {
-//        	originalList.stream().filter(o -> o.getPatient().getUrn() == paramMap.get("urn")).collect(Collectors.toList());
+        if(HttpStatus.OK.equals(entity.getStatusCode())) {
+        	originalList = entity.getBody().getOrders();
+        	// May add search by urn etc.
+//        if(paramMap.containsKey("externalIdentifier")) {
+//        	originalList.stream().filter(o -> o.getPatient().externalIdentifier() == paramMap.get("externalIdentifier")).collect(Collectors.toList());
 //        }
+        }
         
         return new ResponseEntity<>(originalList, entity.getHeaders(), entity.getStatusCode());
       }
