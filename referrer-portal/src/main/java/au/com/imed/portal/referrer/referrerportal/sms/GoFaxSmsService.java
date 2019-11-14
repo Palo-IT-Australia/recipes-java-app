@@ -42,7 +42,7 @@ public class GoFaxSmsService {
     body.setReplyTo("");
     body.setFrom("");
     RequestEntity<SmsSendRequest> requestEntity = new RequestEntity<>(body, HttpMethod.PUT, getSmsUrl(SMS_PARAM_MAP, ""));
-    RestTemplate restTemplate = new RestTemplate(getProxyFactory());
+    RestTemplate restTemplate = new RestTemplate();   // No proxy on tomcat
     return restTemplate.exchange(requestEntity, SmsSendResponse.class);
   }
   
