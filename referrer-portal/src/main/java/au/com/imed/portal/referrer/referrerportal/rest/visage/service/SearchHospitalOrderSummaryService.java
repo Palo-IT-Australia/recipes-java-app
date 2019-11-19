@@ -31,8 +31,9 @@ public class SearchHospitalOrderSummaryService extends AVisageRestClientService<
         else if("hospitalUri".equalsIgnoreCase(key) && val.length() > 0) {
           String [] hosps = val.split(",");
           for(String h : hosps) {
-            System.out.println("SearchHospitalOrderSummaryService setParameters() setting hospitalId " + h);
-            builder.queryParam("hospitalUri", h);  // TODO hospitalId
+          	String [] huri = h.split("/");
+            System.out.println("SearchHospitalOrderSummaryService setParameters() setting hospitaUri/Id " + h);
+            builder.queryParam("hospitalId", huri[huri.length - 1]);
           }
         }
         else if("serviceCategory".equalsIgnoreCase(key) && val.length() > 0) {
