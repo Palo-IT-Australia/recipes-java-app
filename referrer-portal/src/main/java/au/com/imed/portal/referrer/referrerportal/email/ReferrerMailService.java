@@ -1,5 +1,6 @@
 package au.com.imed.portal.referrer.referrerportal.email;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -15,7 +16,6 @@ import javax.mail.BodyPart;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
-import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
@@ -183,11 +183,51 @@ public class ReferrerMailService {
 			// Send the complete message parts
 			msg.setContent(multipart);
 
-			Transport.send(msg);
+			mailSender.send(msg);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
 	}
+	
+	public void sendWithFileMap(final String [] tos, final String subject, final String content, Map<String, File> fileMap) {
+    try {
+      MimeMessage msg = mailSender.createMimeMessage();
+      msg.addHeader("Content-type", "text/HTML; charset=UTF-8");
+      msg.addHeader("format", "flowed");
+      msg.addHeader("Content-Transfer-Encoding", "8bit");
+      msg.setFrom("do_not_reply@i-med.com.au");
+
+      msg.setSubject(subject, "UTF-8");
+      msg.setText(content, "UTF-8");
+
+      msg.setSentDate(new Date());
+      for(String to : tos) {
+      	msg.addRecipients(Message.RecipientType.TO, InternetAddress.parse(to, false));
+      }
+      msg.setRecipients(Message.RecipientType.BCC, InternetAddress.parse("Hidehiro.Uehara@i-med.com.au", false));
+      
+      BodyPart messageBodyPart = new MimeBodyPart();
+      messageBodyPart.setText(content);
+      
+      Multipart multipart = new MimeMultipart();
+      multipart.addBodyPart(messageBodyPart);
+      
+      for(String fname : fileMap.keySet()) {
+      	BodyPart fileBodyPart = new MimeBodyPart();   
+      	fileBodyPart.setDataHandler(new DataHandler(new FileDataSource(fileMap.get(fname))));
+      	fileBodyPart.setFileName(fname);
+      	multipart.addBodyPart(fileBodyPart);
+      }
+      
+      // Send the complete message parts
+      msg.setContent(multipart);
+      
+      mailSender.send(msg);  
+    }
+    catch(Exception ex) {
+      ex.printStackTrace();
+    }
+  }
 
 	/**
 	 * Send email with attachment from the given array of streams

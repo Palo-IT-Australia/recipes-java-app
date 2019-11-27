@@ -59,4 +59,7 @@ public class StringConversionUtil {
 		return now.getTime();
 	}
 
+	public static String nonQuote(final String str) {
+		return str != null ? str.replaceAll("\"", "'"): "";
+	}
 }

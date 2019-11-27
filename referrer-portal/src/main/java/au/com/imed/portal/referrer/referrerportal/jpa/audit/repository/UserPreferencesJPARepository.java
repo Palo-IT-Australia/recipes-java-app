@@ -9,4 +9,5 @@ import au.com.imed.portal.referrer.referrerportal.jpa.history.model.UserPreferen
 
 public interface UserPreferencesJPARepository extends JpaRepository<UserPreferencesEntity, Integer> {
 	public List<UserPreferencesEntity> findByUsername(String username);
+	public List<UserPreferencesEntity> findByAutoimgOrNotify(String autoimg, String notify);
 }
