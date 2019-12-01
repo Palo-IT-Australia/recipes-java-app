@@ -11,7 +11,7 @@ public class CarestreamImageViewerUtil {
     } catch (Exception ex) {
       // NOP
     }
-    return carestreamUrl + "?shs=" + query; 
+    return carestreamUrl + "/?shs=" + query; 
   }
   
   private static String buildParamString(final String accessionNum, final String patientId, final String userName) {
@@ -25,7 +25,7 @@ public class CarestreamImageViewerUtil {
     } catch (Exception ex) {
       // NOP
     }
-    return carestreamUrl + "?shs=" + query; 
+    return carestreamUrl + "/?shs=" + query; 
   }
   
   private static String buildParamStringByStudyInstanceUid(final String studyInstanceUid, final String patientId, final String userName) {
