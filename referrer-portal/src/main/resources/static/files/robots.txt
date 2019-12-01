@@ -6,3 +6,5 @@ Disallow: /imedvisage/*
 Disallow: /referrer/imedvisage/*
 Disallow: /referrer/rest/*
 Disallow: /book/*
+Disallow: /referrer/admin/*
+Disallow: /referrer/editor/*
