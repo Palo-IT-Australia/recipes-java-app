@@ -45,13 +45,19 @@ public class MyCrmExcelService {
 			
 			String postcode = r.getCell(1).getStringCellValue();
 			if(postcode != null & postcode.length() > 0) {
-				CrmPostcodeEntity entity;
-				List<CrmPostcodeEntity> list = postcodeRepository.findByPostcode(postcode);
-				entity = list.size() > 0 ? list.get(0) : new CrmPostcodeEntity(); 
-				entity.setName(r.getCell(6).getStringCellValue());	
-				entity.setSuburb(r.getCell(2).getStringCellValue());
-				entity.setPostcode(postcode);
-				postcodeRepository.saveAndFlush(entity);
+				try {
+					CrmPostcodeEntity entity;
+					List<CrmPostcodeEntity> list = postcodeRepository.findByPostcode(postcode);
+					entity = list.size() > 0 ? list.get(0) : new CrmPostcodeEntity(); 
+					entity.setName(r.getCell(6).getStringCellValue());	
+					entity.setSuburb(r.getCell(2).getStringCellValue());
+					entity.setPostcode(postcode);
+					//logger.info("Saving postcode " + postcode);
+					postcodeRepository.saveAndFlush(entity);
+				} catch(Exception ex) {
+					ex.printStackTrace();
+					logger.info("Skipping this postcode");
+				}
 			}
 		}
     
@@ -77,6 +83,7 @@ public class MyCrmExcelService {
 				entity.setName(name);
 				entity.setPhone(r.getCell(1).getStringCellValue());
 				entity.setRegion(region);
+				//logger.info("Saving CRM " + name);
 				profileRepository.saveAndFlush(entity);
 			}
 		}

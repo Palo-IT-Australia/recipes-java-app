@@ -29,17 +29,23 @@ public class MyCrmImageService {
 			String fname = file.getOriginalFilename();
 			logger.info("file name: " + fname);
 			String name = fname.split("\\.")[0];
-			List<CrmProfileEntity> list = profileRepository.findByName(name);
-			if(list.size() > 0) {
-				CrmProfileEntity entity = list.get(0);
-				String bsf = new String(Base64.getEncoder().encode(file.getBytes()), "UTF-8");
-				entity.setImgstr(PNG + bsf);
-				logger.info("Saving Image name " + name);
-				profileRepository.saveAndFlush(entity);
+			if(name.length() > 0) {
+				List<CrmProfileEntity> list = profileRepository.findByName(name);
+				if(list.size() > 0) {
+					CrmProfileEntity entity = list.get(0);
+					String bsf = new String(Base64.getEncoder().encode(file.getBytes()), "UTF-8");
+					entity.setImgstr(PNG + bsf);
+					logger.info("Saving Image name " + name);
+					profileRepository.saveAndFlush(entity);
+				}
+				else
+				{
+					logger.info("No matching profile " + name);
+				}
 			}
 			else
 			{
-				logger.info("No matching profile " + name);
+				logger.info("No file name for profile provided");
 			}
 		}
 	}

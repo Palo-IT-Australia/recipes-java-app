@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.net.URLEncoder;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ForkJoinPool;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -30,6 +31,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.context.request.async.DeferredResult;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -162,30 +164,38 @@ public class ReferrerPortalMvcController {
 	}
 	
 	@PostMapping("/editor/crmmanager")
-	public String postmycrm(Model model, @RequestPart(name="file",required=false) MultipartFile file,
+	public DeferredResult<String> postmycrm(Model model, @RequestPart(name="file",required=false) MultipartFile file,
 			@RequestPart(name="profiles",required=false) List<MultipartFile> profiles) {
-		logger.info("file = " + file + "profiles " + profiles);
-		try {
-			if(file != null) {
-				myCrmExcelService.saveData(file.getInputStream());
-				model.addAttribute("okmsg", "Excel uploaded successfully");
+		logger.info("file = " + file + ", profiles " + profiles);
+		DeferredResult<String> deferredResult = new DeferredResult<>(6 * 60 * 1000L);  // 6 min timeout
+		
+		ForkJoinPool.commonPool().submit(()-> {
+			try {
+				if(file != null && file.getSize() > 0) {
+					myCrmExcelService.saveData(file.getInputStream());
+					model.addAttribute("okmsg", "Excel uploaded successfully");
+					deferredResult.setResult("crmmanager");
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+				model.addAttribute("errmsg", "Failed to upload excel or excel not provided.");
+				deferredResult.setResult("crmmanager");
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			model.addAttribute("errmsg", "Failed to upload excel or excel not provided.");
-		}
-
-		try {
-			if(profiles != null) {
-				myCrmImageService.saveImages(profiles);
-				model.addAttribute("imgokmsg", "Images uploaded successfully");
+	
+			try {
+				if(profiles != null && !profiles.isEmpty()) {
+					myCrmImageService.saveImages(profiles);
+					model.addAttribute("imgokmsg", "Images uploaded successfully");
+					deferredResult.setResult("crmmanager");
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+				model.addAttribute("imgerrmsg", "Failed to upload images or image not provided.");
+				deferredResult.setResult("crmmanager");
 			}
-		} catch (IOException e) {
-			e.printStackTrace();
-			model.addAttribute("imgerrmsg", "Failed to upload images or image not provided.");
-		}
+		});
 
-		return "crmmanager";
+		return deferredResult;
 	}
 	
 	@GetMapping("/profile")
