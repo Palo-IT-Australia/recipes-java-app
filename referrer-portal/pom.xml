@@ -260,13 +260,16 @@
 				<version>2.2</version>
 				<configuration>
 					<update>true</update>
+					
 					<!-- TEST -->
 					<url>http://imedtstom05.imed:8080/manager/text</url>
 					<username>huehara</username>
-					<password>D3pl0ym3nt%</password>
+					<password>D3pl0ym3nt%</password>   
 
-					<!-- PROD <url>http://imedpdtom05.imed:8080/manager/text</url> <username>huehara</username> 
-						<password>PR0DD3pl0ym3nt%</password> -->
+					<!-- PROD 
+					<url>http://imedpdtom08.imed:8080/manager/text</url> 
+					<username>huehara</username> 
+					<password>PR0DD3pl0ym3nt%X</password>   -->
 
 					<path>/referrer</path>
 				</configuration>
