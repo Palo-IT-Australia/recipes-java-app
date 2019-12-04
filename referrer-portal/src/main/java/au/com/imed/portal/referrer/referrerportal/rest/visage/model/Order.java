@@ -20,28 +20,28 @@ public class Order {
   private Procedure [] procedures;
   private Report report;
   private Referrer referrer;
-  private String serviceCategory;
-  private String visitType;
-	private HospitalInfo hospital;
+//  private String serviceCategory;
+//  private String visitType;
+//	private HospitalInfo hospital;
   
-  public String getServiceCategory() {
-		return serviceCategory;
-	}
-	public void setServiceCategory(String serviceCategory) {
-		this.serviceCategory = serviceCategory;
-	}
-	public String getVisitType() {
-		return visitType;
-	}
-	public void setVisitType(String visitType) {
-		this.visitType = visitType;
-	}
-  public HospitalInfo getHospital() {
-		return hospital;
-	}
-	public void setHospital(HospitalInfo hospital) {
-		this.hospital = hospital;
-	}
+//  public String getServiceCategory() {
+//		return serviceCategory;
+//	}
+//	public void setServiceCategory(String serviceCategory) {
+//		this.serviceCategory = serviceCategory;
+//	}
+//	public String getVisitType() {
+//		return visitType;
+//	}
+//	public void setVisitType(String visitType) {
+//		this.visitType = visitType;
+//	}
+//  public HospitalInfo getHospital() {
+//		return hospital;
+//	}
+//	public void setHospital(HospitalInfo hospital) {
+//		this.hospital = hospital;
+//	}
 	public boolean isAccessible() {
     return accessible;
   }
