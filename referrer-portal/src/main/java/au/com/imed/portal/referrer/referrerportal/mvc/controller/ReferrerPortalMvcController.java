@@ -5,6 +5,7 @@ import static au.com.imed.portal.referrer.referrerportal.common.PortalConstant.M
 import static au.com.imed.portal.referrer.referrerportal.common.PortalConstant.MODEL_KEY_FORM_MODEL;
 import static au.com.imed.portal.referrer.referrerportal.common.PortalConstant.MODEL_KEY_SUCCESS_MSG;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLEncoder;
@@ -15,6 +16,7 @@ import java.util.concurrent.ForkJoinPool;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.poi.util.TempFile;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +40,7 @@ import org.springframework.web.servlet.ModelAndView;
 import au.com.imed.portal.referrer.referrerportal.crm.MyCrmExcelService;
 import au.com.imed.portal.referrer.referrerportal.crm.MyCrmImageService;
 import au.com.imed.portal.referrer.referrerportal.email.ReferrerMailService;
+import au.com.imed.portal.referrer.referrerportal.filetoaccount.AccountExcelImportService;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.entity.ReferrerPasswordResetEntity;
 import au.com.imed.portal.referrer.referrerportal.ldap.ReferrerCreateAccountService;
 import au.com.imed.portal.referrer.referrerportal.model.AccountDetail;
@@ -98,6 +101,9 @@ public class ReferrerPortalMvcController {
 	
 	@Autowired
 	private MyCrmImageService myCrmImageService;
+	
+	@Autowired
+	private AccountExcelImportService accountExcelImportService;
 
 	@GetMapping("/login")
 	public ModelAndView getLogin() {
@@ -146,6 +152,37 @@ public class ReferrerPortalMvcController {
 	@GetMapping("/admin/account")
 	public String getAdminAccout() {
 		return "account";
+	}
+	
+	@GetMapping("/admin/filetoaccount")
+	public String getAdminFileToAccout() {
+		return "filetoaccount";
+	}
+	
+	@PostMapping("/admin/filetoaccount")
+	public DeferredResult<String> postFileToAccount(Model model, @RequestPart(name="file",required=false) MultipartFile file,
+			@RequestParam(name="dryrun",required=false) boolean dryrun) {
+		logger.info("file size = " + file.getSize() + ", dryrun = " + dryrun);
+		DeferredResult<String> deferredResult = new DeferredResult<>(6 * 60 * 1000L);  // 6 min timeout
+		if(file != null && file.getSize() > 0) {
+				try {
+					File tmpFile = accountExcelImportService.importExcel(file.getInputStream(), dryrun);
+					model.addAttribute("okmsg", "Uploaded successfully.");			
+					model.addAttribute("resultfile", tmpFile);			
+					deferredResult.setResult("filetoaccount");
+					// TODO tmpFile.delete();
+				} catch (Exception e) {
+					e.printStackTrace();
+					model.addAttribute("errmsg", "Failed to upload excel file");			
+					deferredResult.setResult("filetoaccount");
+				}
+		}
+		else
+		{
+			model.addAttribute("errmsg", "File is missing");
+			deferredResult.setResult("filetoaccount");
+		}
+		return deferredResult;
 	}
 	
 	@GetMapping("/editor")

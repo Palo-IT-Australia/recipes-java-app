@@ -116,6 +116,21 @@ public class ReferrerAccountService extends ABasicAccountService {
 		}
 		return list;
 	}
+	
+  public List<String> findGlobalByAtr(final String name, final String value) {
+    try {
+			List<String> list = getGlobalLdapTemplate()
+					.search(query().where(name).is(value), new AttributesMapper<String>() {
+			  @Override
+			  public String mapFromAttributes(Attributes attrs) throws NamingException {
+			    return attrs.get("uid").get(0).toString();
+			  }});
+			return list;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new ArrayList<String>(0);
+		}
+  }
 
 	public List<AccountDetail> findAccountsPortalByAttr(final String name, final String value) {
 		List<AccountDetail> list;
