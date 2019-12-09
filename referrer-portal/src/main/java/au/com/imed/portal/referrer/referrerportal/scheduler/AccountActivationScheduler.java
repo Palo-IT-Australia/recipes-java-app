@@ -103,15 +103,21 @@ public class AccountActivationScheduler {
 		    		logger.info("Sending referrer email : " + email + ", crm = " + crm);
 		    		if("prod".equals(ACTIVE_PROFILE)) {
 							try {
-								// TODO
-								//emailService.sendLoginPrompt(new String [] {acnt.getEmail()}, acnt.getFirstName(), acnt.getLastName(), uid);
+								emailService.sendImoHtmlMail(new String [] {acnt.getEmail()}, new String [] {}, 
+										UserMessageUtil.LOGIN_PROMPT_SUBJECT, 
+										UserMessageUtil.getLoginPromptHtmlContent(acnt, crm, APPLICAION_CONTEXT_PATH));
 							} catch (Exception e) {
 								e.printStackTrace();
 							}
 
 		    			if(crm != null) {
-		    				//TODO
-		    				//emailService.emailNotLoginPrompt(crm.getEmail(), acnt);
+								try {
+									emailService.sendImoHtmlMail(new String [] {crm.getEmail()}, new String [] {"Julie-Ann.Evans@i-med.com.au"},
+											UserMessageUtil.getLoginPromptCrmSubject(acnt),
+											UserMessageUtil.getNotLoginPromptBody(acnt, crm));
+								} catch (Exception e) {
+									e.printStackTrace();
+								}
 		    			}
 		    		}
 		    		else
@@ -186,14 +192,20 @@ public class AccountActivationScheduler {
 			    			LdapUserDetails doctorDetails = dlist.get(0);
 				    		if("prod".equals(ACTIVE_PROFILE)) {
 				    			try {
-				    				// TODO
-										//emailService.sendTandcPrompt(new String [] {details.getEmail()}, dlist.get(0).getGivenName(), dlist.get(0).getSurname());
+										emailService.sendImoHtmlMail(new String [] {doctorDetails.getEmail()}, new String [] {},
+												UserMessageUtil.TANDC_PROMPT_SUBJECT, 
+												UserMessageUtil.getTandcPromptHtmlContent(doctorDetails, crm, APPLICAION_CONTEXT_PATH));
 									} catch (Exception e) {
 										e.printStackTrace();
 									}
 		    					if(crm != null) {
-		    						//TODO
-			    					//emailService.emailTandCPrompt(crm.getEmail(), dlist.get(0));
+										try {
+											emailService.sendImoHtmlMail(new String [] {crm.getEmail()}, new String [] {"Julie-Ann.Evans@i-med.com.au"}, 
+													UserMessageUtil.getTandcPromptCrmSubject(doctorDetails),
+													UserMessageUtil.getTandcPromptBody(doctorDetails, crm));
+										} catch (Exception e) {
+											e.printStackTrace();
+										}
 		    					}
 		    				}
 		    				else
