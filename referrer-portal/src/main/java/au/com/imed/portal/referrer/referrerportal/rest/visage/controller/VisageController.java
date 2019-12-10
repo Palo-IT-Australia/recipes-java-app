@@ -358,6 +358,24 @@ public class VisageController {
     return entity;
   }
   
+  @SuppressWarnings("unchecked")
+	@GetMapping("/isMyimed")
+  public ResponseEntity<JSONObject> isMyimedPatient(@RequestParam("patientId") String patientId,
+			@RequestHeader(value = PortalConstant.HEADER_AUTHENTICATION, required = false) String authentication) {
+  	String userName = AuthenticationUtil.getAuthenticatedUserName(authentication);
+		if (rateLimit(userName)) {
+			if (preferenceService.isTermsAccepted(userName) && !patientId.isEmpty()) {
+				JSONObject jo = new JSONObject();
+				jo.put("isMyimed", portalAccountService.isMyImedPatient(patientId));
+				return new ResponseEntity<>(jo, HttpStatus.OK);
+			} else {
+				return new ResponseEntity<>(HttpStatus.METHOD_NOT_ALLOWED);
+			}
+		} else {
+			return new ResponseEntity<>(HttpStatus.TOO_MANY_REQUESTS);
+		}			
+  }
+  
   //
   // Results
   //

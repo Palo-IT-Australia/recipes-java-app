@@ -1,5 +1,7 @@
 package au.com.imed.portal.referrer.referrerportal.rest.visage.service.dicom.account;
 
+import static org.springframework.ldap.query.LdapQueryBuilder.query;
+
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
@@ -26,6 +28,7 @@ import org.springframework.ldap.filter.EqualsFilter;
 import org.springframework.ldap.filter.GreaterThanOrEqualsFilter;
 import org.springframework.ldap.filter.LessThanOrEqualsFilter;
 import org.springframework.ldap.filter.NotFilter;
+import org.springframework.ldap.query.LdapQuery;
 import org.springframework.stereotype.Service;
 import org.springframework.util.FileCopyUtils;
 
@@ -215,14 +218,12 @@ public class PortalAccountService extends ABasicAccountService {
 		}
 	}
 
-	public boolean isPatientAccount(final String userName) {
+	public boolean isMyImedPatient(final String patientId) {
+		LdapQuery query = query().where("patientId").is(patientId);
 		List<Name> list = new ArrayList<>(0);
 		try {
-			AndFilter filter = new AndFilter();
-			filter.and(new EqualsFilter("uid", userName));
-
 			LdapTemplate ldapTemplate = getPatientLdapTemplate();
-			list = ldapTemplate.search("", filter.encode(), new PersonContextMapper());
+			list = ldapTemplate.search(query, new PersonContextMapper());
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}

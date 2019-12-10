@@ -13,10 +13,12 @@ import org.springframework.context.annotation.Configuration;
 import au.com.imed.portal.referrer.referrerportal.jpa.history.model.RequestAuditEntity;
 import au.com.imed.portal.referrer.referrerportal.jpa.history.repository.RequestAuditJPARepository;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.service.AttachmentService;
+import au.com.imed.portal.referrer.referrerportal.rest.visage.service.GetHospitalOrderService;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.service.GetOrderService;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.service.GetPatientOrdersService;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.service.GetReferrerService;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.service.ReportService;
+import au.com.imed.portal.referrer.referrerportal.rest.visage.service.SearchHospitalOrderSummaryService;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.service.SearchOrdersService;
 
 @Aspect
@@ -37,9 +39,10 @@ public class AspectReferrerAudit {
         ReportService.class.isAssignableFrom(target.getClass()) || 
         GetOrderService.class.isAssignableFrom(target.getClass()) || 
         GetPatientOrdersService.class.isAssignableFrom(target.getClass()) || 
-        AttachmentService.class.isAssignableFrom(target.getClass()) || 
+        AttachmentService.class.isAssignableFrom(target.getClass()) ||
+        SearchHospitalOrderSummaryService.class.isAssignableFrom(target.getClass()) ||
         SearchOrdersService.class.isAssignableFrom(target.getClass())) {
-      doAudit(target.getClass().getSimpleName().replace("Get", "").replace("Service", "").replace("Pdf", ""), userName, requestParams);
+      doAudit(target.getClass().getSimpleName().replace("Get", "").replace("Service", "").replace("Search", "").replace("Summary", "").replace("Pdf", ""), userName, requestParams);
     }    
   }
 
@@ -86,6 +89,9 @@ public class AspectReferrerAudit {
     String ps = sb.toString();
     if(ps.endsWith("&")) {
       ps = ps.substring(0, ps.length() - 1);
+    }
+    if(ps.length() >= 300) {
+    	ps = ps.substring(0, 300);
     }
     return ps;
   }

@@ -36,6 +36,7 @@ public class ExternalIdentifier {
 	@JsonIgnoreProperties(ignoreUnknown=true)
 	public static class ExternalSystem {
 		private String uri;
+		private String shortName;
 
 		public String getUri() {
 			return uri;
@@ -43,6 +44,14 @@ public class ExternalIdentifier {
 
 		public void setUri(String uri) {
 			this.uri = uri;
+		}
+
+		public String getShortName() {
+			return shortName;
+		}
+
+		public void setShortName(String shortName) {
+			this.shortName = shortName;
 		}
 	}
 }
