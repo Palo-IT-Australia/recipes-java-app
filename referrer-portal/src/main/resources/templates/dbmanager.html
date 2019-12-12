@@ -349,7 +349,7 @@ angular.module('dbApp',["agGrid","textAngular"])
 })
 .controller('radCtrl', function ($scope, $http, $filter, $timeout, $location, $sce) {
 	$scope.rowData = [];
-	$scope.regions = ["Sydney North","Sydney West","Central Coast","Armidale","Coffs Harbour","Brisbane Central","Brisbane North","Ipswich","QLD Central","Gympie","ACT","RIL Border","RIL Riverina","RIL Gippsland","RIL Northern Tasmania","RIL Southern Tasmania","RIL NT","RIL Sunraysia","MIA","JV Dr Jones","JV Wesley","JV InSight","JV Sunshine","JV St Stephen","JV St Andrew","JV Savage","JV North Shore","JV Uniting Care","Sydney Southern"]
+	$scope.regions = ["Sydney North","Sydney West","Central Coast","Armidale","Coffs Harbour","Brisbane Central","Brisbane North","Ipswich","QLD Central","Gympie","ACT","RIL Border","RIL Riverina","RIL Gippsland","RIL Northern Tasmania","RIL Southern Tasmania","RIL NT","RIL Sunraysia","MIA","JV Dr Jones","JV Wesley","JV InSight","JV Sunshine","JV St Stephen","JV St Andrew","JV Savage","JV North Shore","JV Uniting Care","Sydney Southern","GVIG"]
 	$scope.selectedRegions = [];
 	$scope.selectedRow = null;
 	$scope.filterText = "";
@@ -497,7 +497,7 @@ angular.module('dbApp',["agGrid","textAngular"])
 })
 .controller('cliCtrl', function ($scope, $http, $filter, $timeout, $location, $sce) {
 	$scope.rowData = [];
-	$scope.regions = ["Sydney North","Sydney West","Central Coast","Armidale","Coffs Harbour","Brisbane Central","Brisbane North","Ipswich","QLD Central","Gympie","ACT","RIL Border","RIL Riverina","RIL Gippsland","RIL Northern Tasmania","RIL Southern Tasmania","RIL NT","RIL Sunraysia","MIA","JV Dr Jones","JV Wesley","JV InSight","JV Sunshine","JV St Stephen","JV St Andrew","JV Savage","JV North Shore","JV Uniting Care","Sydney Southern"]
+	$scope.regions = ["Sydney North","Sydney West","Central Coast","Armidale","Coffs Harbour","Brisbane Central","Brisbane North","Ipswich","QLD Central","Gympie","ACT","RIL Border","RIL Riverina","RIL Gippsland","RIL Northern Tasmania","RIL Southern Tasmania","RIL NT","RIL Sunraysia","MIA","JV Dr Jones","JV Wesley","JV InSight","JV Sunshine","JV St Stephen","JV St Andrew","JV Savage","JV North Shore","JV Uniting Care","Sydney Southern","GVIG"]
 	$scope.states = ["ACT","NSW","NT","QLD","SA","TAS","VIC","WA"];
 	$scope.selectedRow = null;
 	$scope.filterText = "";
