@@ -25,10 +25,16 @@
 	      <button onClick="return presub();" class="btn btn-primary" type="submit" name="action">Upload</button>
       </div>
       <p id="idokmsg" th:text="${okmsg}"></p>
-      <a id="idresultfile" th:href="@{/rest/downloadresultfile(name=${resultfile})}" th:if="${resultfile}" th:text="${resultfile}"></a>
+      <a id="idresultfile" th:href="@{/adminrest/filetoaccount/downloadresultfile(name=${resultfile})}" th:if="${resultfile}">Download result CSV file</a>
       <p id="iderrmsg" style="color:red;" th:text="${errmsg}"></p>
     </form>
 		
+		<script>
+			//var resultanchor = document.getElementById('idresultfile');
+			//if(resultanchor) {
+			//	resultanchor.click();
+			//}
+		</script>
 	</div>
 
 	<div th:replace="fragments/layout/footer :: footer">...</div>
