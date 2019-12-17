@@ -107,6 +107,7 @@ public class AccountExcelImportService {
 					msg = "AHPRA " + ref.getAhpraNumber() + " already in Visage";
 				}else {
 					try {
+						// TODO maptoprovider then set to ref then use methods in createAccountService to convert to DB
 						List<ReferrerProviderEntity> providers = getProvidersEntities(providerSheet, originalUid);
 						if(providers.size() > 0) {
 							logger.info("Saving providers # " + providers.size());
@@ -119,7 +120,7 @@ public class AccountExcelImportService {
 						logger.info("Creating : " + ref);
 						if(!dryrun) {
 							// TODO set practices by providers
-							//TODO createAccountService.createPortalUser(ref);
+							//TODO createAccountService.createPortalReferrerUser(ref, ref.getUserid());
 						}
 
 					} catch (Exception ex) {
