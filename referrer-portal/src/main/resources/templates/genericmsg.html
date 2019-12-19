@@ -1,0 +1,35 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:include="fragments/layout/head :: head">
+<title id="pageTitle">Error Occurred</title>
+</head>
+</head>
+<body>
+	<div th:replace="fragments/layout/header :: header">...</div>
+	<div class="section">
+		<div class="wrapper">
+			<div class="section">
+				<h1>Ooops something went wrong!!!</h1>
+				<div class="half-rule"></div>
+			</div>
+			<h3>One of the below issue might have occurred,</h3>
+			<ol>
+				<h4>
+					<li>Invalid character found in your form submission. Please check the guidance in the fields.</li>
+				</h4>
+				<h4>
+					<li>Server had issue in processing your input.</li>
+				</h4>
+			</ol>
+			<br>
+			<h4>
+				Please click <a
+					th:href="@{/support}">here</a> if you would like assistance from our support team.
+			</h4>
+		</div>
+	</div>
+
+	<div th:replace="fragments/layout/footer :: footer">...</div>
+</body>
+</html>

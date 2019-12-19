@@ -553,6 +553,11 @@ public class ReferrerPortalMvcController {
 		return "book";
 	}
 	
+	@GetMapping("/genericmsg.html")
+	public String getGenericMsg() {		
+		return "genericmsg";
+	}
+	
 	@GetMapping("/robots.txt")
 	public void getRobotsTxt(HttpServletResponse response) {
 		InputStream resourceAsStream = null;
