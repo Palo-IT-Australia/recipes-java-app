@@ -28,6 +28,7 @@ import au.com.imed.portal.referrer.referrerportal.jpa.history.model.RequestAudit
 import au.com.imed.portal.referrer.referrerportal.jpa.history.repository.RequestAuditJPARepository;
 import au.com.imed.portal.referrer.referrerportal.ldap.ReferrerAccountService;
 import au.com.imed.portal.referrer.referrerportal.security.DetailedLdapUserDetails;
+import au.com.imed.portal.referrer.referrerportal.security.PortalLogoutSuccessHandler;
 
 @Configuration
 @EnableWebSecurity
@@ -59,6 +60,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter  {
 	@Autowired
 	private RequestAuditJPARepository requestAuditRepository;
 	
+	@Autowired
+	private PortalLogoutSuccessHandler portalLogoutSuccessHandler;
+	
 	private static final String AUTH_ADMIN = "ROLE_ADMIN";
 	private static final String AUTH_EDITOR = "ROLE_EDITOR";
 	private static final String AUTH_HOSPITAL = "ROLE_HOSPITAL";
@@ -78,6 +82,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter  {
 		.permitAll()
 		.and()
 		.logout() 
+		.logoutSuccessHandler(portalLogoutSuccessHandler)
 		.logoutSuccessUrl("/login?logout")
 		.permitAll()
 		.and()

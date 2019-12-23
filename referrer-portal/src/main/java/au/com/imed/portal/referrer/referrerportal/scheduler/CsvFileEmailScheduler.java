@@ -66,9 +66,8 @@ public class CsvFileEmailScheduler {
 				
 				if("prod".equals(ACTIVE_PROFILE)) {
 					// TODO
-//					new EmailSender().send(new String [] {"Jeremy.Chan@i-med.com.au", "Chang.Chui@i-med.com.au"}, 
-//							"Referrer Csv files", "Please find attached csv files", 
-//							new String [] {AppConsts.FILE_PROVIDERS, AppConsts.FILE_REFERRERS});
+//					mailService.sendWithFileMap((new String [] {"Jeremy.Chan@i-med.com.au", "Chang.Chui@i-med.com.au"}, 
+//							"Referrer Csv files", "Please find attached csv files", fileMap);
 				} else {
 					mailService.sendWithFileMap(new String[] {"Hidehiro.Uehara@i-med.com.au"}, 
 							"Referrer Csv files", "Please find attached csv files", fileMap);
@@ -101,9 +100,8 @@ public class CsvFileEmailScheduler {
 				
 				if("prod".equals(ACTIVE_PROFILE)) {
 					// TODO
-//					new EmailSender().send(new String [] {"Martin.Cox@i-med.com.au", "Alexandra.Arter@i-med.com.au", "Giles.Cox@i-med.com.au", "Julie-Ann.Evans@i-med.com.au"}, 
-//							"IMED Online 2.0 Audit", "Please find attached csv files", 
-//							new String [] {AppConsts.FILE_AUDIT, AppConsts.FILE_PREFERENCES, AppConsts.FILE_REFERRERS});
+					//mailService.sendWithFileMap(new String [] {"Martin.Cox@i-med.com.au", "Alexandra.Arter@i-med.com.au", "Giles.Cox@i-med.com.au", "Julie-Ann.Evans@i-med.com.au"}, 
+					//		"IMED Online 2.0 Audit", "Please find attached csv files", fileMap);
 				} else {
 					mailService.sendWithFileMap(new String[] {"Hidehiro.Uehara@i-med.com.au"}, 
 							"IMED Online 2.0 Audit", "Please find attached csv files", fileMap);

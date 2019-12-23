@@ -448,6 +448,7 @@ public class VisageController {
 							String dob = patientEntity.getBody().getDateOfBirth();
 							orderDetails.setPatientDob(dob);
 							entity = new ResponseEntity<OrderDetails>(orderDetails, entity.getHeaders(), HttpStatus.OK);
+							auditService.doAudit("Order", userName, paramMap, orderDetails);
 							syslog.log(ReferrerEvent.ORDER, "/order", userName, paramMap, orderDetails);
 						} else {
 							entity = new ResponseEntity<OrderDetails>(entity.getHeaders(), entity.getStatusCode());
@@ -540,6 +541,7 @@ public class VisageController {
 					} catch (Exception ex) {
 						ex.printStackTrace();
 					}
+					auditService.doAudit("Report", userName, paramMap, order);
 					syslog.log(ReferrerEvent.REPORT_VIEW, "/report", userName, paramMap, order);
 					responceEntity = new ResponseEntity<String>(str, entity.getHeaders(), entity.getStatusCode());
 				} else {
@@ -605,6 +607,7 @@ public class VisageController {
 				OrderDetails order = obtainOrderDetails(userName, paramMap);
 				if (order != null) {
 					paramMap.put("reportUri", order.getReportUri());
+					auditService.doAudit("ReportPdf", userName, paramMap, order);
 					syslog.log(ReferrerEvent.REPORT_DOWNLOAD, "/reportPdf", userName, paramMap, order);
 					entity = pdfReportService.doRestGet(userName, paramMap, byte[].class);
 				} else {
@@ -623,8 +626,9 @@ public class VisageController {
 		String userName = AuthenticationUtil.getAuthenticatedUserName(authentication);
 		if (rateLimit(userName)) {
 			if (userName != null && preferenceService.isTermsAccepted(userName)) {
-				syslog.log(ReferrerEvent.REFERRAL, "/attachment", userName, paramMap,
-						obtainOrderDetails(userName, paramMap));
+				OrderDetails orderDetails = obtainOrderDetails(userName, paramMap);
+				auditService.doAudit("Attachment", userName, paramMap, orderDetails);
+				syslog.log(ReferrerEvent.REFERRAL, "/attachment", userName, paramMap, orderDetails);
 				return attachmentService.doRestGet(userName, paramMap, byte[].class);
 			} else {
 				return new ResponseEntity<byte[]>(HttpStatus.METHOD_NOT_ALLOWED);
