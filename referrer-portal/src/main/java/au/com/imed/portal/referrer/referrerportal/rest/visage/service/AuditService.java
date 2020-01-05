@@ -41,19 +41,17 @@ public class AuditService {
   }
 	
 	public void doAudit(final String command, final String username, final Map<String, String> params, OrderDetails order) {
-		try {
-			getRemoteIpAddress();
-			//TODO set Ip address
+		try {			
 			RequestAuditEntity entity = new RequestAuditEntity();
+			entity.setIpAddress(getRemoteIpAddress());
 			entity.setAuditAt(new Date());
 			entity.setBreakGlass(params.containsKey(BREAK_GLASS) ? params.get(BREAK_GLASS) : "false");
 			entity.setCommand(command);
 			entity.setUsername(username);
 			entity.setParameters(buildParamString(params));
 			if(order != null) {
-				// TODO setAccnum and patid
-				logger.info("acc# " + getAccessionNumberString(order));
-				logger.info("patientId " + order.getPatient().getPatientId());
+				entity.setAccessionNum(getAccessionNumberString(order));
+				entity.setPatientId(order.getPatient().getPatientId());
 			}
 			requestAuditJPARepository.save(entity);    
 		} catch (Exception ex) {

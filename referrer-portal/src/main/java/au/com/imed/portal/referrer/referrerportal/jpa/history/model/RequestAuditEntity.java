@@ -31,6 +31,15 @@ public class RequestAuditEntity {
   
   @Column(name = "audit_at")
   private Date auditAt;
+  
+  @Column(name = "ip_address")
+  private String ipAddress;
+  
+	@Column(name = "accession_num")
+  private String accessionNum;
+	
+	@Column(name = "patient_id")
+  private String patientId;
 
   public int getId() {
     return id;
@@ -79,6 +88,29 @@ public class RequestAuditEntity {
   public void setAuditAt(Date auditAt) {
     this.auditAt = auditAt;
   }
-  
+
+	public String getIpAddress() {
+		return ipAddress;
+	}
+
+	public void setIpAddress(String ipAddress) {
+		this.ipAddress = ipAddress;
+	}
+
+	public String getAccessionNum() {
+		return accessionNum;
+	}
+
+	public void setAccessionNum(String accessionNum) {
+		this.accessionNum = accessionNum;
+	}
+
+	public String getPatientId() {
+		return patientId;
+	}
+
+	public void setPatientId(String patientId) {
+		this.patientId = patientId;
+	}
   
 }

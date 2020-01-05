@@ -23,15 +23,18 @@ public class AuditCsvService {
 
 		File tempFile = File.createTempFile("audit-", "-csv");
     PrintWriter printWriter = new PrintWriter(tempFile);
-    printWriter.println("Time,User Name,Command,Parameters,Break Glass");
+    printWriter.println("Time,User Name,Command,Parameters,Break Glass,Accession Num,Patient Id,IP address");
     List<VisageRequestAuditEntity> list = repository.getBetween(from, to);
     for(VisageRequestAuditEntity entity : list) {
-      printWriter.print(String.format("\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n",
+      printWriter.print(String.format("\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n",
       		entity.getAuditAt().toString(),
       		entity.getUsername(),
       		entity.getCommand(),
       		entity.getParameters(),
-      		entity.getBreakGlass()));
+      		entity.getBreakGlass(),
+      		entity.getAccessionNum(),
+      		entity.getPatientId(),
+      		entity.getIpAddress()));
     }
     printWriter.close();
     return tempFile;

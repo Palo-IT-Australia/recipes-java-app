@@ -28,6 +28,12 @@ public class VisageCheckerService {
 		ps.put(GetReferrerService.PARAM_AHPRA_NUMBER, ahpra);
 		return isReferrerTaken(ps);
 	}
+	
+	public boolean isProviderNumberTaken(final String provider) {
+		Map<String, String> ps = new HashMap<>(1);
+		ps.put(GetReferrerService.PARAM_PROVIDER_NUMBER, provider);
+		return isReferrerTaken(ps);
+	}
 
 	private boolean isReferrerTaken(final Map<String, String> pmap) {
 		boolean taken = false;

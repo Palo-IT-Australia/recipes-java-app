@@ -10,7 +10,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import au.com.imed.portal.referrer.referrerportal.filetoaccount.VisageCheckerService;
 import au.com.imed.portal.referrer.referrerportal.ldap.LdapAccountCheckerService;
+import au.com.imed.portal.referrer.referrerportal.provider.MedicareProviderCheckerService;
 import au.com.imed.portal.referrer.referrerportal.rest.account.model.UniquenessModel;
 
 @RestController
@@ -20,6 +22,9 @@ public class ReferrerPortalAccountRestController {
 	
 	@Autowired
 	private LdapAccountCheckerService accountChecker;
+	
+	@Autowired
+	private MedicareProviderCheckerService providerCheckerService;
 	
 	@GetMapping("/isEmailAvailable")
 	public ResponseEntity<UniquenessModel> isEmailAvailable(@RequestParam("email") String email) {
@@ -53,6 +58,13 @@ public class ReferrerPortalAccountRestController {
 	public ResponseEntity<UniquenessModel> isAhpraAvailable(@RequestParam("ahpra") String ahpra) {
 		UniquenessModel um = new UniquenessModel();
 		um.setAvailable(accountChecker.isAhpraAvailable(ahpra));
+		return new ResponseEntity<UniquenessModel>(um, HttpStatus.OK);
+	}
+	
+	@GetMapping("/isProviderNumberValid")
+	public ResponseEntity<UniquenessModel> isProviderNumberValid(@RequestParam("provider") String provider) {
+		UniquenessModel um = new UniquenessModel();
+		um.setAvailable(providerCheckerService.isProviderNumberValid(provider));
 		return new ResponseEntity<UniquenessModel>(um, HttpStatus.OK);
 	}
 	
