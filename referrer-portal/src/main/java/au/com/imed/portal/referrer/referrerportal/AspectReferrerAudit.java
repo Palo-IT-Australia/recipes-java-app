@@ -34,8 +34,7 @@ public class AspectReferrerAudit {
   @AfterReturning("execution(* au.com.imed.portal.referrer.referrerportal.rest.visage.service.AVisageRestClientService+.doRestGet(..)) && args(userName,requestParams,..)")
   public void auditVisageResult(JoinPoint jp, String userName, Map<String, String> requestParams) {
     Object target = jp.getTarget();
-    if( GetPatientOrdersService.class.isAssignableFrom(target.getClass()) || 
-        SearchHospitalOrderSummaryService.class.isAssignableFrom(target.getClass()) ||
+    if( SearchHospitalOrderSummaryService.class.isAssignableFrom(target.getClass()) ||
         SearchOrdersService.class.isAssignableFrom(target.getClass())) {
     	auditService.doAudit(target.getClass().getSimpleName().replace("Get", "").replace("Service", "").replace("Search", "").replace("Summary", "").replace("Pdf", ""), userName, requestParams);
     }    

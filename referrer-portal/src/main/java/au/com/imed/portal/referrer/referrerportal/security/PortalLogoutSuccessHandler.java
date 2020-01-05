@@ -1,7 +1,6 @@
 package au.com.imed.portal.referrer.referrerportal.security;
 
 import java.io.IOException;
-import java.util.Date;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -14,28 +13,21 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.stereotype.Component;
 
-import au.com.imed.portal.referrer.referrerportal.jpa.history.model.RequestAuditEntity;
-import au.com.imed.portal.referrer.referrerportal.jpa.history.repository.RequestAuditJPARepository;
+import au.com.imed.portal.referrer.referrerportal.rest.visage.service.AuditService;
 
 @Component
 public class PortalLogoutSuccessHandler implements LogoutSuccessHandler {
 	private Logger logger = LoggerFactory.getLogger(PortalLogoutSuccessHandler.class);
 	
 	@Autowired
-	private RequestAuditJPARepository requestAuditRepository;
+	private AuditService auditService;
 	
 	@Override
 	public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
 			throws IOException, ServletException {
 		String username = authentication.getName();
-		logger.info("Logging out " + username);
-		RequestAuditEntity entity = new RequestAuditEntity();
-    entity.setAuditAt(new Date());
-    entity.setBreakGlass("false");
-    entity.setCommand("Logout");
-    entity.setUsername(username);
-    entity.setParameters("");
-		requestAuditRepository.save(entity);
+		logger.info("Logging out user : " + username);
+		auditService.doAudit("Logout", username);;
 		
 		response.sendRedirect(request.getContextPath() + "/login?logout");
 	}

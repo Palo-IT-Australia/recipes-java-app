@@ -19,6 +19,8 @@ import au.com.imed.portal.referrer.referrerportal.jpa.history.model.RequestAudit
 import au.com.imed.portal.referrer.referrerportal.jpa.history.repository.RequestAuditJPARepository;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.model.DicomPacs;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.model.OrderDetails;
+import au.com.imed.portal.referrer.referrerportal.rest.visage.model.PatientOrder;
+import au.com.imed.portal.referrer.referrerportal.rest.visage.model.Procedure;
 import jxl.Workbook;
 import jxl.format.Colour;
 import jxl.write.Label;
@@ -36,19 +38,37 @@ public class AuditService {
 	@Autowired
 	private RequestAuditJPARepository requestAuditJPARepository;
 	
+	private RequestAuditEntity createBaseEntity(final String command, final String username, final Map<String, String> params) throws Exception {
+		RequestAuditEntity entity = new RequestAuditEntity();
+		entity.setIpAddress(getRemoteIpAddress());
+		entity.setAuditAt(new Date());
+		entity.setCommand(command);
+		entity.setUsername(username);
+		if(params != null) {
+			entity.setBreakGlass(params.containsKey(BREAK_GLASS) ? params.get(BREAK_GLASS) : "false");
+			entity.setParameters(buildParamString(params));
+		} else {
+			entity.setBreakGlass("false");
+			entity.setParameters("");
+		}
+		return entity;
+	}
+	
+	public void doAudit(final String command, final String username) {
+		doAudit(command, username, null);
+	}
+	
 	public void doAudit(final String command, final String username, final Map<String, String> params) {
-  	doAudit(command, username, params, null);
+		try {			
+			requestAuditJPARepository.save(createBaseEntity(command, username, params));    
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
   }
 	
 	public void doAudit(final String command, final String username, final Map<String, String> params, OrderDetails order) {
 		try {			
-			RequestAuditEntity entity = new RequestAuditEntity();
-			entity.setIpAddress(getRemoteIpAddress());
-			entity.setAuditAt(new Date());
-			entity.setBreakGlass(params.containsKey(BREAK_GLASS) ? params.get(BREAK_GLASS) : "false");
-			entity.setCommand(command);
-			entity.setUsername(username);
-			entity.setParameters(buildParamString(params));
+			RequestAuditEntity entity = createBaseEntity(command, username, params);
 			if(order != null) {
 				entity.setAccessionNum(getAccessionNumberString(order));
 				entity.setPatientId(order.getPatient().getPatientId());
@@ -59,9 +79,22 @@ public class AuditService {
 		}
 	}
 	
+	public void doAudit(final String command, final String username, final Map<String, String> params, PatientOrder patientOrder) {
+		try {			
+			RequestAuditEntity entity = createBaseEntity(command, username, params);
+			if(patientOrder != null && patientOrder.getOrders().length > 0) {
+				entity.setPatientId(patientOrder.getOrders()[0].getPatient().getPatientId());
+			}
+			requestAuditJPARepository.save(entity);    
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+	}
+	
 	private String getAccessionNumberString(final OrderDetails orderDetails) {
 		final String accessionNumber = orderDetails.getAccessionNumber();
 		final DicomPacs[] dicoms = orderDetails.getDicom();
+		final Procedure [] procs = orderDetails.getProcedures();
 		String accstr = "";
 		if (accessionNumber != null && accessionNumber.length() > 0) {
 			accstr = accessionNumber;
@@ -74,6 +107,15 @@ public class AuditService {
 					if (i < dicoms.length - 1) {
 						accstr += ",";
 					}
+				}
+			}
+		} else if (procs != null && procs.length > 0) {
+			// Last effort to obtain accnum for audt purpose
+			for(Procedure prc : procs) {
+				String prcacc = prc.getAccessionNumber();
+				if(prcacc != null && prcacc.length() > 0) {
+					accstr += prcacc;
+					break;
 				}
 			}
 		}

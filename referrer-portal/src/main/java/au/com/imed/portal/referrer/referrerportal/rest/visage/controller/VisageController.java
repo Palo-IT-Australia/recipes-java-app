@@ -489,6 +489,7 @@ public class VisageController {
 						entity = new ResponseEntity<PatientOrder>(getAccessiblePatientOrder(order), entity.getHeaders(),
 								HttpStatus.OK);
 					}
+					auditService.doAudit("PatientOrders", userName, paramMap, entity.getBody());
 					syslog.log(ReferrerEvent.PATIENT_ORDERS, "/patientOrders", userName, paramMap, entity.getBody());
 				} else {
 					entity = new ResponseEntity<PatientOrder>(entity.getHeaders(), entity.getStatusCode());
