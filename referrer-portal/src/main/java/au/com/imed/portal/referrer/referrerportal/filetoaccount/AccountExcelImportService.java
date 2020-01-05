@@ -22,6 +22,7 @@ import au.com.imed.portal.referrer.referrerportal.jpa.audit.entity.ReferrerProvi
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.repository.ReferrerProviderJpaRepository;
 import au.com.imed.portal.referrer.referrerportal.ldap.ReferrerAccountService;
 import au.com.imed.portal.referrer.referrerportal.ldap.ReferrerCreateAccountService;
+import au.com.imed.portal.referrer.referrerportal.model.ExternalPractice;
 import au.com.imed.portal.referrer.referrerportal.model.ExternalUser;
 
 @Service
@@ -105,6 +106,9 @@ public class AccountExcelImportService {
 				}else if(visageCheckerService.isAhpraTaken(ref.getUserid())) {
 					result = false;
 					msg = "AHPRA " + ref.getAhpraNumber() + " already in Visage";
+				}else if(poviderNumbersTakenInVisage(ref).size() > 0) {
+					result = false;
+					msg = "Provider number already in Visage";
 				}else {
 					try {
 						// TODO maptoprovider then set to ref then use methods in createAccountService to convert to DB
@@ -139,6 +143,16 @@ public class AccountExcelImportService {
 		workbook.close();
 		
 		return tempFile;
+	}
+	
+	private List<String> poviderNumbersTakenInVisage(final ExternalUser externalUser) {
+		List<String> takens = new ArrayList<>(0);
+		for(ExternalPractice practice : externalUser.getPractices()) {
+			if(visageCheckerService.isProviderNumberTaken(practice.getProviderNumber())) {
+				takens.add(practice.getProviderNumber());
+			}
+		}
+		return takens;
 	}
 	
 	private String getStringValue(Row row, int num) {
