@@ -2,7 +2,6 @@ package au.com.imed.portal.referrer.referrerportal;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -24,9 +23,8 @@ import org.springframework.security.ldap.userdetails.LdapUserDetailsMapper;
 import org.springframework.security.ldap.userdetails.UserDetailsContextMapper;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
-import au.com.imed.portal.referrer.referrerportal.jpa.history.model.RequestAuditEntity;
-import au.com.imed.portal.referrer.referrerportal.jpa.history.repository.RequestAuditJPARepository;
 import au.com.imed.portal.referrer.referrerportal.ldap.ReferrerAccountService;
+import au.com.imed.portal.referrer.referrerportal.rest.visage.service.AuditService;
 import au.com.imed.portal.referrer.referrerportal.security.DetailedLdapUserDetails;
 import au.com.imed.portal.referrer.referrerportal.security.PortalLogoutSuccessHandler;
 
@@ -58,7 +56,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter  {
 	ReferrerAccountService accountService;
 	
 	@Autowired
-	private RequestAuditJPARepository requestAuditRepository;
+	private AuditService auditService;
 	
 	@Autowired
 	private PortalLogoutSuccessHandler portalLogoutSuccessHandler;
@@ -146,13 +144,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter  {
 				}
 				
 				// Audit login
-		    RequestAuditEntity entity = new RequestAuditEntity();
-		    entity.setAuditAt(new Date());
-		    entity.setBreakGlass("false");
-		    entity.setCommand("Login");
-		    entity.setUsername(username);
-		    entity.setParameters("");
-				requestAuditRepository.save(entity);
+		    auditService.doAudit("Login", username);
 				
 				UserDetails details = super.mapUserFromContext(ctx, username, auths);
 				return new DetailedLdapUserDetails((LdapUserDetails) details, 
