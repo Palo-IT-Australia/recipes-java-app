@@ -18,9 +18,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import au.com.imed.common.active.directory.manager.ImedActiveDirectoryLdapManager;
+import au.com.imed.portal.referrer.referrerportal.ahpra.AhpraBotService;
+import au.com.imed.portal.referrer.referrerportal.ahpra.AhpraDetails;
 import au.com.imed.portal.referrer.referrerportal.email.ReferrerMailService;
+import au.com.imed.portal.referrer.referrerportal.jpa.audit.entity.MedicareProviderEntity;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.entity.ReferrerActivationEntity;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.entity.ReferrerProviderEntity;
+import au.com.imed.portal.referrer.referrerportal.jpa.audit.repository.MedicareProviderJpaRepository;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.repository.ReferrerActivationJpaRepository;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.repository.ReferrerProviderJpaRepository;
 import au.com.imed.portal.referrer.referrerportal.ldap.ReferrerAccountService;
@@ -49,6 +53,12 @@ public class AdminAccountApproverRestController {
 	
 	@Autowired
 	private ReferrerActivationJpaRepository referrerActivationEntityJapRepository;
+	
+	@Autowired
+	private MedicareProviderJpaRepository medicareProviderJpaRepository;
+	
+	@Autowired
+	private AhpraBotService ahpraBotService;
 	
 	@GetMapping("/getStageUsers")
 	public ResponseEntity<StagingUserList> getStagingUserList() {
@@ -197,5 +207,30 @@ public class AdminAccountApproverRestController {
     	referrerProviderJpaRepository.delete(entity);
     }
     referrerProviderJpaRepository.flush();
+  }
+  
+  //
+  // Details of key numbers
+  //
+  @GetMapping("/provider")
+  public ResponseEntity<MedicareProviderEntity> getProvider(@RequestParam("number") String providerNumber)
+  {
+  	ResponseEntity<MedicareProviderEntity> entity = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+  	List<MedicareProviderEntity> list = medicareProviderJpaRepository.findByProviderNumber(providerNumber);
+  	if(list.size() > 0) {  // Should be only one
+  		entity = new ResponseEntity<>(list.get(0), HttpStatus.OK);
+  	}
+  	return entity;
+  }
+  
+  @GetMapping("/ahpra")
+  public ResponseEntity<AhpraDetails> getAhpra(@RequestParam("number") String ahpraNumber)
+  {
+  	ResponseEntity<AhpraDetails> entity = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+  	AhpraDetails [] array = ahpraBotService.findByNumber(ahpraNumber);
+  	if(array.length > 0) {  // Should be only one
+  		entity = new ResponseEntity<>(array[0], HttpStatus.OK);
+  	}
+  	return entity;
   }
 }

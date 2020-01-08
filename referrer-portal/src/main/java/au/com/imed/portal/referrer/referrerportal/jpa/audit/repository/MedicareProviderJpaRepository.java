@@ -8,5 +8,6 @@ import au.com.imed.portal.referrer.referrerportal.jpa.audit.entity.MedicareProvi
 
 public interface MedicareProviderJpaRepository extends JpaRepository<MedicareProviderEntity, Integer> {
 	List<MedicareProviderEntity> findByProviderNumber(String providerNumber);
+	List<MedicareProviderEntity> findByProviderNumberAndPracticeNot(String providerNumber, String notPractice);
 	List<MedicareProviderEntity> findByFirstNameAndLastName(String firstName, String lastName);
 }
