@@ -148,7 +148,12 @@ public class ReferrerPortalMvcController {
 	public String getAdminApprove() {
 		return "approve";
 	}	
-	
+
+	@GetMapping("/admin/approvervalidator")
+	public String getAdminApproverValidator() {
+		return "approvervalidator";
+	}	
+
 	@GetMapping("/admin/account")
 	public String getAdminAccout() {
 		return "account";

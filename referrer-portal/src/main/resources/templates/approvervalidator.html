@@ -1,0 +1,21 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragments/layout/head :: head">
+    <title id="pageTitle">Account Approver with Validations</title>
+</head>
+<body>
+	<div th:replace="fragments/layout/header :: header"></div>
+	
+	<div class="section" style="padding:10px;">
+		<link rel="stylesheet" th:href="@{/js/auth/approvervalidator/dist/styles.css}">
+		<div th:url="@{/}" id="admacntmgrapiroot"></div>
+		<adaprval-root></adaprval-root>
+		<script type="text/javascript" th:src="@{/js/auth/approvervalidator/dist/runtime.js}"></script>
+		<script type="text/javascript" th:src="@{/js/auth/approvervalidator/dist/es2015-polyfills.js}" nomodule></script>
+		<script type="text/javascript" th:src="@{/js/auth/approvervalidator/dist/polyfills.js}"></script>
+		<script type="text/javascript" th:src="@{/js/auth/approvervalidator/dist/main.js}"></script>
+	</div>
+	 
+	<div th:replace="fragments/layout/footer :: footer"></div>
+</body>
+</html>
