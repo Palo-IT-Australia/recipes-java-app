@@ -149,6 +149,7 @@ public class AccountExcelImportService {
 		List<String> takens = new ArrayList<>(0);
 		for(ExternalPractice practice : externalUser.getPractices()) {
 			if(visageCheckerService.isProviderNumberTaken(practice.getProviderNumber())) {
+				logger.info("Provider number " + practice.getProviderNumber() + " is in Visage");
 				takens.add(practice.getProviderNumber());
 			}
 		}
