@@ -1,7 +1,9 @@
 package au.com.imed.portal.referrer.referrerportal.rest.account.controller;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.jose4j.json.internal.json_simple.JSONObject;
 import org.slf4j.Logger;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import au.com.imed.common.active.directory.manager.ImedActiveDirectoryLdapManager;
 import au.com.imed.portal.referrer.referrerportal.ahpra.AhpraBotService;
 import au.com.imed.portal.referrer.referrerportal.ahpra.AhpraDetails;
+import au.com.imed.portal.referrer.referrerportal.common.PortalConstant;
 import au.com.imed.portal.referrer.referrerportal.email.ReferrerMailService;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.entity.MedicareProviderEntity;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.entity.ReferrerActivationEntity;
@@ -33,6 +36,9 @@ import au.com.imed.portal.referrer.referrerportal.model.StageUser;
 import au.com.imed.portal.referrer.referrerportal.model.StagingUserList;
 import au.com.imed.portal.referrer.referrerportal.rest.account.model.AccountApproving;
 import au.com.imed.portal.referrer.referrerportal.rest.account.model.AccountDeclining;
+import au.com.imed.portal.referrer.referrerportal.rest.account.model.UidExist;
+import au.com.imed.portal.referrer.referrerportal.rest.visage.model.Referrer;
+import au.com.imed.portal.referrer.referrerportal.rest.visage.service.GetReferrerService;
 
 @RestController
 @RequestMapping("/adminrest/approver")
@@ -59,6 +65,9 @@ public class AdminAccountApproverRestController {
 	
 	@Autowired
 	private AhpraBotService ahpraBotService;
+	
+	@Autowired
+	private GetReferrerService visageReferrerService;
 	
 	@GetMapping("/getStageUsers")
 	public ResponseEntity<StagingUserList> getStagingUserList() {
@@ -232,5 +241,34 @@ public class AdminAccountApproverRestController {
   		entity = new ResponseEntity<>(array[0], HttpStatus.OK);
   	}
   	return entity;
+  }
+  
+  //
+  // uid existence
+  //
+  @GetMapping("/uidexist")
+  public ResponseEntity<UidExist> getUidExist(@RequestParam("uid") String uid) {
+  	UidExist ex = new UidExist();
+  	ResponseEntity<UidExist> responseEntity = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+  	try
+  	{
+	  	ex.setPacs(referrerAccountService.GetPacsDnListByAttr("cn", uid).size() > 0);
+	  	ex.setImedPacs(referrerAccountService.GetImedPacsDnListByAttr("cn", uid).size() > 0);
+			Map<String, String> ps = new HashMap<>(1);
+			ps.put(GetReferrerService.PARAM_CURRENT_USER_NAME, uid);
+	  	ResponseEntity<Referrer> entity = visageReferrerService.doRestGet(PortalConstant.REP_VISAGE_USER, ps, Referrer.class);
+			if(HttpStatus.OK.equals(entity.getStatusCode())) {
+				ex.setVisage(entity.getBody().getName().length() > 0);
+			}
+			else
+			{
+				ex.setVisage(false);
+			}
+			responseEntity = new ResponseEntity<>(ex, HttpStatus.OK);
+  	}
+  	catch(Exception e) {
+  		e.printStackTrace();
+  	}
+  	return responseEntity;
   }
 }

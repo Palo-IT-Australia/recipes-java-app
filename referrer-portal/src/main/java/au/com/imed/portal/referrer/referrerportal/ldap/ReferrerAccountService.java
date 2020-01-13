@@ -204,6 +204,28 @@ public class ReferrerAccountService extends ABasicAccountService {
 		}
 		return list;
 	}
+	
+	public List<Name> GetPacsDnListByAttr(final String name, final String value) {
+		List<Name> list;
+		try {
+			list = getAccountDnList(getPacsLdapTemplate(), name, value);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			list = new ArrayList<>(0);
+		}
+		return list;
+	}
+	
+	public List<Name> GetImedPacsDnListByAttr(final String name, final String value) {
+		List<Name> list;
+		try {
+			list = getAccountDnList(getImedPacsLdapTemplate(), name, value);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			list = new ArrayList<>(0);
+		}
+		return list;
+	}
 
 	public Map<String, String> updateReferrerAccountDetail(final String userName, final DetailModel detail)
 			throws Exception {
