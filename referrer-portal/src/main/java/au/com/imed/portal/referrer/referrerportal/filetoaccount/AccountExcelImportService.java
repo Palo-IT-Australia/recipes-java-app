@@ -69,7 +69,7 @@ public class AccountExcelImportService {
 			String msg = "";
 			String csvrow = "";
 			
-			ExternalUser ref = mapToReferrer(r);
+			ExternalUser ref = mapToReferrer(r, providerSheet);
 			logger.info("Referrer : " + ref);
 			
 			if(ref == null) {
@@ -82,7 +82,6 @@ public class AccountExcelImportService {
 				String originalUid = ref.getUserid();
 				// WA only
 				//ref.setUid("wa" + ref.getUid());
-				
 				
 				// TODO use LdapAccountCheckerService(common with Create Account) instead of AD and findGlobalByAtr ?
 				if(imedActiveDirectoryLdapManager.findByMail(ref.getEmail()).size() > 0) {
@@ -114,7 +113,7 @@ public class AccountExcelImportService {
 						// TODO maptoprovider then set to ref then use methods in createAccountService to convert to DB
 						List<ReferrerProviderEntity> providers = getProvidersEntities(providerSheet, originalUid);
 						if(providers.size() > 0) {
-							logger.info("Saving providers # " + providers.size());
+							logger.info("Saving providers " + providers);
 							if(!dryrun) {
 								//repository.saveAll(providers); 
 							}
@@ -123,7 +122,6 @@ public class AccountExcelImportService {
 						}
 						logger.info("Creating : " + ref);
 						if(!dryrun) {
-							// TODO set practices by providers
 							//TODO createAccountService.createPortalReferrerUser(ref, ref.getUserid());
 						}
 
@@ -160,7 +158,7 @@ public class AccountExcelImportService {
 		return row.getCell(num) != null ? row.getCell(num).getStringCellValue() : "";
 	}
 	
-	private ExternalUser mapToReferrer(Row row) {
+	private ExternalUser mapToReferrer(Row row, Sheet providerSheet) {
 		ExternalUser ref = null;
 		try {
 			String uid = getStringValue(row, 0);
@@ -171,7 +169,7 @@ public class AccountExcelImportService {
 			String phone = getStringValue(row, 5);
 			String mobile = getStringValue(row, 6);
 			String ahpra = getStringValue(row, 7);
-			String address = getStringValue(row, 8);
+			//String address = getStringValue(row, 8);
 			if(uid.length() > 0 && password.length() > 0) {
 				ref = new ExternalUser();
 				ref.setUserid(uid);
@@ -182,8 +180,9 @@ public class AccountExcelImportService {
 				ref.setPreferredPhone(phone);
 				ref.setMobile(mobile);
 				ref.setAhpraNumber(ahpra);
-				//TODO set practices ref.setAddress(address);
 				ref.setAccountType("NEW_IMPORT");
+				
+				ref.setPractices(getExternalPractices(providerSheet, uid));
 			}else {
 				logger.info("Skipping - No uid or password. Empty row.");
 			}
@@ -194,6 +193,44 @@ public class AccountExcelImportService {
 		return ref;
 	}
 	
+	private ExternalPractice toExternalPractice(Row row) {
+		ExternalPractice entity = new ExternalPractice();
+		try {
+			entity.setProviderNumber(getStringValue(row, 1));
+			entity.setPracticeName(getStringValue(row, 2));
+			entity.setPracticePhone(getStringValue(row, 3));
+			entity.setPracticeFax(getStringValue(row, 4));
+			entity.setPracticeStreet(getStringValue(row, 5));
+			entity.setPracticeSuburb(getStringValue(row, 6));
+			entity.setPracticeState(getStringValue(row, 7));
+			entity.setPracticePostcode(getStringValue(row, 8));
+			entity.setPracticeAddress(getStringValue(row, 5) + " " + getStringValue(row, 6) + " " + getStringValue(row, 7) + " " + getStringValue(row, 8));
+		} catch(Exception ex) {
+			entity = null;
+			ex.printStackTrace();
+		}
+		
+		return entity;
+	}
+	
+	private List<ExternalPractice> getExternalPractices(Sheet sheet, final String uid) {
+		List<ExternalPractice> list = new ArrayList<>(2);
+		Iterator<Row> iterator = sheet.iterator();
+		boolean first = true;
+		while (iterator.hasNext()) {
+			Row r = iterator.next();
+			if(first) {
+				first = false;
+				continue;
+			}
+			
+			if(uid.equals(r.getCell(0).getStringCellValue())) {
+				list.add(toExternalPractice(r));
+			}
+		}
+		return list;
+	}
+	
 	private ReferrerProviderEntity toProvider(Row row) {
 		ReferrerProviderEntity entity = new ReferrerProviderEntity();
 		try {
@@ -202,7 +239,11 @@ public class AccountExcelImportService {
 			entity.setPracticeName(getStringValue(row, 2));
 			entity.setPracticePhone(getStringValue(row, 3));
 			entity.setPracticeFax(getStringValue(row, 4));
-			entity.setPracticeAddress(getStringValue(row, 5));
+			entity.setPracticeStreet(getStringValue(row, 5));
+			entity.setPracticeSuburb(getStringValue(row, 6));
+			entity.setPracticeState(getStringValue(row, 7));
+			entity.setPracticePostcode(getStringValue(row, 8));
+			entity.setPracticeAddress(getStringValue(row, 5) + " " + getStringValue(row, 6) + " " + getStringValue(row, 7) + " " + getStringValue(row, 8));
 		} catch(Exception ex) {
 			entity = null;
 			ex.printStackTrace();

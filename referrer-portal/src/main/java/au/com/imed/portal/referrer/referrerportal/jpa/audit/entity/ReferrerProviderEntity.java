@@ -112,4 +112,12 @@ public class ReferrerProviderEntity {
   public void setPracticePostcode(String practicePostcode) {
     this.practicePostcode = practicePostcode;
   }
+  
+	@Override
+	public String toString() {
+		return "ReferrerProviderEntity [id=" + id + ", username=" + username + ", providerNumber=" + providerNumber
+				+ ", practiceName=" + practiceName + ", practicePhone=" + practicePhone + ", practiceFax=" + practiceFax
+				+ ", practiceAddress=" + practiceAddress + ", practiceStreet=" + practiceStreet + ", practiceSuburb="
+				+ practiceSuburb + ", practiceState=" + practiceState + ", practicePostcode=" + practicePostcode + "]";
+	}
 }
