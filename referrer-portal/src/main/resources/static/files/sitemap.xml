@@ -1,8 +1,58 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url>
-  <loc>https://i-medonline.com.au/referrer/</loc>
-  <lastmod>2019-05-27T03:13:02+00:00</lastmod>
-  <priority>1.00</priority>
+<loc>https://i-medonline.com.au/referrer/</loc>
+<lastmod>2020-01-15T21:32:03+00:00</lastmod>
+<priority>1.00</priority>
+</url>
+<url>
+<loc>https://i-medonline.com.au/referrer/book</loc>
+<lastmod>2020-01-15T21:32:03+00:00</lastmod>
+<priority>0.80</priority>
+</url>
+<url>
+<loc>https://i-medonline.com.au/referrer/login</loc>
+<lastmod>2020-01-15T21:32:03+00:00</lastmod>
+<priority>0.80</priority>
+</url>
+<url>
+<loc>https://i-medonline.com.au/referrer/apply</loc>
+<lastmod>2020-01-15T21:32:03+00:00</lastmod>
+<priority>0.80</priority>
+</url>
+<url>
+<loc>https://i-medonline.com.au/referrer/mycrm</loc>
+<lastmod>2020-01-15T21:32:03+00:00</lastmod>
+<priority>0.80</priority>
+</url>
+<url>
+<loc>https://i-medonline.com.au/referrer/support</loc>
+<lastmod>2020-01-15T21:32:03+00:00</lastmod>
+<priority>0.80</priority>
+</url>
+<url>
+<loc>https://i-medonline.com.au/referrer/feedback</loc>
+<lastmod>2020-01-15T21:32:03+00:00</lastmod>
+<priority>0.80</priority>
+</url>
+<url>
+<loc>https://i-medonline.com.au/referrer/about</loc>
+<lastmod>2020-01-15T21:32:03+00:00</lastmod>
+<priority>0.80</priority>
+</url>
+<url>
+<loc>https://i-medonline.com.au/referrer/termsofuse</loc>
+<lastmod>2020-01-15T21:32:03+00:00</lastmod>
+<priority>0.80</priority>
+</url>
+<url>
+<loc>https://i-medonline.com.au/referrer/privacy</loc>
+<lastmod>2020-01-15T21:32:03+00:00</lastmod>
+<priority>0.80</priority>
+</url>
+<url>
+<loc>https://i-medonline.com.au/referrer/reset</loc>
+<lastmod>2020-01-15T21:32:03+00:00</lastmod>
+<priority>0.64</priority>
 </url>
 </urlset>
