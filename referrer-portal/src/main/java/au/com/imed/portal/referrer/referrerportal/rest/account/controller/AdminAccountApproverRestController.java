@@ -271,4 +271,32 @@ public class AdminAccountApproverRestController {
   	}
   	return responseEntity;
   }
+  
+  //
+  // Referrer by number
+  //
+  @GetMapping("/visagereferrer")
+  public ResponseEntity<Referrer> getVisageReferrer(@RequestParam(name="provider", required=false) String providerNumber, @RequestParam(name="ahpra", required=false) String ahpraNumber)
+  {
+  	ResponseEntity<Referrer> entity = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+  	Map<String, String> paramMap = new HashMap<>(1);
+  	if(ahpraNumber != null && ahpraNumber.length() > 0) {
+  		paramMap.put(GetReferrerService.PARAM_AHPRA_NUMBER, ahpraNumber);  		
+  	} else if (providerNumber != null && providerNumber.length() > 0) {
+  		paramMap.put(GetReferrerService.PARAM_PROVIDER_NUMBER, providerNumber);  	
+  	} else {
+  		paramMap = null;
+  	}
+  	
+  	if(paramMap != null) {
+  		ResponseEntity<Referrer> ve = visageReferrerService.doRestGet(PortalConstant.REP_VISAGE_USER, paramMap, Referrer.class);
+  		if(HttpStatus.OK.equals(ve.getStatusCode())) {
+  			Referrer ref = ve.getBody();
+  			if(ref.getName().length() > 0) {
+  				entity = new ResponseEntity<>(ve.getBody(), HttpStatus.OK);
+  			}
+  		}
+  	}
+  	return entity;
+  }
 }
