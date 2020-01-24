@@ -336,6 +336,19 @@ public class ReferrerAccountService extends ABasicAccountService {
 				.where("uid").is(uid);
 		return getReferrerLdapTemplate().search(query, new LdapUserDetailsUserAttributeMapper());
 	}
+	
+	public List<Name> findImedPacsUsersDnListByFirstAndLastNames(final String firstName, final String lastName) throws Exception {
+		return findDnListByFirstAndLastNames(getImedPacsLdapTemplate(), firstName, lastName);
+	}
+
+	public List<Name> findPacsUsersDnListByFirstAndLastNames(final String firstName, final String lastName) throws Exception {
+		return findDnListByFirstAndLastNames(getPacsLdapTemplate(), firstName, lastName);
+	}
+	
+	protected List<Name> findDnListByFirstAndLastNames(LdapTemplate template, final String firstName, final String lastName) {
+		LdapQuery query = query().where("givenName").is(firstName).and("sn").is(lastName);
+		return template.search(query, new PersonContextMapper());
+	}
 
 	//
 	// Approver

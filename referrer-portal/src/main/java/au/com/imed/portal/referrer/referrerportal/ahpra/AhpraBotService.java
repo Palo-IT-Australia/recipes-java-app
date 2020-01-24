@@ -1,28 +1,67 @@
 package au.com.imed.portal.referrer.referrerportal.ahpra;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import au.com.imed.portal.referrer.referrerportal.common.util.IgnoreCertFactoryUtil;
+
 @Service
 public class AhpraBotService {
+	private Logger logger = LoggerFactory.getLogger(AhpraBotService.class);
+			
+  @Value("${imed.ahpra.bot.local.url}")
+  private String LOCALBOTURL;
+  
+	/**
+	 * With delay to avoid bot blocker
+	 * @param ahpra
+	 * @return
+	 */
 	public AhpraDetails [] findByNumber(final String ahpra) {
 		return new RestTemplate().getForObject("https://connections.i-medonline.com.au/datascrapper/ahpraDetail?ahpraNumber=" + ahpra, AhpraDetails[].class);
-		
-//		String aaa = "[{\"Profession\":\"Health Practitioner\",\"Name\":\" Ms Michele Ann Johnson\",\"Personal Details\":{\"Sex\":\"Female\",\"Languages (in addition to English)\":\"\",\"Qualifications\":\"Bachelor of Applied Science (Physiotherapy), Curtin University, Australia, 1988\"},\"Principal Place of Practice\":{\"Suburb\":\"DUNCRAIG\",\"State\":\"WA\",\"Postcode\":\"6023\",\"Country\":\"Australia\"},\"Registration Details\":{\"Profession\":\"Physiotherapist\",\"Registration number\":\"PHY0001540395\",\"Date of first Registration in Profession\":\"23/01/1989\",\"Registration status\":\"Registered\",\"Registration expiry date\":\"Under the National Law, registrants are able to practise while their renewal application is being processed. Practitioners also remain registered for one month after their registration expiry date. If the practitioner's name appears on the Register, they are registered and can practise (excepting practitioners with a Registration Type of 'non-practising' or those with a condition which stops them from practising, or where their registration is suspended).\",\"Conditions\":\"None\",\"Undertakings\":\"None\",\"Reprimands\":\"None\"},\"Registration Type - General\":{\"Registration expiry date\":\"30/11/2020\",\"Endorsements\":\"None\",\"Notations - General\":\"None\",\"Registration Requirements\":\"None\"}}]";
-//		ObjectMapper om = new ObjectMapper();
-//		try {
-//			return om.readValue(aaa, AhpraDetails[].class);
-//		} catch (Exception e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//			return new AhpraDetails[0];
-//		}
 	}
 	
-//	public static void main(String args []) throws Exception {
-//		ObjectMapper om = new ObjectMapper();
-//		AhpraDetails [] l = om.readValue(new FileReader("c:\\temp\\ahpra.json"), AhpraDetails[].class);
-//		for(AhpraDetails a : l)
-//			System.out.println(a);
-//	}
+	/**
+	 * No delay, error code means bot blocker
+	 * @param ahpra
+	 * @return TODO PROD deployment
+	 */
+	public ResponseEntity<AhpraDetails []> findByNumberImmediate(final String ahpra) {
+		ResponseEntity<AhpraDetails []> entity = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		try {
+			HttpComponentsClientHttpRequestFactory factory = IgnoreCertFactoryUtil.createFactory();
+			entity = new RestTemplate(factory).getForEntity(LOCALBOTURL + "?ahpraNumber=" + ahpra, AhpraDetails [].class);
+		} catch (Exception e) {
+			logger.info("404 means bot blocker..." + e.getMessage());
+		}
+		return entity;
+	}
+	
+	/**
+	 * Mixed version with retry
+	 */
+	public AhpraDetails [] findByNumberRetry(final String ahpra) {
+		logger.info("findByNumberRetry() finding AHPRA : " + ahpra);
+		AhpraDetails [] ahpras;
+		ResponseEntity<AhpraDetails []> entity = this.findByNumberImmediate(ahpra);
+		if(HttpStatus.OK.equals(entity.getStatusCode())) {
+			// No bot blocker
+			ahpras = entity.getBody();
+		} else {
+			// Retry with latency mode taking 1 min or so
+			logger.info("findByNumberRetry() AHPRA scrapper retry with latency...");
+			ahpras = this.findByNumber(ahpra);
+		}
+		logger.info("findByNumberRetry() final AHPRA " + ahpra + " : " + ahpras);
+		if(ahpras != null && ahpras.length > 0) {
+			logger.info("findByNumberRetry() length = " + ahpras.length + ", name = " + ahpras[0].getName());
+		}
+		return ahpras;
+	}
 }

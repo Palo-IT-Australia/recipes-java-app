@@ -54,7 +54,12 @@ public final class PortalConstant {
 	// Clinic finder related constants
 	public static final double FINDER_RADIUS = 100.00;
 	public static final int MAX_CLINICS = 16;
+	
+	// Auto account validation statuses
+	public static final String VALIDATION_STATUS_INVALID = "invalid"; // any invalid found
+	public static final String VALIDATION_STATUS_PASSED = "passed";  // 1st to check ahpra
+	public static final String VALIDATION_STATUS_VALID = "valid"; // 2nd acnt created
+	public static final String VALIDATION_STATUS_NOTIFIED = "notified"; // 3rd notified by emails
 
-	// Anon visage user
 	public static final String REP_VISAGE_USER = "huehara";
 }

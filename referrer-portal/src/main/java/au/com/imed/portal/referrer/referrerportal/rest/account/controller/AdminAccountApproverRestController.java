@@ -1,5 +1,7 @@
 package au.com.imed.portal.referrer.referrerportal.rest.account.controller;
 
+import static au.com.imed.portal.referrer.referrerportal.common.PortalConstant.VALIDATION_STATUS_INVALID;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -29,6 +31,7 @@ import au.com.imed.portal.referrer.referrerportal.jpa.audit.entity.ReferrerActiv
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.entity.ReferrerProviderEntity;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.repository.MedicareProviderJpaRepository;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.repository.ReferrerActivationJpaRepository;
+import au.com.imed.portal.referrer.referrerportal.jpa.audit.repository.ReferrerAutoValidationRepository;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.repository.ReferrerProviderJpaRepository;
 import au.com.imed.portal.referrer.referrerportal.ldap.ReferrerAccountService;
 import au.com.imed.portal.referrer.referrerportal.model.LdapUserDetails;
@@ -69,6 +72,9 @@ public class AdminAccountApproverRestController {
 	@Autowired
 	private GetReferrerService visageReferrerService;
 	
+	@Autowired
+	private ReferrerAutoValidationRepository referrerAutoValidationRepository;
+	
 	@GetMapping("/getStageUsers")
 	public ResponseEntity<StagingUserList> getStagingUserList() {
 		return new ResponseEntity<StagingUserList>(getCurrentStagingUserList(), HttpStatus.OK);
@@ -94,7 +100,8 @@ public class AdminAccountApproverRestController {
 		if(uid != null) {
 			// Check referrer only as PACS ones can be as existing user type and Stage is current one
 			if(referrerAccountService.GetReferrerDnListByAttr("uid", uid).size() > 0 ||
-					new ImedActiveDirectoryLdapManager().findByUid(uid).size() > 0) 
+					new ImedActiveDirectoryLdapManager().findByUid(uid).size() > 0 ||
+					referrerAutoValidationRepository.findByUidAndValidationStatusNot(uid, VALIDATION_STATUS_INVALID).size() > 0) 
 			{		
 				resultPayload.put("msg", "This User ID is Unavailable");
 				resultPayload.put("error", true);
@@ -236,7 +243,7 @@ public class AdminAccountApproverRestController {
   public ResponseEntity<AhpraDetails> getAhpra(@RequestParam("number") String ahpraNumber)
   {
   	ResponseEntity<AhpraDetails> entity = new ResponseEntity<>(HttpStatus.NOT_FOUND);
-  	AhpraDetails [] array = ahpraBotService.findByNumber(ahpraNumber);
+  	AhpraDetails [] array = ahpraBotService.findByNumberRetry(ahpraNumber);
   	if(array.length > 0) {  // Should be only one
   		entity = new ResponseEntity<>(array[0], HttpStatus.OK);
   	}

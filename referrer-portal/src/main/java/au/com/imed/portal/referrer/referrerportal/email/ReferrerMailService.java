@@ -424,12 +424,16 @@ public class ReferrerMailService {
   }
 
   public void emailAccountApproved(StageUser user) {
+    emailAccountApproved(user.getGivenName(), user.getSurname(), user.getUid(), user.getEmail());
+  }
+  
+  public void emailAccountApproved(String firstName, String lastName, String uid, String email) {
     String template = this.readMailTemplate(TEMPLATE_APPROVED);
     String tempmiddle = this.readMailTemplate(TEMPLATE_MIDDLE_APPROVED);
     String tempend = this.readMailTemplate(TEMPLATE_END_APPROVED);
-    final String htmlBody = template + " " + user.getGivenName() + " " + user.getSurname() + tempmiddle + user.getUid() + tempend;
+    final String htmlBody = template + " " + firstName + " " + lastName + tempmiddle + uid + tempend;
     logger.info("emailAccountApproved() body = " + htmlBody); 
-    String em = user.getEmail();
+    String em = email;
     if(em != null && em.length() > 3) {
       this.sendHtmlMail(em, FROM_ADDRESS, SUBJECT_APPROVED, htmlBody, IMG_CID_MAP_APPROVED);
     }
@@ -510,6 +514,10 @@ public class ReferrerMailService {
   private void emailSupportTeamNewUser(ExternalUser user) {
     sendMail(SUPPORT_ADDRESS, "New User Created - " + user.getUserid(), UserMessageUtil.getNewAccountCreatedBody(user));
   }
+  
+  public void emailNotifyNewReferrer(String [] tos, String [] ccs, ExternalUser user) {
+  	sendMailWithCc(tos, ccs, "I-MED Online 2.0 Referrer Account Created - " + user.getUserid(), UserMessageUtil.getNewAccountCreatedBody(user));
+  }  
 
   public void emailSupportTeamRegistrationError(Exception e, String stage, ExternalUser user) {
     sendMail(UserMessageUtil.ADMIN_USER_EMAIL, "Account Registration Error", UserMessageUtil.getRegistrationErrorBody(e,stage,user));
