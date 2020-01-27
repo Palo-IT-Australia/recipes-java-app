@@ -6,9 +6,12 @@ import static au.com.imed.portal.referrer.referrerportal.common.PortalConstant.V
 import java.net.InetAddress;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,6 +66,37 @@ public class AutoAccountValidationScheduler {
 //		}
 //	}
 	
+	/**
+	 * Separate list into 4 servers.
+	 * @param original
+	 * @return assigned list for this server based on row id and server number
+	 */
+	private List<ReferrerAutoValidationEntity> filterByServerNumber(List<ReferrerAutoValidationEntity> original) {
+		logger.info("filterByServerNumber() original list size " + original.size());
+		List<ReferrerAutoValidationEntity> allocs = new ArrayList<ReferrerAutoValidationEntity>();
+		try {
+			int remains = -1;
+			String svname = InetAddress.getLocalHost().getHostName();
+			if (svname.contains("05")) {
+				remains = 0;
+			} else if (svname.contains("06")) {
+				remains = 1;
+			} else if (svname.contains("07")) {
+				remains = 2;
+			} else if (svname.contains("08")) {
+				remains = 3;
+			}
+			logger.info("filterByServerNumber() Allocating list for server " + svname + " with id % 4 == " + remains);
+			if(remains > -1) {
+				final int rem = remains;
+				allocs = original.stream().filter(r -> r.getId() % 4 == rem).collect(Collectors.toList());
+			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		logger.info("filterByServerNumber() allocated list size " + allocs.size());
+		return allocs;
+	}
 	
 	//
 	// Separated 30 minutes and csv midnight versions
@@ -72,28 +106,25 @@ public class AutoAccountValidationScheduler {
 	 */
 	@Scheduled(cron="0 0/30 * * * ?") // every 30 mins 30 * 60 * 1000
 	public void scheduleOftenValidationTask() {
-		// TODO May separate to 4 servers by id?
 		try
 		{
-			if(SCHEDULER_SERVER_NAME.equals(InetAddress.getLocalHost().getHostName())) { 
-				logger.info("Starting often validation scheduler task...");
-				Date now = new Date();
-			  Calendar cal = Calendar.getInstance();
-				 
-				cal.setTime(now);
-		    cal.add(Calendar.MINUTE, 30 * -1); // Should match cron
-		    final Date from = cal.getTime();
-		    
-				logger.info("Getting entries from Db from {} to {}", from, now);
-				List<ReferrerAutoValidationEntity> list = referrerAutoValidationRepository.findByValidationStatusAndApplyAtBetween(VALIDATION_STATUS_PASSED, from, now);
-				createAccountService.validateOnDb(list);
-				logger.info("Finished often validation scheduler task...");
-			}
+			logger.info("Starting short period validation scheduler task...");
+			Date now = new Date();
+			Calendar cal = Calendar.getInstance();
+
+			cal.setTime(now);
+			cal.add(Calendar.MINUTE, 30 * -1); // Should match cron
+			final Date from = cal.getTime();
+
+			logger.info("Getting entries from Db from {} to {}", from, now);
+			List<ReferrerAutoValidationEntity> list = referrerAutoValidationRepository.findByValidationStatusAndApplyAtBetween(VALIDATION_STATUS_PASSED, from, now);
+			createAccountService.validateOnDb(filterByServerNumber(list));
+			logger.info("Finished short period validation scheduler task...");
 		}catch(Exception ex) {
 			ex.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * 2) csv
 	 */
