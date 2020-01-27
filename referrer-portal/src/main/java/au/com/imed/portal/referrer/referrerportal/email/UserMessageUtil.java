@@ -68,17 +68,16 @@ public class UserMessageUtil {
       sb.append("Phone: " + imedExternalUser.getPreferredPhone() + "\n");
       sb.append("Mobile: " + imedExternalUser.getMobile() + "\n");
       sb.append("Practices: \n");
-      for (ExternalPractice practice:
-           imedExternalUser.getPractices()) {
-          sb.append("Practice Name: " + practice.getPracticeName() + "\n");
-          sb.append("Provider Number: " + practice.getProviderNumber() + "\n");
-          sb.append("Practice Address: " + practice.getPracticeAddress() + "\n");
-          sb.append("Practice Phone: " + practice.getPracticePhone() + "\n");
-          sb.append("Practice Fax: " + practice.getPracticeFax() + "\n\n");
+      for (ExternalPractice practice : imedExternalUser.getPractices()) {
+      	sb.append("Provider Number: " + practice.getProviderNumber() + "\n\n");
+      	sb.append("Practice Name: " + practice.getPracticeName() + "\n\n");
+      	sb.append("Practice Address: " + practice.getPracticeAddress() + "\n\n");
+      	sb.append("Practice State: " + practice.getPracticeState() + "\n\n");
+      	sb.append("Practice Postcode: " + practice.getPracticePostcode() + "\n\n");
+      	sb.append("Practice Phone: " + practice.getPracticePhone() + "\n\n");
+      	sb.append("Practice Fax: " + practice.getPracticeFax() + "\n\n");
       }
-      sb.append(
-          "Contact regarding Advanced InteleViewer: " + imedExternalUser.getContactAdvanced()
-              + "\n");
+      sb.append("Contact regarding Advanced InteleViewer: " + imedExternalUser.getContactAdvanced() + "\n");
       sb.append("\n");
       sb.append("Opt to go filmless: " + imedExternalUser.getFilmless() + "\n");
       sb.append("\n");
