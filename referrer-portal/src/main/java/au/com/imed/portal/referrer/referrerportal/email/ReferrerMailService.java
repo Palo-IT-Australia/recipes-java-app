@@ -514,7 +514,16 @@ public class ReferrerMailService {
   private void emailSupportTeamNewUser(ExternalUser user) {
     sendMail(SUPPORT_ADDRESS, "New User Created - " + user.getUserid(), UserMessageUtil.getNewAccountCreatedBody(user));
   }
-  
+
+  public void emailSupportTeamAutoValidatedReferrerAccount(ExternalUser user, boolean isStaging) {
+  	String hl = "";
+  	if(user.getPractices() != null && user.getPractices().size() > 1) {
+  		hl = "Note: This referrer has more than one practices. The first one with provider number " + 
+  				user.getPractices().get(0).getProviderNumber() + " is assigned in RISid attribute on LDAP account.\n\n\n";
+  	}
+    sendMail(SUPPORT_ADDRESS, "New Referrer Account Created " + (isStaging ? "for Approval" : " and Activated") + " - " + user.getUserid(), hl + UserMessageUtil.getNewAccountCreatedBody(user));
+  }
+
   public void emailNotifyNewReferrer(String [] tos, String [] ccs, ExternalUser user) {
   	sendMailWithCc(tos, ccs, "I-MED Online 2.0 Referrer Account Created - " + user.getUserid(), UserMessageUtil.getNewAccountCreatedBody(user));
   }  
