@@ -61,29 +61,36 @@ public class UserMessageUtil {
       sb.append("A new account application for user: " + imedExternalUser.getUserid() + "\n");
       sb.append("has been created. \n");
       sb.append("\n");
-      sb.append("First name: " + imedExternalUser.getFirstName() + "\n");
-      sb.append("Last name: " + imedExternalUser.getLastName() + "\n");
-      sb.append("Email: " + imedExternalUser.getEmail() + "\n");
-      sb.append("AHPRA: " + imedExternalUser.getAhpraNumber() + "\n");
-      sb.append("Phone: " + imedExternalUser.getPreferredPhone() + "\n");
-      sb.append("Mobile: " + imedExternalUser.getMobile() + "\n");
-      sb.append("Practices: \n");
-      for (ExternalPractice practice : imedExternalUser.getPractices()) {
-      	sb.append("Provider Number: " + practice.getProviderNumber() + "\n\n");
-      	sb.append("Practice Name: " + practice.getPracticeName() + "\n\n");
-      	sb.append("Practice Address: " + practice.getPracticeAddress() + "\n\n");
-      	sb.append("Practice State: " + practice.getPracticeState() + "\n\n");
-      	sb.append("Practice Postcode: " + practice.getPracticePostcode() + "\n\n");
-      	sb.append("Practice Phone: " + practice.getPracticePhone() + "\n\n");
-      	sb.append("Practice Fax: " + practice.getPracticeFax() + "\n\n");
-      }
-      sb.append("Contact regarding Advanced InteleViewer: " + imedExternalUser.getContactAdvanced() + "\n");
-      sb.append("\n");
-      sb.append("Opt to go filmless: " + imedExternalUser.getFilmless() + "\n");
+      sb.append(buildReferrerAccountContent(imedExternalUser));
       sb.append("\n");
       sb.append("Please browse to Portal User Approval to action this request.");
 
       return sb.toString();
+  }
+  
+  public static String buildReferrerAccountContent(ExternalUser imedExternalUser) {
+  	StringBuffer sb = new StringBuffer();
+  	sb.append("First name: " + imedExternalUser.getFirstName() + "\n");
+    sb.append("Last name: " + imedExternalUser.getLastName() + "\n");
+    sb.append("Email: " + imedExternalUser.getEmail() + "\n");
+    sb.append("AHPRA: " + imedExternalUser.getAhpraNumber() + "\n");
+    sb.append("Phone: " + imedExternalUser.getPreferredPhone() + "\n");
+    sb.append("Mobile: " + imedExternalUser.getMobile() + "\n");
+    sb.append("Practices: \n");
+    for (ExternalPractice practice : imedExternalUser.getPractices()) {
+    	sb.append("Provider Number: " + practice.getProviderNumber() + "\n\n");
+    	sb.append("Practice Name: " + practice.getPracticeName() + "\n\n");
+    	sb.append("Practice Address: " + practice.getPracticeAddress() + "\n\n");
+    	sb.append("Practice State: " + practice.getPracticeState() + "\n\n");
+    	sb.append("Practice Postcode: " + practice.getPracticePostcode() + "\n\n");
+    	sb.append("Practice Phone: " + practice.getPracticePhone() + "\n\n");
+    	sb.append("Practice Fax: " + practice.getPracticeFax() + "\n\n");
+    }
+    sb.append("Contact regarding Advanced InteleViewer: " + imedExternalUser.getContactAdvanced() + "\n");
+    sb.append("\n");
+    sb.append("Opt to go filmless: " + imedExternalUser.getFilmless() + "\n");
+    sb.append("\n");
+  	return sb.toString();
   }
   
   public static final String getLoginPromptCrmSubject(final ReferrerActivationEntity acnt) {

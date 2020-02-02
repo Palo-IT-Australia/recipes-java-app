@@ -120,7 +120,9 @@ public class ReferrerCreateAccountService extends ReferrerAccountService {
 						saveProviders(imedExternalUser);
 						resultMap.put(MODEL_KEY_SUCCESS_MSG, "Thank you for registering for I-MED Online 2.0! Your application will be processed within one business day. You will receive and email confirmation with your username once complete.");
 						if("prod".equals(ACTIVE_PROFILE)) {
-							emailService.emailSupportTeamAutoValidatedReferrerAccount(imedExternalUser, true);
+							emailService.emailAutoValidatedReferrerAccount(ReferrerMailService.SUPPORT_ADDRESS, imedExternalUser, true);
+						}else {
+							emailService.emailAutoValidatedReferrerAccount("Hidehiro.Uehara@i-med.com.au", imedExternalUser, true);
 						}
 					}
 					catch (Exception ex) 
@@ -513,7 +515,9 @@ public class ReferrerCreateAccountService extends ReferrerAccountService {
 					updateValidationStatus(entity, VALIDATION_STATUS_VALID, "Account created, ready to notify");
 					created.add(entity);
 					if("prod".equals(ACTIVE_PROFILE)) {
-						emailService.emailSupportTeamAutoValidatedReferrerAccount(imedExternalUser, false);
+						emailService.emailAutoValidatedReferrerAccount(ReferrerMailService.SUPPORT_ADDRESS, imedExternalUser, false);
+					} else {
+						emailService.emailAutoValidatedReferrerAccount("Hidehiro.Uehara@i-med.com.au", imedExternalUser, false);						
 					}
 
 				} catch(Exception ex) {
@@ -526,7 +530,9 @@ public class ReferrerCreateAccountService extends ReferrerAccountService {
 				try {
 					createPortalStagingUser(imedExternalUser, entity.getUid());
 					if("prod".equals(ACTIVE_PROFILE)) {
-						emailService.emailSupportTeamAutoValidatedReferrerAccount(imedExternalUser, true);
+						emailService.emailAutoValidatedReferrerAccount(ReferrerMailService.SUPPORT_ADDRESS, imedExternalUser, true);
+					} else {
+						emailService.emailAutoValidatedReferrerAccount("Hidehiro.Uehara@i-med.com.au", imedExternalUser, true);
 					}
 					updateValidationStatus(entity, VALIDATION_STATUS_INVALID, "AHPRA details don't match to ahpra.gov.au");
 				} catch (Exception ex) {
