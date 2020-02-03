@@ -518,8 +518,8 @@ public class ReferrerMailService {
   public void emailAutoValidatedReferrerAccount(final String email, ExternalUser user, boolean isStaging) {
   	String hl = "";
   	if(user.getPractices() != null && user.getPractices().size() > 1) {
-  		hl = "Note: This referrer has more than one practices. The first one with provider number " + 
-  				user.getPractices().get(0).getProviderNumber() + " is assigned in RISid attribute on LDAP account.\n\n\n";
+  		hl = "Note: This referrer has more than one practice. The first provider number " + 
+  				user.getPractices().get(0).getProviderNumber() + " has been assigned in the RISid attribute on the LDAP account. Please ensure the additional provider details are updated in PACS.\n\n\n";
   	}
     sendMail(email, "I-MED Online 2.0 Referrer Account Created " + (isStaging ? "for Approval" : "") + " - " + user.getUserid(), hl + (isStaging ? UserMessageUtil.getNewAccountCreatedBody(user) : UserMessageUtil.buildReferrerAccountContent(user)));
   }

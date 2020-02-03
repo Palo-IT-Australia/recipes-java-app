@@ -409,7 +409,7 @@ public class ReferrerCreateAccountService extends ReferrerAccountService {
 		}
 		
 		try {
-			List<Name> ipnames = accountService.findPacsUsersDnListByFirstAndLastNames(imedExternalUser.getFirstName(), imedExternalUser.getLastName());
+			List<Name> ipnames = accountService.findImedPacsUsersDnListByFirstAndLastNames(imedExternalUser.getFirstName(), imedExternalUser.getLastName());
 			if(ipnames.size() > 0) {
 				logger.info("pacsAccountsExist() I-MED Pacs Users May conflict " + ipnames.get(0));
 				isConflict = true;
