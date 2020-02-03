@@ -37,6 +37,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.entity.ReferrerProviderEntity;
 import au.com.imed.portal.referrer.referrerportal.model.AddPractice;
+import au.com.imed.portal.referrer.referrerportal.model.AutoValidationResult;
 import au.com.imed.portal.referrer.referrerportal.model.ExternalUser;
 import au.com.imed.portal.referrer.referrerportal.model.StageUser;
 import au.com.imed.portal.referrer.referrerportal.security.DetailedLdapUserDetails;
@@ -515,13 +516,23 @@ public class ReferrerMailService {
     sendMail(SUPPORT_ADDRESS, "New User Created - " + user.getUserid(), UserMessageUtil.getNewAccountCreatedBody(user));
   }
 
-  public void emailAutoValidatedReferrerAccount(final String email, ExternalUser user, boolean isStaging) {
+  private static final String FMT_AUTOVALIDATION_REUSLT = "This New Referrer application has failed validation. Reason of failure : %s\n\n"; 
+  private static final String FMT_PLEASE_APPROVE = "A new account application for user: %s has been created. Please browse to Portal User Approval to action this request.\n\n";
+  public void emailAutoValidatedReferrerAccount(final String email, ExternalUser user, boolean isStaging, AutoValidationResult result) {
   	String hl = "";
+  	String va = "";
+  	String ap = "";
   	if(user.getPractices() != null && user.getPractices().size() > 1) {
   		hl = "Note: This referrer has more than one practice. The first provider number " + 
-  				user.getPractices().get(0).getProviderNumber() + " has been assigned in the RISid attribute on the LDAP account. Please ensure the additional provider details are updated in PACS.\n\n\n";
+  				user.getPractices().get(0).getProviderNumber() + " has been assigned in the RISid attribute on the LDAP account. Please ensure the additional provider details are updated in PACS.\n\n";
   	}
-    sendMail(email, "I-MED Online 2.0 Referrer Account Created " + (isStaging ? "for Approval" : "") + " - " + user.getUserid(), hl + (isStaging ? UserMessageUtil.getNewAccountCreatedBody(user) : UserMessageUtil.buildReferrerAccountContent(user)));
+  	if(isStaging && result != null) {
+  		va = String.format(FMT_AUTOVALIDATION_REUSLT, result.getMsg());
+  	}
+  	if(isStaging) {
+  		ap = String.format(FMT_PLEASE_APPROVE, user.getUserid());
+  	}
+    sendMail(email, "I-MED Online 2.0 Referrer Account Created " + (isStaging ? "for Approval" : "") + " - " + user.getUserid(), hl + va + ap + (isStaging ? UserMessageUtil.getNewAccountCreatedBody(user) : UserMessageUtil.buildReferrerAccountContent(user)));
   }
 
   public void emailNotifyNewReferrer(String [] tos, String [] ccs, ExternalUser user) {

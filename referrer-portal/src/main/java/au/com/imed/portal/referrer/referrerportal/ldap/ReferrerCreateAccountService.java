@@ -49,9 +49,9 @@ import au.com.imed.portal.referrer.referrerportal.jpa.audit.repository.MedicareP
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.repository.ReferrerActivationJpaRepository;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.repository.ReferrerAutoValidationRepository;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.repository.ReferrerProviderJpaRepository;
+import au.com.imed.portal.referrer.referrerportal.model.AutoValidationResult;
 import au.com.imed.portal.referrer.referrerportal.model.ExternalPractice;
 import au.com.imed.portal.referrer.referrerportal.model.ExternalUser;
-import au.com.imed.portal.referrer.referrerportal.rest.visage.service.GetReferrerService;
 import au.com.imed.portal.referrer.referrerportal.utils.ModelUtil;
 
 @Service
@@ -91,6 +91,8 @@ public class ReferrerCreateAccountService extends ReferrerAccountService {
 	@Autowired
 	private ReferrerActivationJpaRepository referrerActivationEntityJapRepository;
 	
+	private static final String MSG_APPLIED_SUCCESSFULLY = "Thank you for registering for I-MED Online 2.0! Your application will be processed within one business day. You will receive and email confirmation with your username once complete.";
+	
 	public Map<String, String> createAccount(ExternalUser imedExternalUser) {
 		Map<String, String> resultMap = new HashMap<>(1);
 
@@ -109,20 +111,25 @@ public class ReferrerCreateAccountService extends ReferrerAccountService {
 					imedExternalUser.setUserid(generateUsername(imedExternalUser));
 				}
 				
-				// Auto Validation process (QLD etc.)
-				if(validateOnFormSubmission(imedExternalUser)) {
+				// Auto Validation process (QLD only at this moment)
+				boolean isAutoValidationTarget = isAutoValidationTarget(imedExternalUser);
+				AutoValidationResult result = null;
+				if(isAutoValidationTarget) {
+					result = validateOnFormSubmission(imedExternalUser);
+				}
+				if(isAutoValidationTarget && result.isValid()) {
 					saveProviders(imedExternalUser);
-					resultMap.put(MODEL_KEY_SUCCESS_MSG, "Thank you for registering for I-MED Online 2.0! Your application will be processed within one business day. You will receive and email confirmation with your username once complete.");
+					resultMap.put(MODEL_KEY_SUCCESS_MSG, MSG_APPLIED_SUCCESSFULLY);
 				} else {
 					// Conventional approver procedure
 					try {
 						createPortalStagingUser(imedExternalUser, proposedUid);
 						saveProviders(imedExternalUser);
-						resultMap.put(MODEL_KEY_SUCCESS_MSG, "Thank you for registering for I-MED Online 2.0! Your application will be processed within one business day. You will receive and email confirmation with your username once complete.");
+						resultMap.put(MODEL_KEY_SUCCESS_MSG, MSG_APPLIED_SUCCESSFULLY);
 						if("prod".equals(ACTIVE_PROFILE)) {
-							emailService.emailAutoValidatedReferrerAccount(ReferrerMailService.SUPPORT_ADDRESS, imedExternalUser, true);
+							emailService.emailAutoValidatedReferrerAccount(ReferrerMailService.SUPPORT_ADDRESS, imedExternalUser, true, result);
 						}else {
-							emailService.emailAutoValidatedReferrerAccount("Hidehiro.Uehara@i-med.com.au", imedExternalUser, true);
+							emailService.emailAutoValidatedReferrerAccount("Hidehiro.Uehara@i-med.com.au", imedExternalUser, true, result);
 						}
 					}
 					catch (Exception ex) 
@@ -343,11 +350,12 @@ public class ReferrerCreateAccountService extends ReferrerAccountService {
 	 * @param imedExternalUser uid and ahpra should already be unique
 	 * @return
 	 */
-	private boolean validateOnFormSubmission(ExternalUser imedExternalUser) {
+	private AutoValidationResult validateOnFormSubmission(ExternalUser imedExternalUser) {
 		logger.info("validateOnFormSubmission() " + imedExternalUser);
 		
 		boolean isAccepted = false;
 		String msg = "Ready to validate AHPRA details";
+		AutoValidationResult result = new AutoValidationResult(isAccepted, msg);
 		
 		if(imedExternalUser != null && isAutoValidationTarget(imedExternalUser)) {
 			if(accountService.findGlobalByAtr("AHPRA", imedExternalUser.getAhpraNumber()).size() > 0) {
@@ -361,9 +369,9 @@ public class ReferrerCreateAccountService extends ReferrerAccountService {
 			}else if(poviderNumbersTakenInVisage(imedExternalUser).size() > 0) {
 				msg = "Provider number already in Visage";
 			}else if(!validMedicareProviders(imedExternalUser)) {
-				msg = "Invalid provider information";
+				msg = "Practice details do not match to medicare provider DB";
 			}else if(pacsAccountsExist(imedExternalUser)) {
-				msg = "The applicant may already have PACS accounts";
+				msg = "The applicant may already has PACS account";
 			}else {
 				isAccepted = true; 
 			}
@@ -386,13 +394,17 @@ public class ReferrerCreateAccountService extends ReferrerAccountService {
 			updateValidationStatus(entity, isAccepted ? VALIDATION_STATUS_PASSED : VALIDATION_STATUS_INVALID, msg);
 			
 			logger.info("validateOnFormSubmission() msg : " + msg + ", accepted ? " + isAccepted);
+			result.setMsg(msg);
+			result.setValid(isAccepted);
 		}
 		else
 		{
 			logger.info("Not auto validation target, skipping all process.");
+			result.setMsg("Not auto validation target");
+			result.setValid(false);
 		}
 		
-		return isAccepted;  // Returning false proceeds to ordinal manual approver 
+		return result;  // Returning false proceeds to ordinal manual approver 
 	}
 	
 	private boolean pacsAccountsExist(final ExternalUser imedExternalUser) {
@@ -515,9 +527,9 @@ public class ReferrerCreateAccountService extends ReferrerAccountService {
 					updateValidationStatus(entity, VALIDATION_STATUS_VALID, "Account created, ready to notify");
 					created.add(entity);
 					if("prod".equals(ACTIVE_PROFILE)) {
-						emailService.emailAutoValidatedReferrerAccount(ReferrerMailService.SUPPORT_ADDRESS, imedExternalUser, false);
+						emailService.emailAutoValidatedReferrerAccount(ReferrerMailService.SUPPORT_ADDRESS, imedExternalUser, false, null);
 					} else {
-						emailService.emailAutoValidatedReferrerAccount("Hidehiro.Uehara@i-med.com.au", imedExternalUser, false);						
+						emailService.emailAutoValidatedReferrerAccount("Hidehiro.Uehara@i-med.com.au", imedExternalUser, false, null);						
 					}
 
 				} catch(Exception ex) {
@@ -529,12 +541,14 @@ public class ReferrerCreateAccountService extends ReferrerAccountService {
 				// create staging account 
 				try {
 					createPortalStagingUser(imedExternalUser, entity.getUid());
+					String msg = "AHPRA details don't match to ahpra.gov.au";
+					AutoValidationResult result = new AutoValidationResult(false, msg);
 					if("prod".equals(ACTIVE_PROFILE)) {
-						emailService.emailAutoValidatedReferrerAccount(ReferrerMailService.SUPPORT_ADDRESS, imedExternalUser, true);
+						emailService.emailAutoValidatedReferrerAccount(ReferrerMailService.SUPPORT_ADDRESS, imedExternalUser, true, result);
 					} else {
-						emailService.emailAutoValidatedReferrerAccount("Hidehiro.Uehara@i-med.com.au", imedExternalUser, true);
+						emailService.emailAutoValidatedReferrerAccount("Hidehiro.Uehara@i-med.com.au", imedExternalUser, true, result);
 					}
-					updateValidationStatus(entity, VALIDATION_STATUS_INVALID, "AHPRA details don't match to ahpra.gov.au");
+					updateValidationStatus(entity, VALIDATION_STATUS_INVALID, msg);
 				} catch (Exception ex) {
 					ex.printStackTrace();
 				}
