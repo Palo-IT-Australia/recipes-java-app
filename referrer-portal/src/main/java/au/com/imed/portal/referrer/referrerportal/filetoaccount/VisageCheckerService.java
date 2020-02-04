@@ -39,7 +39,7 @@ public class VisageCheckerService {
 		boolean taken = false;
 		ResponseEntity<Referrer> entity = referrerService.doRestGet(PortalConstant.REP_VISAGE_USER, pmap, Referrer.class);
 		if(HttpStatus.OK.equals(entity.getStatusCode())) {
-			taken = entity.getBody().getName().length() > 0;
+			taken = entity.getBody().getUri().length() > 0;
 		}
 		return taken;
 	}
