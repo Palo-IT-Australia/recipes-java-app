@@ -51,7 +51,7 @@ public class CsvFileEmailScheduler {
 	/**
 	 * Monthly csv files
 	 */
-	@Scheduled(cron = "0 0 3 1 * ?")
+	@Scheduled(cron = "0 1 3 1 * ?")
 	public void scheduleMonthlyCsvFileEmail() {
 		Map<String, File> fileMap = new HashMap<>(2);
 		try {
@@ -65,12 +65,11 @@ public class CsvFileEmailScheduler {
 				logger.info("fileMap : " + fileMap);
 				
 				if("prod".equals(ACTIVE_PROFILE)) {
-					// TODO
-//					mailService.sendWithFileMap((new String [] {"Jeremy.Chan@i-med.com.au", "Chang.Chui@i-med.com.au"}, 
-//							"Referrer Csv files", "Please find attached csv files", fileMap);
+					mailService.sendWithFileMap(new String [] {"Jeremy.Chan@i-med.com.au", "Chang.Chui@i-med.com.au"}, 
+						"Referrer Csv files", "Please find attached csv files", fileMap);
 				} else {
 					mailService.sendWithFileMap(new String[] {"Hidehiro.Uehara@i-med.com.au"}, 
-							"Referrer Csv files", "Please find attached csv files", fileMap);
+						"Referrer Csv files", "Please find attached csv files", fileMap);
 				}
 			}
 		} catch(Exception ex) {
@@ -99,9 +98,8 @@ public class CsvFileEmailScheduler {
 				logger.info("fileMap : " + fileMap);
 				
 				if("prod".equals(ACTIVE_PROFILE)) {
-					// TODO
-					//mailService.sendWithFileMap(new String [] {"Martin.Cox@i-med.com.au", "Alexandra.Arter@i-med.com.au", "Giles.Cox@i-med.com.au", "Julie-Ann.Evans@i-med.com.au"}, 
-					//		"IMED Online 2.0 Audit", "Please find attached csv files", fileMap);
+					mailService.sendWithFileMap(new String [] {"Martin.Cox@i-med.com.au", "Alexandra.Arter@i-med.com.au", "Giles.Cox@i-med.com.au", "Julie-Ann.Evans@i-med.com.au"}, 
+							"IMED Online 2.0 Audit", "Please find attached csv files", fileMap);
 				} else {
 					mailService.sendWithFileMap(new String[] {"Hidehiro.Uehara@i-med.com.au"}, 
 							"IMED Online 2.0 Audit", "Please find attached csv files", fileMap);
