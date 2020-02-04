@@ -63,7 +63,6 @@ public class UserMessageUtil {
       sb.append("\n");
       sb.append(buildReferrerAccountContent(imedExternalUser));
       sb.append("\n");
-      sb.append("Please browse to Portal User Approval to action this request.");
 
       return sb.toString();
   }
