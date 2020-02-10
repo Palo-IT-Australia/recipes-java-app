@@ -8,9 +8,12 @@ import static au.com.imed.portal.referrer.referrerportal.common.PortalConstant.V
 import static au.com.imed.portal.referrer.referrerportal.common.PortalConstant.VALIDATION_STATUS_PASSED;
 import static au.com.imed.portal.referrer.referrerportal.common.PortalConstant.VALIDATION_STATUS_VALID;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -284,12 +287,14 @@ public class ReferrerCreateAccountService extends ReferrerAccountService {
 
 	private String generateUsernameNotInVisage(final String candidateName) {
 		String finalName = candidateName;
-		int i = 1;
-		// Visage has no fuzzy search
-		// TODO
-//		while(visagenameistaken?) {
-//			finalName = finalName + (i++);
-//		}
+		if(finalName != null && finalName.length() > 0) {
+			int i = 1;
+			// Visage has no fuzzy search call each time
+			while(visageCheckerService.isUsernameTaken(finalName)) {
+				finalName = finalName + (i++);
+			}
+		}
+		logger.info("generateUsernameNotInVisage() finalName = " + finalName);
 		return finalName;
 	}
 
@@ -447,10 +452,10 @@ public class ReferrerCreateAccountService extends ReferrerAccountService {
 			List<MedicareProviderEntity> list = medicareProviderJpaRepository.findByProviderNumberAndPracticeNot(practice.getProviderNumber(), "LEFT PRACTICE");
 			if(list.size() > 0) {  // Should be only one
 				MedicareProviderEntity entity = list.get(0);
+				// As DB has some empty or funny suburbs, check postcode and state only
 				isValid = compareIngoringSpaces(entity.getFirstName(), imedExternalUser.getFirstName()) &&
 					compareIngoringSpaces(entity.getLastName(), imedExternalUser.getLastName()) &&
 					compareIngoringSpaces(entity.getPostcode(), practice.getPracticePostcode()) &&
-					compareIngoringSpaces(entity.getSuburb(), practice.getPracticeSuburb()) &&
 					compareIngoringSpaces(entity.getState(), practice.getPracticeState());
 					;
 				if(!isValid) {
@@ -573,21 +578,22 @@ public class ReferrerCreateAccountService extends ReferrerAccountService {
 	}
 	
 	public void makeAndSendCsvEmails(List<ReferrerAutoValidationEntity> created) throws Exception {
-		File referrerFile = File.createTempFile("referrers-", "-csv");
-		File providerFile = File.createTempFile("providers-", "-csv");
+		File referrerFile = File.createTempFile("referrers-", ".csv");
+		File providerFile = File.createTempFile("providers-", ".csv");
     PrintWriter referrerWriter = new PrintWriter(referrerFile);
     PrintWriter providerWriter = new PrintWriter(providerFile);
-    referrerWriter.println("uid,firstname,lastname,email,AHPRA#,BusinessUnit,phone,mobile");
+    referrerWriter.println("uid,firstname,lastname,email,AHPRA#,BusinessUnit,phone,mobile,Contact,Filmless");
     providerWriter.println("uid,provider#,practiceName,phone,fax,street,suburb,state,postcode");
     for(ReferrerAutoValidationEntity entity : created) {
-      referrerWriter.println(String.format("\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"",
+      referrerWriter.println(String.format("\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"",
       		entity.getUid(), nonQuote(entity.getFirstName()), nonQuote(entity.getLastName()), nonQuote(entity.getEmail()),
-      		nonQuote(entity.getAhpra()), entity.getBusinessUnit(), nonQuote(entity.getPhone()), nonQuote(entity.getMobile())));
+      		nonQuote(entity.getAhpra()), entity.getBusinessUnit(), nonQuote(entity.getPhone()), nonQuote(entity.getMobile()),
+      		nonQuote(entity.getContactAdvanced()), nonQuote(entity.getFilmless()) ));
       List<ReferrerProviderEntity> provs = referrerProviderJpaRepository.findByUsername(entity.getUid());
       for(ReferrerProviderEntity provider : provs) {
       	providerWriter.println(String.format("\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"", 
       		provider.getUsername(), nonQuote(provider.getProviderNumber()), nonQuote(provider.getPracticeName()), nonQuote(provider.getPracticePhone()), nonQuote(provider.getPracticeFax()),
-      		nonQuote(provider.getPracticeStreet()), nonQuote(provider.getPracticeSuburb()),nonQuote(provider.getPracticeState()), nonQuote(provider.getPracticePostcode() )));
+      		nonQuote(provider.getPracticeStreet()), nonQuote(provider.getPracticeSuburb()),nonQuote(provider.getPracticeState()), nonQuote(provider.getPracticePostcode()) ));
       }
     }
     referrerWriter.close();
@@ -606,6 +612,75 @@ public class ReferrerCreateAccountService extends ReferrerAccountService {
     
     referrerFile.delete();
     providerFile.delete();
+	}
+	
+	// TODO midnight task 
+	private void putCsvToSharedFolder(List<File> files) {
+//		try {
+//			JSch jsch = new JSch();
+//			Session session = null;
+//			session = jsch.getSession("huehara","imedtsweb01",22);
+//			session.setPassword("Hello0123");
+//			session.setConfig("StrictHostKeyChecking", "no");
+//			session.connect();
+//			ChannelSftp channel = (ChannelSftp)session.openChannel("sftp");
+//			channel.connect();
+//			channel.cd("/tmp");
+//			for(File f : files) {
+//				channel.put(new FileInputStream(f), f.getName()); // Name may common format
+//			}
+//			channel.disconnect();
+//			session.disconnect();
+//		} catch (Exception ex) {
+//			ex.printStackTrace();
+//		}
+	}
+	
+	// TODO daily task csvToCreatedReferrers() notifyNewAccounts() real folder
+	private File getCsvFromSharedFolder() {
+		File file = null;
+//		try {
+//			JSch jsch = new JSch();
+//			Session session = null;
+//			session = jsch.getSession("huehara","imedtsweb01",22);
+//			session.setPassword("Hello0123");
+//			session.setConfig("StrictHostKeyChecking", "no");
+//			session.connect();
+//			ChannelSftp channel = (ChannelSftp)session.openChannel("sftp");
+//			channel.connect();
+//			channel.cd("/tmp");
+//			file = channel.get("referrer.csv");
+//			channel.disconnect();
+//			session.disconnect();
+//		} catch (Exception ex) {
+//			ex.printStackTrace();
+//		}
+		return file;
+	}
+	
+	private List<ReferrerAutoValidationEntity> csvToCreatedReferrers(File file) {
+		List<List<String>> records = new ArrayList<>();
+		try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+			String line;
+			while ((line = br.readLine()) != null) {
+				String[] values = line.split(",");
+				records.add(Arrays.asList(values));
+			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		
+		List<ReferrerAutoValidationEntity> created = new ArrayList<>();
+		for(List<String> column : records) {
+			try {
+				String uid = column.get(0);
+				ReferrerAutoValidationEntity entity = referrerAutoValidationRepository.findByUidAndValidationStatus(uid, VALIDATION_STATUS_VALID).get(0);
+				created.add(entity);
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+		}
+		return created;
 	}
 	
 	private String nonQuote(String original) {
@@ -700,17 +775,15 @@ public class ReferrerCreateAccountService extends ReferrerAccountService {
 				logger.info("notifyNewAccounts() Send email to CRM " + crm);
 				if("prod".equals(ACTIVE_PROFILE)) {
 					try {
-						//TODO email to CRM if(crm != null) or Julie only?
-						//							emailService.sendImoHtmlMail(new String [] {acnt.getEmail()}, new String [] {}, 
-						//									UserMessageUtil.LOGIN_PROMPT_SUBJECT, 
-						//									UserMessageUtil.getLoginPromptHtmlContent(acnt, crm, APPLICAION_CONTEXT_PATH));
+						String [] toCrm = crm != null ? new String [] {crm.getEmail()} : new String [0];
+						emailService.emailNotifyNewReferrer(toCrm,
+								new String [] {"Julie-Ann.Evans@i-med.com.au"}, toExternalUser(entity, provs));
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
 				} else {
 					emailService.emailNotifyNewReferrer(new String [] {"Hidehiro.Uehara@i-med.com.au"},
 							new String [] {"Hidehiro.Uehara@i-med.com.au"}, toExternalUser(entity, provs));
-					//emailService.sendMail("Hidehiro.Uehara@i-med.com.au", "CRM copy of Welcome email", "CRM " + crm != null ? crm.getEmail() : " cannot found");
 				}
 			}
 			entity.setNotifyAt(new Date());

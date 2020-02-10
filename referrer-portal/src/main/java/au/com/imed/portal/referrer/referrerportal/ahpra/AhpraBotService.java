@@ -57,10 +57,16 @@ public class AhpraBotService {
 			// Retry with latency mode taking 1 min or so
 			logger.info("findByNumberRetry() AHPRA scrapper retry with latency...");
 			ahpras = this.findByNumber(ahpra);
+			if(ahpras == null || ahpras.length == 0) {
+				logger.info("findByNumberRetry() 1st retly returned [], doing 2nd retry with delay...");
+				ahpras = this.findByNumber(ahpra);
+			}
 		}
-		logger.info("findByNumberRetry() final AHPRA " + ahpra + " : " + ahpras);
+		logger.info("findByNumberRetry() trials finished " + ahpra + " : " + ahpras);
 		if(ahpras != null && ahpras.length > 0) {
-			logger.info("findByNumberRetry() length = " + ahpras.length + ", name = " + ahpras[0].getName());
+			logger.info("findByNumberRetry() result : length = " + ahpras.length + ", name = " + ahpras[0].getName());
+		} else {
+			logger.info("findByNumberRetry() result : AHPRA not found in ahpra.gov.au for " + ahpra);
 		}
 		return ahpras;
 	}

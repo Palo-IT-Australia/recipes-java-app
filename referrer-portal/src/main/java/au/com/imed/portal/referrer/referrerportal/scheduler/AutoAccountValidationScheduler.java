@@ -45,7 +45,7 @@ public class AutoAccountValidationScheduler {
 	//
 //	@Scheduled(cron="1 0 0 * * *") // 0 AM 1 sec
 //	public void scheduleDailyValidationTask() {
-//		// TODO May separate to 4 servers by id?
+//		// May separate to 4 servers by id?
 //		try
 //		{
 //			if(SCHEDULER_SERVER_NAME.equals(InetAddress.getLocalHost().getHostName())) { 
@@ -128,7 +128,7 @@ public class AutoAccountValidationScheduler {
 	/**
 	 * 2) csv
 	 */
-	@Scheduled(cron="1 0 0 * * *") // 0 AM 1 sec
+	@Scheduled(cron="1 0 0 * * *") // 0 AM 1 second
 	public void scheduleDailyCsvEmailTask() {
 		try
 		{

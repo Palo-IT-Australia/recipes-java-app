@@ -10,6 +10,7 @@ import au.com.imed.portal.referrer.referrerportal.jpa.audit.entity.ReferrerAutoV
 public interface ReferrerAutoValidationRepository extends JpaRepository<ReferrerAutoValidationEntity, Integer> 
 {
 	public List<ReferrerAutoValidationEntity> findByUid(String uid);
+	public List<ReferrerAutoValidationEntity> findByUidAndValidationStatus(String uid, String status);
 	public List<ReferrerAutoValidationEntity> findByUidAndValidationStatusNot(String uid, String status);
 	public List<ReferrerAutoValidationEntity> findByEmailAndValidationStatusNot(String email, String status);
 	public List<ReferrerAutoValidationEntity> findByAhpraAndValidationStatusNot(String ahpra, String status);
