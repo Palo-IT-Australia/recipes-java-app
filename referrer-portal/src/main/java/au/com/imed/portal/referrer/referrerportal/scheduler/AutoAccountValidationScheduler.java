@@ -104,7 +104,7 @@ public class AutoAccountValidationScheduler {
 	/**
 	 * 1) validation
 	 */
-	@Scheduled(cron="0 0/30 * * * ?") // every 30 mins 30 * 60 * 1000
+	@Scheduled(cron="0 0/30 * * * ?") // every 30 mins 0 and 30 minutes
 	public void scheduleOftenValidationTask() {
 		try
 		{
