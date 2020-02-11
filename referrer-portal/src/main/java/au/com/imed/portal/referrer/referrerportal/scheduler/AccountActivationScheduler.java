@@ -122,7 +122,7 @@ public class AccountActivationScheduler {
 		    		}
 		    		else
 		    		{
-    					String [] testEmails = new String [] {"Hidehiro.Uehara@i-med.com.au", "Martin.Cox@i-med.com.au", "Julie-Ann.Evans@i-med.com.au"};
+    					String [] testEmails = new String [] {"Hidehiro.Uehara@i-med.com.au"};
 		    			try {
 								emailService.sendImoHtmlMail(testEmails, new String [] {}, 
 										UserMessageUtil.LOGIN_PROMPT_SUBJECT, 
@@ -132,7 +132,7 @@ public class AccountActivationScheduler {
 							}
 		    			if(crm != null) {
 	    					try {
-									emailService.sendImoHtmlMail(testEmails, new String [] {"Julie-Ann.Evans@i-med.com.au"},
+									emailService.sendImoHtmlMail(testEmails, new String [] {"Hidehiro.Uehara@i-med.com.au"},
 										UserMessageUtil.getLoginPromptCrmSubject(acnt),
 										UserMessageUtil.getNotLoginPromptBody(acnt, crm));
 								} catch (Exception e) {
@@ -210,9 +210,9 @@ public class AccountActivationScheduler {
 		    				}
 		    				else
 		    				{
-		    					String [] testEmails = new String [] {"Hidehiro.Uehara@i-med.com.au", "Martin.Cox@i-med.com.au", "Julie-Ann.Evans@i-med.com.au"};
+		    					//String [] testEmails = new String [] {"Hidehiro.Uehara@i-med.com.au", "Martin.Cox@i-med.com.au", "Julie-Ann.Evans@i-med.com.au"};
 		    					try {
-										emailService.sendImoHtmlMail(testEmails, new String [] {},
+										emailService.sendImoHtmlMail(new String [] {"Hidehiro.Uehara@i-med.com.au"}, new String [] {},
 												UserMessageUtil.TANDC_PROMPT_SUBJECT, 
 												UserMessageUtil.getTandcPromptHtmlContent(doctorDetails, crm, APPLICAION_CONTEXT_PATH));
 									} catch (Exception e) {
@@ -220,7 +220,7 @@ public class AccountActivationScheduler {
 									}
 		    					if(crm != null) {
 	    							try {
-											emailService.sendImoHtmlMail(testEmails, new String [] {"Julie-Ann.Evans@i-med.com.au"}, 
+											emailService.sendImoHtmlMail(new String [] {"Hidehiro.Uehara@i-med.com.au"}, new String [] {}, 
 												UserMessageUtil.getTandcPromptCrmSubject(doctorDetails),
 												UserMessageUtil.getTandcPromptBody(doctorDetails, crm));
 										} catch (Exception e) {
