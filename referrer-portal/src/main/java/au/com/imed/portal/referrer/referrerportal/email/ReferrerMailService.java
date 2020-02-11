@@ -532,7 +532,7 @@ public class ReferrerMailService {
   	if(isStaging) {
   		ap = String.format(FMT_PLEASE_APPROVE, user.getUserid());
   	}
-    sendMail(email, "I-MED Online 2.0 Referrer Account Created " + (isStaging ? "for Approval" : "") + " - " + user.getUserid(), hl + va + ap + (isStaging ? UserMessageUtil.getNewAccountCreatedBody(user) : UserMessageUtil.buildReferrerAccountContent(user)));
+    sendMail(email, "I-MED Online 2.0 Referrer Account Created " + (isStaging ? "for Approval" : "") + " - " + user.getUserid(), hl + va + ap + UserMessageUtil.getNewAccountCreatedBody(user));
   }
 
   public void emailNotifyNewReferrer(String [] tos, String [] ccs, ExternalUser user) {
