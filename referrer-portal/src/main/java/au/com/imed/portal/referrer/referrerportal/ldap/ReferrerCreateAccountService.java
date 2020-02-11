@@ -674,9 +674,11 @@ public class ReferrerCreateAccountService extends ReferrerAccountService {
 		for(List<String> column : records) {
 			try {
 				String uid = column.get(0);
+				logger.info("Retrieving uid from DB " + uid);
 				ReferrerAutoValidationEntity entity = referrerAutoValidationRepository.findByUidAndValidationStatus(uid, VALIDATION_STATUS_VALID).get(0);
 				created.add(entity);
 			} catch (Exception ex) {
+				logger.info("Skipping this referrer as not in valid list.");
 				ex.printStackTrace();
 			}
 		}
