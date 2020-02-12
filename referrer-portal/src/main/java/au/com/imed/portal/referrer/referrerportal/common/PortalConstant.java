@@ -61,5 +61,5 @@ public final class PortalConstant {
 	public static final String VALIDATION_STATUS_VALID = "valid"; // 2nd acnt created
 	public static final String VALIDATION_STATUS_NOTIFIED = "notified"; // 3rd notified by emails
 
-	public static final String REP_VISAGE_USER = "huehara";
+	public static final String REP_VISAGE_USER = "myimed";
 }
