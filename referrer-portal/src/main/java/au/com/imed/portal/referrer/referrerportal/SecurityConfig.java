@@ -51,6 +51,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter  {
 
 	@Value("${imed.portal.auth.groups.editor}")
 	private String [] editorGroups;
+	
+	@Value("${imed.portal.auth.groups.hospital}")
+	private String [] hospitalGroups;
 		
 	@Autowired 
 	ReferrerAccountService accountService;
@@ -139,7 +142,18 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter  {
 					}
 				}
 				
+				// Hospital access both AD and LDAP groups
+				boolean isHospitalAuth = false;
 				if(accountService.isHospitalAccess(username)) {
+					isHospitalAuth = true;
+				} else if (groups != null && groups.length > 0) {
+					if(Arrays.stream(groups).map(o -> o.toString()).filter(s -> {
+						return Arrays.stream(hospitalGroups).filter(g -> s.startsWith(CN + g)).count() > 0;
+					}).count() > 0) {
+						isHospitalAuth = true;
+					}
+				}
+				if(isHospitalAuth) {
 					auths.add(new SimpleGrantedAuthority(AUTH_HOSPITAL));
 				}
 				
