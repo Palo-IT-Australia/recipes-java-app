@@ -604,7 +604,8 @@ public class ReferrerCreateAccountService extends ReferrerAccountService {
 		fileMap.put("referrers.csv", referrerFile);
 		
     if("prod".equals(ACTIVE_PROFILE)) {
-			// TODO promed and Intelerad
+    	emailService.sendWithFileMap(new String[] {ReferrerMailService.SUPPORT_ADDRESS}, 
+					"I-MED Online 2.0 New Referrer and Providers Csv files", "Please find attached csv files", fileMap);
 		} else {
 			emailService.sendWithFileMap(new String[] {"Hidehiro.Uehara@i-med.com.au"}, 
 					"I-MED Online 2.0 New Referrer and Providers Csv files", "Please find attached csv files", fileMap);
