@@ -141,13 +141,12 @@ public class VisageController {
 	
 	@GetMapping("/ping")
 	public String getPing() {
-		return "V0.1 (Migrating)";
+		return "V1.0 (Non complete report)";
 	}
 	
 	//
 	// Quick Report
 	//
-	
 	private static final String NO_IMAGE_ALERT = "<div class=\"alert alert-warning\" role=\"alert\">Report is unavailable or not shared.</div>";
   private static final String REPORT_NOT_COMPLTED_ALERT_MSG = "The Report has been addended and is not yet verified.";
   private static final String REPORT_NOT_COMPLTED_ALERT_HTML = "<div class=\"alert alert-warning\" role=\"alert\">" + REPORT_NOT_COMPLTED_ALERT_MSG + "</div>";
@@ -534,17 +533,25 @@ public class VisageController {
 			if (preferenceService.isTermsAccepted(userName)) {
 				OrderDetails order = obtainOrderDetails(userName, paramMap);
 				if (order != null) {
-					paramMap.put("reportUri", order.getReportUri());
-					ResponseEntity<byte[]> entity = viewHtmlReportService.doRestGet(userName, paramMap, byte[].class);
-					String str = "";
-					try {
-						str = new String(entity.getBody(), "UTF-8");
-					} catch (Exception ex) {
-						ex.printStackTrace();
+					// Report can be displayed on completed order
+					if(OrderStatusConst.STATUS_GROUP_COMPLETE.equalsIgnoreCase(order.getStatus()))
+					{
+						paramMap.put("reportUri", order.getReportUri());
+						ResponseEntity<byte[]> entity = viewHtmlReportService.doRestGet(userName, paramMap, byte[].class);
+						String str = "";
+						try {
+							str = new String(entity.getBody(), "UTF-8");
+						} catch (Exception ex) {
+							ex.printStackTrace();
+						}
+						responceEntity = new ResponseEntity<String>(str, entity.getHeaders(), entity.getStatusCode());
+					}
+					else
+					{
+						responceEntity = new ResponseEntity<String>(REPORT_NOT_COMPLTED_ALERT_HTML, HttpStatus.OK);
 					}
 					auditService.doAudit("Report", userName, paramMap, order);
 					syslog.log(ReferrerEvent.REPORT_VIEW, "/report", userName, paramMap, order);
-					responceEntity = new ResponseEntity<String>(str, entity.getHeaders(), entity.getStatusCode());
 				} else {
 					responceEntity = new ResponseEntity<String>(HttpStatus.BAD_REQUEST);
 				}
