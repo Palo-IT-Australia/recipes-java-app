@@ -1,5 +1,7 @@
 package au.com.imed.portal.referrer.referrerportal.common.util;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -120,7 +122,7 @@ public class Aes128Util {
     if(imsec != null && imsec.length() > 0) {
       try
       {
-        String decoded = decrypt(imsec.trim().replaceAll(" ", "+")); // Convert spaced plus signs
+        String decoded = decrypt(URLDecoder.decode(imsec.trim(), StandardCharsets.UTF_8).replaceAll(" ", "+")); // Convert spaced plus signs
         logger.info("getAccessionNumberFromSecurityCode(): decoded = " + decoded);
         Map<String, String> params = getParams(decoded);
         // urls are perpetual
