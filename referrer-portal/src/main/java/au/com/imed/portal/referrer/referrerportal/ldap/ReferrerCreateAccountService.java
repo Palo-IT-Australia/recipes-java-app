@@ -733,11 +733,11 @@ public class ReferrerCreateAccountService extends ReferrerAccountService {
 				containsIgnoringSpaces(ahpraDetails.getName(), entity.getLastName());
 		
 		if(isValid) {
+			isValid = false; // Clear for next validation
 			if(provs.size() > 0) {
 				for(ReferrerProviderEntity provider : provs) {
-					if(compareIngoringSpaces(ahpraDetails.getPrincipalPlaceOfPractice().getSuburb(), provider.getPracticeSuburb()) &&
-							compareIngoringSpaces(ahpraDetails.getPrincipalPlaceOfPractice().getPostcode(), provider.getPracticePostcode()) &&
-							compareIngoringSpaces(ahpraDetails.getPrincipalPlaceOfPractice().getState(), provider.getPracticeState())) {
+					if(compareIngoringSpaces(ahpraDetails.getPrincipalPlaceOfPractice().getPostcode(), provider.getPracticePostcode()) &&
+						 compareIngoringSpaces(ahpraDetails.getPrincipalPlaceOfPractice().getState(), provider.getPracticeState())) {
 						isValid = true;
 						logger.info("Found matching provider to AHPRA. Provider# is " + provider.getProviderNumber());
 						break;
