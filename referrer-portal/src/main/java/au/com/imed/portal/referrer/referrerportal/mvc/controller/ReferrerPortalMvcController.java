@@ -128,6 +128,15 @@ public class ReferrerPortalMvcController {
 	public String getResults() {
 		return "results";
 	}
+	
+	@GetMapping("/evaluation")
+	public String getEvaluation() {
+		if("prod".equals(ACTIVE_PROFILE)) {
+			return "redirect:/";
+		} else {
+			return "evaluation";
+		}
+	}
 
 	@GetMapping("/ereferral")
 	public String getReferral() {
