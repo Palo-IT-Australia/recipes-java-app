@@ -105,20 +105,28 @@ public class ViewImageService {
 		return entity;
 	}
 
-	public ResponseEntity<String[]> generateIvEvImageUrls(final String userName, final Map<String, String> paramMap,
-			final OrderDetails order) {
-		String accessionNumber = paramMap.get("accessionNumber");
+	public ResponseEntity<String[]> generateIvEvImageUrls(final String userName, final Map<String, String> paramMap, final OrderDetails order) {
+    String accessionNumber = paramMap.get("accessionNumber");
+    final String mode = paramMap.get("mode");
 
-		ResponseEntity<String[]> entity;
-		if (userName != null) {
-			String[] urls = InteleViewerUtil.generateUrls(userName, accessionNumber, order.getPatient().getPatientId(),
-					InteleViewerUtil.URL_EV);
-			entity = ResponseEntity.ok(urls);
-		} else {
-			entity = new ResponseEntity<String[]>(HttpStatus.UNAUTHORIZED);
-		}
-		return entity;
-	}
+    String ivmode = InteleViewerUtil.URL_EV;
+    if("mobile".equalsIgnoreCase(mode)) {
+      ivmode = InteleViewerUtil.URL_EV_MOBILE;
+    }else if("rest".equalsIgnoreCase(mode)) {
+      ivmode = InteleViewerUtil.URL_EV_REST;
+    }
+    
+    ResponseEntity<String[]> entity;
+    if (userName != null) {
+      String [] urls = InteleViewerUtil.generateUrls(userName, accessionNumber, order.getPatient().getPatientId(), ivmode);
+      entity = ResponseEntity.ok(urls);
+    }    
+    else 
+    {
+      entity = new ResponseEntity<String[]>(HttpStatus.UNAUTHORIZED);
+    }
+    return entity;
+  }
 
 	private String[] getViewerAccessionNumbers(OrderDetails order) {
 		String[] accessionNumbers;

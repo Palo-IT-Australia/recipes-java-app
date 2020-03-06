@@ -106,7 +106,7 @@ public class InteleViewerUtil {
     return sb.toString();
   }
   
-  private static final String IVEV_IMAGE_URL_FMT = "https://pacs.i-med.com.au/enhancedviewer/viewer/%s/%s?sessionId=%s";
+  private static final String IVEV_IMAGE_URL_FMT = "https://pacs.i-med.com.au/enhancedviewer/viewer/%s/%s?sessionId=%s&toolmode=superstacking";
   private static final String IVEV_MOBILE_IMAGE_URL_FMT = "https://pacs.i-med.com.au/m.enhancedviewer/viewer/%s/%s?sessionId=%s";
   private static final String IVEV_REST_IMAGE_URL_FMT = "https://pacs.i-med.com.au/Portal/view/orders/%s?sessionId=%s";
   //private static final String IVEV_REST_IMAGE_URL_FMT = "https://pacs.i-med.com.au/Portal/view/orders/%s?SID=%s&signature=%s";
