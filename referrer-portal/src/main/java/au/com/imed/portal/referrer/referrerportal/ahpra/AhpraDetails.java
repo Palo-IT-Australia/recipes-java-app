@@ -2,13 +2,16 @@ package au.com.imed.portal.referrer.referrerportal.ahpra;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
+@JsonIgnoreProperties(ignoreUnknown=true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
 	"Profession",
@@ -16,9 +19,11 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 	"Personal Details",
 	"Principal Place of Practice",
 	"Registration Details",
-	"Registration Type - General"
+	"Registration Type - General",
+	"Registration Type - Specialist"
 })
 public class AhpraDetails {
+
 	@JsonProperty("Profession")
 	private String profession;
 	@JsonProperty("Name")
@@ -31,6 +36,8 @@ public class AhpraDetails {
 	private RegistrationDetails registrationDetails;
 	@JsonProperty("Registration Type - General")
 	private RegistrationTypeGeneral registrationTypeGeneral;
+	@JsonProperty("Registration Type - Specialist")
+	private RegistrationTypeSpecialist registrationTypeSpecialist;
 	@JsonIgnore
 	private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
@@ -92,6 +99,16 @@ public class AhpraDetails {
 	@JsonProperty("Registration Type - General")
 	public void setRegistrationTypeGeneral(RegistrationTypeGeneral registrationTypeGeneral) {
 		this.registrationTypeGeneral = registrationTypeGeneral;
+	}
+
+	@JsonProperty("Registration Type - Specialist")
+	public RegistrationTypeSpecialist getRegistrationTypeSpecialist() {
+		return registrationTypeSpecialist;
+	}
+
+	@JsonProperty("Registration Type - Specialist")
+	public void setRegistrationTypeSpecialist(RegistrationTypeSpecialist registrationTypeSpecialist) {
+		this.registrationTypeSpecialist = registrationTypeSpecialist;
 	}
 
 	@JsonAnyGetter
@@ -161,13 +178,8 @@ public class AhpraDetails {
 			this.additionalProperties.put(name, value);
 		}
 
-		@Override
-		public String toString() {
-			return "PersonalDetails [sex=" + sex + ", languagesInAdditionToEnglish=" + languagesInAdditionToEnglish
-					+ ", qualifications=" + qualifications + ", additionalProperties=" + additionalProperties + "]";
-		}
-		
 	}
+
 
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	@JsonPropertyOrder({
@@ -239,12 +251,8 @@ public class AhpraDetails {
 			this.additionalProperties.put(name, value);
 		}
 
-		@Override
-		public String toString() {
-			return "PrincipalPlaceOfPractice [suburb=" + suburb + ", state=" + state + ", postcode=" + postcode + ", country="
-					+ country + ", additionalProperties=" + additionalProperties + "]";
-		}
 	}
+
 
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	@JsonPropertyOrder({
@@ -368,15 +376,6 @@ public class AhpraDetails {
 			this.additionalProperties.put(name, value);
 		}
 
-		@Override
-		public String toString() {
-			return "RegistrationDetails [profession=" + profession + ", registrationNumber=" + registrationNumber
-					+ ", dateOfFirstRegistrationInProfession=" + dateOfFirstRegistrationInProfession + ", registrationStatus="
-					+ registrationStatus + ", registrationExpiryDate=" + registrationExpiryDate + ", conditions=" + conditions
-					+ ", undertakings=" + undertakings + ", reprimands=" + reprimands + ", additionalProperties="
-					+ additionalProperties + "]";
-		}
-
 	}
 
 	@JsonInclude(JsonInclude.Include.NON_NULL)
@@ -449,20 +448,103 @@ public class AhpraDetails {
 			this.additionalProperties.put(name, value);
 		}
 
-		@Override
-		public String toString() {
-			return "RegistrationTypeGeneral [registrationExpiryDate=" + registrationExpiryDate + ", endorsements="
-					+ endorsements + ", notationsGeneral=" + notationsGeneral + ", registrationRequirements="
-					+ registrationRequirements + ", additionalProperties=" + additionalProperties + "]";
-		}
-		
 	}
 
-	@Override
-	public String toString() {
-		return "AhpraDetails [profession=" + profession + ", name=" + name + ", personalDetails=" + personalDetails
-				+ ", principalPlaceOfPractice=" + principalPlaceOfPractice + ", registrationDetails=" + registrationDetails
-				+ ", registrationTypeGeneral=" + registrationTypeGeneral + ", additionalProperties=" + additionalProperties
-				+ "]";
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	@JsonPropertyOrder({
+		"Specialty",
+		"Specialty Fields",
+		"Registration expiry date",
+		"Endorsements",
+		"Notations - General",
+		"Registration Requirements"
+	})
+	public class RegistrationTypeSpecialist {
+
+		@JsonProperty("Specialty")
+		private String specialty;
+		@JsonProperty("Specialty Fields")
+		private String specialtyFields;
+		@JsonProperty("Registration expiry date")
+		private String registrationExpiryDate;
+		@JsonProperty("Endorsements")
+		private String endorsements;
+		@JsonProperty("Notations - General")
+		private String notationsGeneral;
+		@JsonProperty("Registration Requirements")
+		private String registrationRequirements;
+		@JsonIgnore
+		private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+
+		@JsonProperty("Specialty")
+		public String getSpecialty() {
+			return specialty;
+		}
+
+		@JsonProperty("Specialty")
+		public void setSpecialty(String specialty) {
+			this.specialty = specialty;
+		}
+
+		@JsonProperty("Specialty Fields")
+		public String getSpecialtyFields() {
+			return specialtyFields;
+		}
+
+		@JsonProperty("Specialty Fields")
+		public void setSpecialtyFields(String specialtyFields) {
+			this.specialtyFields = specialtyFields;
+		}
+
+		@JsonProperty("Registration expiry date")
+		public String getRegistrationExpiryDate() {
+			return registrationExpiryDate;
+		}
+
+		@JsonProperty("Registration expiry date")
+		public void setRegistrationExpiryDate(String registrationExpiryDate) {
+			this.registrationExpiryDate = registrationExpiryDate;
+		}
+
+		@JsonProperty("Endorsements")
+		public String getEndorsements() {
+			return endorsements;
+		}
+
+		@JsonProperty("Endorsements")
+		public void setEndorsements(String endorsements) {
+			this.endorsements = endorsements;
+		}
+
+		@JsonProperty("Notations - General")
+		public String getNotationsGeneral() {
+			return notationsGeneral;
+		}
+
+		@JsonProperty("Notations - General")
+		public void setNotationsGeneral(String notationsGeneral) {
+			this.notationsGeneral = notationsGeneral;
+		}
+
+		@JsonProperty("Registration Requirements")
+		public String getRegistrationRequirements() {
+			return registrationRequirements;
+		}
+
+		@JsonProperty("Registration Requirements")
+		public void setRegistrationRequirements(String registrationRequirements) {
+			this.registrationRequirements = registrationRequirements;
+		}
+
+		@JsonAnyGetter
+		public Map<String, Object> getAdditionalProperties() {
+			return this.additionalProperties;
+		}
+
+		@JsonAnySetter
+		public void setAdditionalProperty(String name, Object value) {
+			this.additionalProperties.put(name, value);
+		}
+
 	}
 }
