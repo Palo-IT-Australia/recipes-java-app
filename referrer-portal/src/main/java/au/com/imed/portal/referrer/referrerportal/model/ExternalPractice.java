@@ -15,6 +15,8 @@ public class ExternalPractice implements Serializable {
   private String practiceSuburb;
   private String practiceState;
   private String practicePostcode;
+  
+  private String practiceType;
 
   public String getProviderNumber() {
       return providerNumber;
@@ -88,12 +90,20 @@ public class ExternalPractice implements Serializable {
     this.practicePostcode = practicePostcode;
   }
 
+	public String getPracticeType() {
+		return practiceType;
+	}
+
+	public void setPracticeType(String practiceType) {
+		this.practiceType = practiceType;
+	}
+
 	@Override
 	public String toString() {
 		return "ExternalPractice [providerNumber=" + providerNumber + ", practiceName=" + practiceName + ", practicePhone="
 				+ practicePhone + ", practiceFax=" + practiceFax + ", practiceAddress=" + practiceAddress + ", practiceStreet="
 				+ practiceStreet + ", practiceSuburb=" + practiceSuburb + ", practiceState=" + practiceState
-				+ ", practicePostcode=" + practicePostcode + "]";
+				+ ", practicePostcode=" + practicePostcode + ", practiceType=" + practiceType + "]";
 	}
   
 }

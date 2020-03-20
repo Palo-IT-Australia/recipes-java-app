@@ -46,6 +46,9 @@ public class ReferrerProviderEntity {
   @Column(name = "practice_postcode")
   private String practicePostcode;
   
+  @Column(name = "practice_type")
+  private String practiceType;
+  
   public int getId() {
     return id;
   }
@@ -113,11 +116,20 @@ public class ReferrerProviderEntity {
     this.practicePostcode = practicePostcode;
   }
   
+	public String getPracticeType() {
+		return practiceType;
+	}
+	public void setPracticeType(String practiceType) {
+		this.practiceType = practiceType;
+	}
+	
 	@Override
 	public String toString() {
 		return "ReferrerProviderEntity [id=" + id + ", username=" + username + ", providerNumber=" + providerNumber
 				+ ", practiceName=" + practiceName + ", practicePhone=" + practicePhone + ", practiceFax=" + practiceFax
 				+ ", practiceAddress=" + practiceAddress + ", practiceStreet=" + practiceStreet + ", practiceSuburb="
-				+ practiceSuburb + ", practiceState=" + practiceState + ", practicePostcode=" + practicePostcode + "]";
+				+ practiceSuburb + ", practiceState=" + practiceState + ", practicePostcode=" + practicePostcode
+				+ ", practiceType=" + practiceType + "]";
 	}
+
 }

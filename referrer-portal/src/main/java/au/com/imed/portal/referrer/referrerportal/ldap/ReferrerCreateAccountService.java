@@ -246,6 +246,7 @@ public class ReferrerCreateAccountService extends ReferrerAccountService {
       practice.setPracticeSuburb(imedExternalPractice.getPracticeSuburb());
       practice.setPracticeState(imedExternalPractice.getPracticeState());
       practice.setPracticePostcode(imedExternalPractice.getPracticePostcode());
+      practice.setPracticeType(imedExternalPractice.getPracticeType());
       
       referrerProviderJpaRepository.save(practice);
   }
@@ -591,8 +592,8 @@ public class ReferrerCreateAccountService extends ReferrerAccountService {
       		nonQuote(entity.getContactAdvanced()), nonQuote(entity.getFilmless()) ));
       List<ReferrerProviderEntity> provs = referrerProviderJpaRepository.findByUsername(entity.getUid());
       for(ReferrerProviderEntity provider : provs) {
-      	providerWriter.println(String.format("\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"", 
-      		provider.getUsername(), nonQuote(provider.getProviderNumber()), nonQuote(provider.getPracticeName()), nonQuote(provider.getPracticePhone()), nonQuote(provider.getPracticeFax()),
+      	providerWriter.println(String.format("\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"", 
+      		provider.getUsername(), nonQuote(provider.getProviderNumber()), nonQuote(provider.getPracticeName()), provider.getPracticeType(), nonQuote(provider.getPracticePhone()), nonQuote(provider.getPracticeFax()),
       		nonQuote(provider.getPracticeStreet()), nonQuote(provider.getPracticeSuburb()),nonQuote(provider.getPracticeState()), nonQuote(provider.getPracticePostcode()) ));
       }
     }
@@ -719,6 +720,7 @@ public class ReferrerCreateAccountService extends ReferrerAccountService {
 			pra.setPracticeStreet(ent.getPracticeStreet());
 			pra.setPracticeSuburb(ent.getPracticeSuburb());
 			pra.setProviderNumber(ent.getProviderNumber());
+			pra.setPracticeType(ent.getPracticeType());
 			praclist.add(pra);
 		}
 		imedExternalUser.setPractices(praclist);

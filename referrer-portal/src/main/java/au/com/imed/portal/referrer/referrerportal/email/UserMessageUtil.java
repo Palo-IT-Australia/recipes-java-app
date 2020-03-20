@@ -1,5 +1,7 @@
 package au.com.imed.portal.referrer.referrerportal.email;
 
+import au.com.imed.portal.referrer.referrerportal.ahpra.AhpraDetails;
+import au.com.imed.portal.referrer.referrerportal.ahpra.AhpraDetails.RegistrationTypeSpecialist;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.entity.CrmProfileEntity;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.entity.ReferrerActivationEntity;
 import au.com.imed.portal.referrer.referrerportal.model.ExternalPractice;
@@ -79,6 +81,7 @@ public class UserMessageUtil {
     for (ExternalPractice practice : imedExternalUser.getPractices()) {
     	sb.append("Provider Number: " + practice.getProviderNumber() + "\n\n");
     	sb.append("Practice Name: " + practice.getPracticeName() + "\n\n");
+    	sb.append("Practice Type: " + practice.getPracticeType() + "\n\n");
     	sb.append("Practice Address: " + practice.getPracticeAddress() + "\n\n");
     	sb.append("Practice State: " + practice.getPracticeState() + "\n\n");
     	sb.append("Practice Postcode: " + practice.getPracticePostcode() + "\n\n");
@@ -90,6 +93,35 @@ public class UserMessageUtil {
     sb.append("Opt to go filmless: " + imedExternalUser.getFilmless() + "\n");
     sb.append("\n");
   	return sb.toString();
+  }
+  
+  public static String buildAhpraSpecialtyContent(final AhpraDetails ahpra) {
+  	StringBuffer sb = new StringBuffer();
+  	if(ahpra != null) {
+  		RegistrationTypeSpecialist specialist = ahpra.getRegistrationTypeSpecialist();
+  		if(specialist != null) {
+  			sb.append("Specialty: ");
+  			sb.append(specialist.getSpecialty());
+  			sb.append("\n");
+  			sb.append("Specialty Fields: ");
+  			sb.append(specialist.getSpecialtyFields());
+  			sb.append("\n");
+  			sb.append("Specialty Endorsements: ");
+  			sb.append(specialist.getEndorsements());
+  			sb.append("\n");
+  			sb.append("Specialty Notations: ");
+  			sb.append(specialist.getNotationsGeneral());
+  			sb.append("\n");
+  			sb.append("Specialty Registratio Requirements: ");
+  			sb.append(specialist.getRegistrationRequirements());
+  			sb.append("\n\n");
+  			sb.append("Specialty Registration Expiry Date: ");
+  			sb.append(specialist.getRegistrationExpiryDate());
+  			sb.append("\n");
+  			sb.append("\n");
+  		}
+  	}
+    return sb.toString();
   }
   
   public static final String getLoginPromptCrmSubject(final ReferrerActivationEntity acnt) {
