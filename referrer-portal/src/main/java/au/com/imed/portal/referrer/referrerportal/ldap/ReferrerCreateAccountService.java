@@ -584,7 +584,7 @@ public class ReferrerCreateAccountService extends ReferrerAccountService {
     PrintWriter referrerWriter = new PrintWriter(referrerFile);
     PrintWriter providerWriter = new PrintWriter(providerFile);
     referrerWriter.println("uid,firstname,lastname,email,AHPRA#,BusinessUnit,phone,mobile,Contact,Filmless");
-    providerWriter.println("uid,provider#,practiceName,phone,fax,street,suburb,state,postcode");
+    providerWriter.println("uid,provider#,practiceName,practiceType,phone,fax,street,suburb,state,postcode");
     for(ReferrerAutoValidationEntity entity : created) {
       referrerWriter.println(String.format("\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"",
       		entity.getUid(), nonQuote(entity.getFirstName()), nonQuote(entity.getLastName()), nonQuote(entity.getEmail()),
