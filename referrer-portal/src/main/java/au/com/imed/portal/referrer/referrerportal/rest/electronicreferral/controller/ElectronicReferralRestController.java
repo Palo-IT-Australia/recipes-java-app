@@ -17,6 +17,7 @@ public class ElectronicReferralRestController {
 	@PostMapping("/referral")
 	public ResponseEntity<JSONObject> postEreferral(@RequestBody() ElectronicReferralForm referral, Authentication authentication) {
 		JSONObject reps = new JSONObject();
-		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(reps);
+		reps.put("msg", "success");
+		return ResponseEntity.status(HttpStatus.OK).body(reps);
 	}
 }
