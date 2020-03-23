@@ -4,12 +4,14 @@ public class ElectronicReferralForm {
 
 	/**
 	 
-String parseJS eval
 {
 "patientName":"",
 "patientDob":"",
 "patientPhone":"",
-"patientAddress":"",
+"patientStreet":"",
+"patientSuburb":"",
+"patientPostcode":"",
+"patientState":"",
 "patientEmail":"",
 "exams":[
 "",
@@ -18,7 +20,10 @@ String parseJS eval
 "description":"",
 "doctorName":"",
 "doctorProviderNumber":"",
-"doctorAddress":"",
+"doctorStreet":"",
+"doctorSuburb":"",
+"doctorState":"",
+"doctorPostcode":"",
 "doctorEmail":"",
 "signatureName":"",
 "signatureDate":"",
