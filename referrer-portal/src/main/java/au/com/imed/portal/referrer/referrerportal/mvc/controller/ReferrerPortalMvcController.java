@@ -126,7 +126,11 @@ public class ReferrerPortalMvcController {
 
 	@GetMapping("/results")
 	public String getResults() {
-		return "results";
+		if("test".equals(ACTIVE_PROFILE)) {
+			return "evaluation";
+		} else {
+			return "results";
+		}
 	}
 	
 	@GetMapping("/evaluation")
