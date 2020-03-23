@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import au.com.imed.portal.referrer.referrerportal.rest.electronicreferral.model.ElectronicReferralForm;
 
 @RestController
-@RequestMapping("/electronicreferral")
+@RequestMapping("/electronicreferralrest")
 public class ElectronicReferralRestController {
 	@PostMapping("/referral")
 	public ResponseEntity<JSONObject> postEreferral(@RequestBody() ElectronicReferralForm referral, Authentication authentication) {
