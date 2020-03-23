@@ -1,0 +1,23 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragments/layout/head :: head">
+    <title id="pageTitle">E-Referral</title>
+</head>
+<body>
+	<div th:replace="fragments/layout/header :: header"></div>
+	
+	<div class="section">
+		<div class="wrapper">
+			<link rel="stylesheet" th:href="@{/js/auth/electronicreferral/dist/styles.css}">
+			<div th:url="@{/}" id="electronicreferralapiroot"></div>
+			<elecrefal-root></elecrefal-root>
+			<script type="text/javascript" th:src="@{/js/auth/electronicreferral/dist/runtime.js}"></script>
+			<script type="text/javascript" th:src="@{/js/auth/electronicreferral/dist/es2015-polyfills.js}" nomodule></script>
+			<script type="text/javascript" th:src="@{/js/auth/electronicreferral/dist/polyfills.js}"></script>
+			<script type="text/javascript" th:src="@{/js/auth/electronicreferral/dist/main.js}"></script>
+		</div>
+	</div>
+	 
+	<div th:replace="fragments/layout/footer :: footer"></div>
+</body>
+</html>

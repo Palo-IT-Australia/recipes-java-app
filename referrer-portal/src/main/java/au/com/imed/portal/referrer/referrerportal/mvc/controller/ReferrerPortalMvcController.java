@@ -143,6 +143,11 @@ public class ReferrerPortalMvcController {
 		return "ereferral";
 	}
 
+	@GetMapping("/electronicreferral")
+	public String getElectronicreferral() {
+		return "electronicreferral";
+	}
+	
 	@GetMapping("/hospital")
 	public String getHospital() {
 		return "hospital";
