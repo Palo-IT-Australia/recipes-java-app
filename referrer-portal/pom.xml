@@ -269,7 +269,7 @@
 					<update>true</update>
 					
 					<!-- TEST -->
-					<url>http://imedtstom08.imed:8080/manager/text</url>
+					<url>http://imedtstom05.imed:8080/manager/text</url>
 					<username>huehara</username>
 					<password>D3pl0ym3nt%</password>   
 
