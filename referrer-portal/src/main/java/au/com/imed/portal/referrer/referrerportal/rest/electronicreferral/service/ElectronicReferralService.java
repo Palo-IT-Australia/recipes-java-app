@@ -62,36 +62,36 @@ public class ElectronicReferralService {
 			FileNotFoundException, IOException, IllegalArgumentException, IllegalAccessException {
 		String subject = "I-MED Electronic referral submitted";
 		
-		String emailBody = "A new E-referral has been received for:" + "<br><br>" + "Patient name:"
+		String emailBody = "A new E-referral has been received for:" + "<br><br>" + "<b>Patient name:</b>"
 				+ (electronicReferralForm.getPatientName() != null ? electronicReferralForm.getPatientName() : "")
-				+ "<br>" + "DOB:"
+				+ "<br><br>" + "<b>DOB:</b>"
 				+ (electronicReferralForm.getPatientDob() != null ? electronicReferralForm.getPatientDob() : "")
-				+ "<br>" + "Address:" + electronicReferralForm.getPatientStreet() + ", "
+				+ "<br><br>" + "<b>Address:</b>" + electronicReferralForm.getPatientStreet() + ", "
 				+ electronicReferralForm.getPatientSuburb() + ", " + electronicReferralForm.getPatientState()
-				+ electronicReferralForm.getPatientPostcode() + "<br>" + "Patient Email:"
+				+ electronicReferralForm.getPatientPostcode() + "<br>" + "<b>Patient Email:</b>"
 				+ (electronicReferralForm.getPatientEmail() != null ? electronicReferralForm.getPatientEmail() : "")
-				+ "<br>" + "Telephone:"
+				+ "<br><br>" + "<b>Telephone:</b>"
 				+ (electronicReferralForm.getPatientPhone() != null ? electronicReferralForm.getPatientPhone() : "")
-				+ "<br>" + "Exam Details:"
+				+ "<br><br>" + "<b>Exam Details:</b>"
 				+ (electronicReferralForm.getExamDetails() != null ? electronicReferralForm.getExamDetails() : "")
-				+ "<br>" + "Clinical Details:"
+				+ "<br><br>" + "<b>Clinical Details:</b>"
 				+ (electronicReferralForm.getClinicalDetails() != null ? electronicReferralForm.getClinicalDetails()
 						: "")
-				+ "<br>" + "Referring Dr:"
+				+ "<br><br>" + "<b>Referring Dr:<b>"
 				+ (electronicReferralForm.getDoctorName() != null ? electronicReferralForm.getDoctorName() : "")
-				+ "<br>" + "Provider No:"
+				+ "<br><br>" + "<b>Provider No:</b>"
 				+ (electronicReferralForm.getDoctorProviderNumber() != null
 						? electronicReferralForm.getDoctorProviderNumber()
 						: "")
-				+ "<br>" + "CC Dr:"
+				+ "<br><br>" + "<b>CC Dr:</b>"
 				+ (electronicReferralForm.getCcDoctorName() != null ? electronicReferralForm.getCcDoctorName() : "")
-				+ "<br>" + "CC Dr Provider No:"
+				+ "<br><br>" + "<b>CC Dr Provider No:</b>"
 				+ (electronicReferralForm.getCcDoctorProviderNumber() != null
 						? electronicReferralForm.getCcDoctorProviderNumber()
 						: "")
-				+ "<br>" +
+				+ "<br><br><br>" +
 
-				"Please refer the attached for more detail." + "<br><br>" +
+				"Please refer the attached for more detail." + "<br><br><br><br>" +
 
 				"This is an automatically generated email, please do not reply to this email";
 
