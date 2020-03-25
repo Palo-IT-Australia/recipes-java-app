@@ -53,7 +53,7 @@ public class ElectronicReferralForm {
 	String clinicalDetails;
 	@Column(name = "patient_pregnant")
 	String patientPregnant;
-	@Column(name = "iv_contrast_allegy")
+	@Column(name = "iv_contrast_allergy")
 	String ivContrastAllergy;
 	@Column(name = "iv_renal")
 	String ivRenal;
