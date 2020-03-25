@@ -108,7 +108,7 @@ public class ElectronicReferralForm {
 	@Column(name = "cc_doctor_state")
 	String ccDoctorState;
 	@Column(name = "cc_doctor_postcode")
-	String ccDoctorPostCode;
+	String ccDoctorPostcode;
 	@Column(name = "signature_name")
 	String signatureName;
 	@Column(name = "signature_date")
@@ -437,12 +437,12 @@ public class ElectronicReferralForm {
 		this.ccDoctorState = ccDoctorState;
 	}
 
-	public String getCcDoctorPostCode() {
-		return ccDoctorPostCode;
+	public String getCcDoctorPostcode() {
+		return ccDoctorPostcode;
 	}
 
-	public void setCcDoctorPostCode(String ccDoctorPostCode) {
-		this.ccDoctorPostCode = ccDoctorPostCode;
+	public void setCcDoctorPostcode(String ccDoctorPostCode) {
+		this.ccDoctorPostcode = ccDoctorPostCode;
 	}
 
 	public String getSignatureName() {
@@ -526,7 +526,7 @@ public class ElectronicReferralForm {
 				+ doctorState + ", doctorPostcode=" + doctorPostcode + ", ccDoctorName=" + ccDoctorName
 				+ ", ccDoctorProviderNumber=" + ccDoctorProviderNumber + ", ccDoctorEmail=" + ccDoctorEmail
 				+ ", ccDoctorStreet=" + ccDoctorStreet + ", ccDoctorSuburb=" + ccDoctorSuburb + ", ccDoctorState="
-				+ ccDoctorState + ", ccDoctorPostCode=" + ccDoctorPostCode + ", signatureName=" + signatureName
+				+ ccDoctorState + ", ccDoctorPostCode=" + ccDoctorPostcode + ", signatureName=" + signatureName
 				+ ", signatureDate=" + signatureDate + ", signatureEntitled=" + signatureEntitled + ", filmReport="
 				+ filmReport + ", pad=" + pad + ", submittedTime=" + submittedTime + "]";
 	}

@@ -2,16 +2,13 @@ package au.com.imed.portal.referrer.referrerportal.common.util;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 
 import org.springframework.stereotype.Component;
 
 import com.itextpdf.html2pdf.HtmlConverter;
-import com.itextpdf.kernel.pdf.PdfWriter;
 
 import au.com.imed.portal.referrer.referrerportal.rest.electronicreferral.model.ElectronicReferralForm;
 
@@ -26,7 +23,7 @@ public class PdfGenerator {
 
 		StringBuffer sb = new StringBuffer();
 		sb.append("<body style=\"font-size:10px;\">");
-		sb.append(IMED_LOGO_TAG);		
+		sb.append(IMED_LOGO_TAG);
 
 		sb.append("<hr>");
 
@@ -107,7 +104,7 @@ public class PdfGenerator {
 		sb.append("<br>");
 		sb.append(electronicReferralForm.getCcDoctorState());
 		sb.append("<br>");
-		sb.append(electronicReferralForm.getCcDoctorPostCode());
+		sb.append(electronicReferralForm.getCcDoctorPostcode());
 		sb.append("<br>");
 		sb.append("</td></tr>");
 		sb.append("</tbody></table>");
