@@ -77,7 +77,7 @@ public class ElectronicReferralService {
 				+ "<br><br>" + "<b>Clinical Details:</b>"
 				+ (electronicReferralForm.getClinicalDetails() != null ? electronicReferralForm.getClinicalDetails()
 						: "")
-				+ "<br><br>" + "<b>Referring Dr:<b>"
+				+ "<br><br>" + "<b>Referring Dr:</b>"
 				+ (electronicReferralForm.getDoctorName() != null ? electronicReferralForm.getDoctorName() : "")
 				+ "<br><br>" + "<b>Provider No:</b>"
 				+ (electronicReferralForm.getDoctorProviderNumber() != null
