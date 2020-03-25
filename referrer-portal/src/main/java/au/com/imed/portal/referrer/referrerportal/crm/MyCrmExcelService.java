@@ -51,6 +51,7 @@ public class MyCrmExcelService {
 					entity = list.size() > 0 ? list.get(0) : new CrmPostcodeEntity(); 
 					entity.setName(r.getCell(6).getStringCellValue());	
 					entity.setSuburb(r.getCell(2).getStringCellValue());
+					entity.setBu(r.getCell(8).getStringCellValue());
 					entity.setPostcode(postcode);
 					//logger.info("Saving postcode " + postcode);
 					postcodeRepository.saveAndFlush(entity);
