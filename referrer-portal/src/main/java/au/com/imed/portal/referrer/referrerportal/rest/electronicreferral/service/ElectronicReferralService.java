@@ -68,7 +68,7 @@ public class ElectronicReferralService {
 				+ (electronicReferralForm.getPatientDob() != null ? electronicReferralForm.getPatientDob() : "")
 				+ "<br><br>" + "<b>Address:</b>" + electronicReferralForm.getPatientStreet() + ", "
 				+ electronicReferralForm.getPatientSuburb() + ", " + electronicReferralForm.getPatientState()
-				+ electronicReferralForm.getPatientPostcode() + "<br>" + "<b>Patient Email:</b>"
+				+ electronicReferralForm.getPatientPostcode() + "<br><br>" + "<b>Patient Email:</b>"
 				+ (electronicReferralForm.getPatientEmail() != null ? electronicReferralForm.getPatientEmail() : "")
 				+ "<br><br>" + "<b>Telephone:</b>"
 				+ (electronicReferralForm.getPatientPhone() != null ? electronicReferralForm.getPatientPhone() : "")
