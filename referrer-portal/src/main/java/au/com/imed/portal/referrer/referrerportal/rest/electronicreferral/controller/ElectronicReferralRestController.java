@@ -57,7 +57,7 @@ public class ElectronicReferralRestController {
 			params.put("id", "" + referral.getId());
 			params.put("patientName", referral.getPatientName());
 			params.put("patientDob", referral.getPatientDob());
-			auditService.doAudit("ElectronicEeferral", username, params);
+			auditService.doAudit("ElectronicReferral", username, params);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
