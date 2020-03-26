@@ -296,7 +296,7 @@ public class ReferrerMailService {
 			
 			emailMsgHelper.setFrom("do_not_reply@i-med.com.au");
 			emailMsgHelper.setSubject(subject);
-			emailMsgHelper.setText(INLINE_REQUEST_FOR_IMAGE_BANNER + "<div style='font-family: Arial;'>" + content + "</div>" + INLINE_LOGO, true);
+			emailMsgHelper.setText("<table width=\"600\"><tr><td>" + INLINE_REQUEST_FOR_IMAGE_BANNER + "</td></tr><tr><td><div style='font-family: Arial;'>" + content + "</div></td></tr><tr><td>" + INLINE_LOGO + "</td></tr></table>", true);
 			emailMsgHelper.setSentDate(new Date());
 			
 			// Attach given streams with given file name
