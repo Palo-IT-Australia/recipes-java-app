@@ -1,11 +1,10 @@
 package au.com.imed.portal.referrer.referrerportal.scheduler;
 
+import static au.com.imed.portal.referrer.referrerportal.common.PortalConstant.VALIDATION_MSG_ACCOUNT_CREATED;
 import static au.com.imed.portal.referrer.referrerportal.common.PortalConstant.VALIDATION_STATUS_PASSED;
 import static au.com.imed.portal.referrer.referrerportal.common.PortalConstant.VALIDATION_STATUS_VALID;
 
 import java.net.InetAddress;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -117,61 +116,83 @@ public class AutoAccountValidationScheduler {
 
 			logger.info("Getting entries from Db from {} to {}", from, now);
 			List<ReferrerAutoValidationEntity> list = referrerAutoValidationRepository.findByValidationStatusAndApplyAtBetween(VALIDATION_STATUS_PASSED, from, now);
-			createAccountService.validateOnDb(filterByServerNumber(list));
+			List<ReferrerAutoValidationEntity> createdList = createAccountService.validateOnDb(filterByServerNumber(list));
+			logger.info("Created account list size = " + createdList.size());
+			createAccountService.makeAndSendCsvEmails(createdList);
 			logger.info("Finished short period validation scheduler task...");
-		}catch(Exception ex) {
-			ex.printStackTrace();
-		}
-	}
-
-	/**
-	 * 2) csv
-	 */
-	@Scheduled(cron="1 0 0 * * *") // 0 AM 1 second
-	public void scheduleDailyCsvEmailTask() {
-		try
-		{
-			if(SCHEDULER_SERVER_NAME.equals(InetAddress.getLocalHost().getHostName())) { 
-				logger.info("Starting csv email scheduler task...");
-				LocalDate now = LocalDate.now();
-				logger.info("now is " + now);
-				SimpleDateFormat formatter =new SimpleDateFormat("dd/MMM/yyyy"); 
-				Date to = formatter.parse(String.format("%02d/%s/%04d", now.getDayOfMonth(), now.getMonth().toString(), now.getYear()));
-				LocalDate past = now.minusDays(1L);
-				Date from = formatter.parse(String.format("%02d/%s/%04d", past.getDayOfMonth(), past.getMonth().toString(), past.getYear()));
-				logger.info("Getting entries from Db from {} to {}", from, to);
-				// valid means created
-				List<ReferrerAutoValidationEntity> list = referrerAutoValidationRepository.findByValidationStatusAndApplyAtBetween(VALIDATION_STATUS_VALID, from, to);
-				createAccountService.makeAndSendCsvEmails(list);
-				logger.info("Finished csv email scheduler task...");
-			}
 		}catch(Exception ex) {
 			ex.printStackTrace();
 		}
 	}
 	
 	/**
-	 * Notify to crm and referrers supposing visage intelerad accounts created in last day
+	 * Notify by welcome and CRM email
 	 */
-	@Scheduled(cron="0 0 6 * * *")  // 6 AM
-	public void scheduleDailyNotifyTask() {
+	@Scheduled(cron="0 10/15 * ? * *")  // every 15 mins starting 10 mins past hours
+	public void schedulePeriodicNotifyTask() {
 		try {
 			if(SCHEDULER_SERVER_NAME.equals(InetAddress.getLocalHost().getHostName())) {
-				logger.info("Starting notification task...");
-				// one day delay notification
-				LocalDate now = LocalDate.now().minusDays(1L);
-				SimpleDateFormat formatter =new SimpleDateFormat("dd/MMM/yyyy"); 
-				Date to = formatter.parse(String.format("%02d/%s/%04d", now.getDayOfMonth(), now.getMonth().toString(), now.getYear()));
-				LocalDate past = now.minusDays(1L);
-				Date from = formatter.parse(String.format("%02d/%s/%04d", past.getDayOfMonth(), past.getMonth().toString(), past.getYear()));
-				logger.info("Getting entries from Db from {} to {}", from, to);
-				List<ReferrerAutoValidationEntity> list = referrerAutoValidationRepository.findByValidationStatusAndAccountAtBetween(VALIDATION_STATUS_VALID, from, to);
-				createAccountService.notifyNewAccounts(list);
-				logger.info("Finishing notification task...");
+				logger.info("Starting periodic notification task...");
+				// Obtain all waiting notification valid entries
+				List<ReferrerAutoValidationEntity> list = referrerAutoValidationRepository.findByValidationStatusAndValidationMsg(VALIDATION_STATUS_VALID, VALIDATION_MSG_ACCOUNT_CREATED);
+				// Check if visage accounts created
+				List<ReferrerAutoValidationEntity> createdList = createAccountService.filterToVisageAccoutCreated(list);
+				createAccountService.notifyNewAccounts(createdList);
+				logger.info("Finishing periodic notification task...");
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
+
+	/**
+	 * 2) csv
+	 */
+//	@Scheduled(cron="1 0 0 * * *") // 0 AM 1 second
+//	public void scheduleDailyCsvEmailTask() {
+//		try
+//		{
+//			if(SCHEDULER_SERVER_NAME.equals(InetAddress.getLocalHost().getHostName())) { 
+//				logger.info("Starting csv email scheduler task...");
+//				LocalDate now = LocalDate.now();
+//				logger.info("now is " + now);
+//				SimpleDateFormat formatter =new SimpleDateFormat("dd/MMM/yyyy"); 
+//				Date to = formatter.parse(String.format("%02d/%s/%04d", now.getDayOfMonth(), now.getMonth().toString(), now.getYear()));
+//				LocalDate past = now.minusDays(1L);
+//				Date from = formatter.parse(String.format("%02d/%s/%04d", past.getDayOfMonth(), past.getMonth().toString(), past.getYear()));
+//				logger.info("Getting entries from Db from {} to {}", from, to);
+//				// valid means created
+//				List<ReferrerAutoValidationEntity> list = referrerAutoValidationRepository.findByValidationStatusAndApplyAtBetween(VALIDATION_STATUS_VALID, from, to);
+//				createAccountService.makeAndSendCsvEmails(list);
+//				logger.info("Finished csv email scheduler task...");
+//			}
+//		}catch(Exception ex) {
+//			ex.printStackTrace();
+//		}
+//	}
+	
+	/**
+	 * Notify to crm and referrers supposing visage intelerad accounts created in last day
+	 */
+//	@Scheduled(cron="0 0 6 * * *")  // 6 AM
+//	public void scheduleDailyNotifyTask() {
+//		try {
+//			if(SCHEDULER_SERVER_NAME.equals(InetAddress.getLocalHost().getHostName())) {
+//				logger.info("Starting notification task...");
+//				// one day delay notification
+//				LocalDate now = LocalDate.now().minusDays(1L);
+//				SimpleDateFormat formatter =new SimpleDateFormat("dd/MMM/yyyy"); 
+//				Date to = formatter.parse(String.format("%02d/%s/%04d", now.getDayOfMonth(), now.getMonth().toString(), now.getYear()));
+//				LocalDate past = now.minusDays(1L);
+//				Date from = formatter.parse(String.format("%02d/%s/%04d", past.getDayOfMonth(), past.getMonth().toString(), past.getYear()));
+//				logger.info("Getting entries from Db from {} to {}", from, to);
+//				List<ReferrerAutoValidationEntity> list = referrerAutoValidationRepository.findByValidationStatusAndAccountAtBetween(VALIDATION_STATUS_VALID, from, to);
+//				createAccountService.notifyNewAccounts(list);
+//				logger.info("Finishing notification task...");
+//			}
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//	}
 	
 }

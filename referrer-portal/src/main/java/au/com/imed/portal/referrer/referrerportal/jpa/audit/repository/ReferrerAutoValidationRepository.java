@@ -22,4 +22,5 @@ public interface ReferrerAutoValidationRepository extends JpaRepository<Referrer
 	public List<ReferrerAutoValidationEntity> findByValidationStatusAndAccountAtBetween(String status, Date from, Date to);
 	public List<ReferrerAutoValidationEntity> findByValidationStatusAndAccountAtBetweenAndNotifyAtIsNull(String status, Date from, Date to);
 	public List<ReferrerAutoValidationEntity> findByValidationStatusAndNotifyAtBetween(String status, Date from, Date to);
+	public List<ReferrerAutoValidationEntity> findByValidationStatusAndValidationMsg(String status, String msg);
 }

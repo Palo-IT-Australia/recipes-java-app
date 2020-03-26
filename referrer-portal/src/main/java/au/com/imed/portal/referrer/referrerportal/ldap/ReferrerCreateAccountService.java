@@ -7,6 +7,7 @@ import static au.com.imed.portal.referrer.referrerportal.common.PortalConstant.V
 import static au.com.imed.portal.referrer.referrerportal.common.PortalConstant.VALIDATION_STATUS_NOTIFIED;
 import static au.com.imed.portal.referrer.referrerportal.common.PortalConstant.VALIDATION_STATUS_PASSED;
 import static au.com.imed.portal.referrer.referrerportal.common.PortalConstant.VALIDATION_STATUS_VALID;
+import static au.com.imed.portal.referrer.referrerportal.common.PortalConstant.VALIDATION_MSG_ACCOUNT_CREATED;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -530,13 +531,14 @@ public class ReferrerCreateAccountService extends ReferrerAccountService {
 					createReferrerUser(getReferrerLdapTemplate(), imedExternalUser, entity.getUid(), "false", entity.getBusinessUnit());
 					saveActivationDb(imedExternalUser);
 					entity.setAccountAt(new Date());
-					updateValidationStatus(entity, VALIDATION_STATUS_VALID, "Account created, ready to notify");
+					updateValidationStatus(entity, VALIDATION_STATUS_VALID, VALIDATION_MSG_ACCOUNT_CREATED);
 					created.add(entity);
-					if("prod".equals(ACTIVE_PROFILE)) {
-						emailService.emailAutoValidatedReferrerAccount(ReferrerMailService.SUPPORT_ADDRESS, imedExternalUser, false, null);
-					} else {
-						emailService.emailAutoValidatedReferrerAccount("Hidehiro.Uehara@i-med.com.au", imedExternalUser, false, null);						
-					}
+					// Shift to csv file
+//					if("prod".equals(ACTIVE_PROFILE)) {
+//						emailService.emailAutoValidatedReferrerAccount(ReferrerMailService.SUPPORT_ADDRESS, imedExternalUser, false, null);
+//					} else {
+//						emailService.emailAutoValidatedReferrerAccount("Hidehiro.Uehara@i-med.com.au", imedExternalUser, false, null);						
+//					}
 
 				} catch(Exception ex) {
 					ex.printStackTrace();
@@ -758,6 +760,19 @@ public class ReferrerCreateAccountService extends ReferrerAccountService {
 		}
 		
 		return isValid;
+	}
+	
+	public List<ReferrerAutoValidationEntity> filterToVisageAccoutCreated(List<ReferrerAutoValidationEntity> list) {
+		logger.info("filterToVisageAccoutCreated() original valid list size " + list.size());
+		List<ReferrerAutoValidationEntity> visageList = new ArrayList<>();
+		for(ReferrerAutoValidationEntity entity : list) {
+			if(visageCheckerService.isUsernameTaken(entity.getUid())) {
+				logger.info("filterToVisageAccoutCreated() visage account has been create for " + entity.getUid());
+				visageList.add(entity);
+			}
+		}
+		logger.info("filterToVisageAccoutCreated() visageList size " + visageList.size());
+		return visageList;
 	}
 	
 	/**
