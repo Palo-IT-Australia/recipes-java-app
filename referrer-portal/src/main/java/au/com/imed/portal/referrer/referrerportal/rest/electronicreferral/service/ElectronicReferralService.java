@@ -7,6 +7,7 @@ import java.util.List;
 
 import javax.mail.MessagingException;
 
+import org.apache.commons.lang3.StringUtils;
 import org.dcm4che3.net.InputStreamDataWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,6 +36,9 @@ public class ElectronicReferralService {
 
 	@Autowired
 	PdfGenerator pdfReferralGenerator;
+	
+	@Value("${spring.profiles.active}")
+	private String ACTIVE_PROFILE;
 
 	@Value("#{'${imed.electronic.referral.nsw.email.id}'.split(',')}")
 	List<String> nswToEmailIds;
@@ -61,31 +65,31 @@ public class ElectronicReferralService {
 	private void sendEmailToCrm(ElectronicReferralForm electronicReferralForm) throws MessagingException,
 			FileNotFoundException, IOException, IllegalArgumentException, IllegalAccessException {
 		String subject = "I-MED Electronic referral submitted";
-		
-		String emailBody = "A new E-referral has been received for:" + "<br><br>" + "<b>Patient name:</b>"
+
+		String emailBody = "A new E-referral has been received for:" + "<br><br>" + "<b>Patient name:&nbsp;</b>"
 				+ (electronicReferralForm.getPatientName() != null ? electronicReferralForm.getPatientName() : "")
-				+ "<br><br>" + "<b>DOB:</b>"
+				+ "<br><br>" + "<b>DOB:&nbsp;</b>"
 				+ (electronicReferralForm.getPatientDob() != null ? electronicReferralForm.getPatientDob() : "")
-				+ "<br><br>" + "<b>Address:</b>" + electronicReferralForm.getPatientStreet() + ", "
-				+ electronicReferralForm.getPatientSuburb() + ", " + electronicReferralForm.getPatientState()
-				+ electronicReferralForm.getPatientPostcode() + "<br><br>" + "<b>Patient Email:</b>"
+				+ "<br><br>" + "<b>Address:&nbsp;</b>" + electronicReferralForm.getPatientStreet() + ", "
+				+ electronicReferralForm.getPatientSuburb() + ", " + electronicReferralForm.getPatientState()+ ", "
+				+ electronicReferralForm.getPatientPostcode() + "<br><br>" + "<b>Patient Email:&nbsp;</b>"
 				+ (electronicReferralForm.getPatientEmail() != null ? electronicReferralForm.getPatientEmail() : "")
-				+ "<br><br>" + "<b>Telephone:</b>"
+				+ "<br><br>" + "<b>Telephone:&nbsp;</b>"
 				+ (electronicReferralForm.getPatientPhone() != null ? electronicReferralForm.getPatientPhone() : "")
-				+ "<br><br>" + "<b>Exam Details:</b>"
+				+ "<br><br>" + "<b>Exam Details:&nbsp;</b>"
 				+ (electronicReferralForm.getExamDetails() != null ? electronicReferralForm.getExamDetails() : "")
-				+ "<br><br>" + "<b>Clinical Details:</b>"
+				+ "<br><br>" + "<b>Clinical Details:&nbsp;</b>"
 				+ (electronicReferralForm.getClinicalDetails() != null ? electronicReferralForm.getClinicalDetails()
 						: "")
-				+ "<br><br>" + "<b>Referring Dr:</b>"
+				+ "<br><br>" + "<b>Referring Dr:&nbsp;</b>"
 				+ (electronicReferralForm.getDoctorName() != null ? electronicReferralForm.getDoctorName() : "")
-				+ "<br><br>" + "<b>Provider No:</b>"
+				+ "<br><br>" + "<b>Provider No:&nbsp;</b>"
 				+ (electronicReferralForm.getDoctorProviderNumber() != null
 						? electronicReferralForm.getDoctorProviderNumber()
 						: "")
-				+ "<br><br>" + "<b>CC Dr:</b>"
+				+ "<br><br>" + "<b>CC Dr:&nbsp;</b>"
 				+ (electronicReferralForm.getCcDoctorName() != null ? electronicReferralForm.getCcDoctorName() : "")
-				+ "<br><br>" + "<b>CC Dr Provider No:</b>"
+				+ "<br><br>" + "<b>CC Dr Provider No:&nbsp;</b>"
 				+ (electronicReferralForm.getCcDoctorProviderNumber() != null
 						? electronicReferralForm.getCcDoctorProviderNumber()
 						: "")
@@ -95,12 +99,38 @@ public class ElectronicReferralService {
 
 				"This is an automatically generated email, please do not reply to this email";
 
-		InputStreamSource smsPromotionReportInInputStream = new ByteArrayResource(
+		InputStreamSource electronicReferralStream = new ByteArrayResource(
 				pdfReferralGenerator.generatePdfReferral(electronicReferralForm));
 
 		List<String> toList = decideToEmailIds(electronicReferralForm.getPatientPostcode());
-		emailService.sendWithStreamAsAttachment(toList, subject, emailBody, smsPromotionReportInInputStream,
+		emailService.sendWithStreamAsAttachment(toList, subject, emailBody, electronicReferralStream,
 				"Electronicreferral.pdf");
+
+		if(StringUtils.isNotEmpty(electronicReferralForm.getPatientEmail())) {
+			sendEmailToPatient(electronicReferralForm, electronicReferralStream);
+		}
+	}
+
+	private void sendEmailToPatient(ElectronicReferralForm electronicReferralForm, InputStreamSource pdfStream) throws MessagingException {
+		String subject = "Imaging Services at I-MED Radiology";
+
+		String emailBody = "Dear &nbsp;" + electronicReferralForm.getPatientName()
+				+ "<br><br>Following your recent Telehealth consultation, we have received a request for imaging from "
+				+ electronicReferralForm.getDoctorName() +". A copy of the referral is attached.<br><br>"
+				+ "We will call you in the next few days (during business hours) to arrange a suitable time and location for your radiology appointment.<br><br>"
+				+ "We look forward to speaking with you.<br><br>"
+				+ "Kind regards.<br><br><br><br>"
+				+ "The team at I-MED Radiology Network.";
+
+		List<String> toEmailId = new ArrayList<String>();
+		if(ACTIVE_PROFILE.equals("test")) {
+			toEmailId.add("Sakthiraj.Kanakarathinam@i-med.com.au");
+		} else {
+			toEmailId.add(electronicReferralForm.getPatientEmail());
+		}
+		emailService.sendWithStreamAsAttachment(toEmailId, subject, emailBody, pdfStream,
+				"Electronicreferral.pdf");
+
 	}
 
 	private List<String> decideToEmailIds(String postalCode) {

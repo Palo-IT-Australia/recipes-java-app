@@ -2,6 +2,7 @@ package au.com.imed.portal.referrer.referrerportal.common.util;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
@@ -27,11 +28,10 @@ public class PdfGenerator {
 
 		sb.append("<hr>");
 
-		sb.append("<h4>");
-		sb.append("Patient information");
-		sb.append("</h4>");
+		sb.append("<b>Patient information</b><br>");
 
-		sb.append("<table width=\"100%\" border=\"0.2\"><tbody>");
+
+		sb.append("<table width=\"100%\" border=\"0.2\" ><tbody>");
 
 		sb.append(addEntryToPdf(electronicReferralForm, "patientName", "Name"));
 		sb.append(addEntryToPdf(electronicReferralForm, "patientGender", "Gender"));
@@ -57,23 +57,22 @@ public class PdfGenerator {
 		sb.append(addEntryToPdf(electronicReferralForm, "ivDiabetes", "Diabetes Metformin treatment"));
 		sb.append("</tbody></table>");
 
-		sb.append("<h4>");
-		sb.append("Examination");
-		sb.append("</h4>");
+
+		sb.append("<br><b>Examination</b><br>");
+
 		sb.append("<table width=\"100%\" border=\"0.2\"><tbody>");
 		sb.append(addEntryToPdf(electronicReferralForm, "examDetails", "Exam detail"));
 		sb.append("</tbody></table>");
 
-		sb.append("<h4>");
-		sb.append("Clinical details");
-		sb.append("</h4>");
+
+		sb.append("<br><b>Clinical details</b><br>");
+
 		sb.append("<table width=\"100%\" border=\"0.2\"><tbody>");
 		sb.append(addEntryToPdf(electronicReferralForm, "clinicalDetails", "Clinical detail"));
 		sb.append("</tbody></table>");
 
-		sb.append("<h4>");
-		sb.append("Referring doctor");
-		sb.append("</h4>");
+
+		sb.append("<br><b>Referring doctor</b><br>");
 		sb.append("<table width=\"100%\" border=\"0.2\"><tbody>");
 		sb.append(addEntryToPdf(electronicReferralForm, "doctorName", "Name"));
 		sb.append(addEntryToPdf(electronicReferralForm, "doctorProviderNumber", "Provider number"));
@@ -90,9 +89,8 @@ public class PdfGenerator {
 		sb.append("</td></tr>");
 		sb.append("</tbody></table>");
 
-		sb.append("<h4>");
-		sb.append("Cc doctor");
-		sb.append("</h4>");
+
+		sb.append("<br><b>Cc doctor</b><br>");
 		sb.append("<table width=\"100%\" border=\"0.2\"><tbody>");
 		sb.append(addEntryToPdf(electronicReferralForm, "ccDoctorName", "Name"));
 		sb.append(addEntryToPdf(electronicReferralForm, "ccDoctorProviderNumber", "Provider number"));
@@ -109,9 +107,8 @@ public class PdfGenerator {
 		sb.append("</td></tr>");
 		sb.append("</tbody></table>");
 
-		sb.append("<h4>");
-		sb.append("Signature");
-		sb.append("</h4>");
+
+		sb.append("<br><b>Signature</b><br>");
 		sb.append("<table width=\"100%\" border=\"0.2\"><tbody>");
 		sb.append(addEntryToPdf(electronicReferralForm, "signatureName", "Name"));
 		sb.append(addEntryToPdf(electronicReferralForm, "signatureDate", "Date"));
