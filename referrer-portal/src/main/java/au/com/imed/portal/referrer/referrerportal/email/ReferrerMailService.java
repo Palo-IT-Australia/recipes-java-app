@@ -62,6 +62,7 @@ public class ReferrerMailService {
 	private static final String INLINE_BANNER = "<br/><img src=\"cid:banner.jpg\"></img><br/><br/>";
 	private static final String REQUEST_FOR_IMAGE_BANNER_KEY = "request_for_image_banner.png";
 	private static final String INLINE_REQUEST_FOR_IMAGE_BANNER = "<br/><img src=\"cid:request_for_image_banner.png\"></img><br/><br/>";
+	private static final ClassPathResource REQUEST_FOR_IMAGE_IMED_LOGO = new ClassPathResource("static/images/public/ER_Footer.png");
 
   
   private final static Map<String, String> IMG_CID_MAP_APPROVED = new HashMap<>();
@@ -286,7 +287,7 @@ public class ReferrerMailService {
 
 			MimeMessageHelper emailMsgHelper = new MimeMessageHelper(msg, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED, "utf-8");
 
-			emailMsgHelper.addAttachment(LOGO_KEY, IMED_LOGO);
+			emailMsgHelper.addAttachment(LOGO_KEY, REQUEST_FOR_IMAGE_IMED_LOGO);
 			emailMsgHelper.addAttachment(REQUEST_FOR_IMAGE_BANNER_KEY, IMED_REQUEST_FOR_IMG);
 			
 			for (String to : tos) {

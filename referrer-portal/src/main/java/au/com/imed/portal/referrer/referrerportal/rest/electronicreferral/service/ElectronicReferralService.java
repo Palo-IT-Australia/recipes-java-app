@@ -4,6 +4,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import javax.mail.MessagingException;
 
@@ -21,6 +22,7 @@ import au.com.imed.portal.referrer.referrerportal.jpa.audit.entity.CrmPostcodeEn
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.repository.CrmPostcodeJpaRepository;
 import au.com.imed.portal.referrer.referrerportal.rest.electronicreferral.model.ElectronicReferralForm;
 import au.com.imed.portal.referrer.referrerportal.rest.electronicreferral.repository.ElectronicReferralJPARepository;
+import au.com.imed.portal.referrer.referrerportal.sms.GoFaxSmsService;
 
 @Service
 public class ElectronicReferralService {
@@ -36,6 +38,9 @@ public class ElectronicReferralService {
 
 	@Autowired
 	PdfGenerator pdfReferralGenerator;
+
+	@Autowired
+	GoFaxSmsService smsService;
 	
 	@Value("${spring.profiles.active}")
 	private String ACTIVE_PROFILE;
@@ -55,15 +60,13 @@ public class ElectronicReferralService {
 	@Value("#{'${imed.electronic.referral.ril.email.id}'.split(',')}")
 	List<String> rilToEmailIds;
 
-	public ElectronicReferralForm save(ElectronicReferralForm electronicReferralForm) throws FileNotFoundException,
-			IOException, MessagingException, IllegalArgumentException, IllegalAccessException {
+	public ElectronicReferralForm save(ElectronicReferralForm electronicReferralForm) throws Exception {
 		electronicReferralForm = electronicReferralJPARepository.save(electronicReferralForm);
 		sendEmailToCrm(electronicReferralForm);
 		return electronicReferralForm;
 	}
 
-	private void sendEmailToCrm(ElectronicReferralForm electronicReferralForm) throws MessagingException,
-			FileNotFoundException, IOException, IllegalArgumentException, IllegalAccessException {
+	private void sendEmailToCrm(ElectronicReferralForm electronicReferralForm) throws Exception {
 		String subject = "I-MED Electronic referral submitted";
 
 		String emailBody = "A new E-referral has been received for:" + "<br><br>" + "<b>Patient name:&nbsp;</b>"
@@ -108,6 +111,8 @@ public class ElectronicReferralService {
 
 		if(StringUtils.isNotEmpty(electronicReferralForm.getPatientEmail())) {
 			sendEmailToPatient(electronicReferralForm, electronicReferralStream);
+		} else if(StringUtils.isNotEmpty(electronicReferralForm.getPatientPhone()) && validMobileNumber(electronicReferralForm.getPatientPhone())){
+			sendSmsToPatient(electronicReferralForm.getPatientPhone());	
 		}
 	}
 
@@ -125,10 +130,12 @@ public class ElectronicReferralService {
 		List<String> toEmailId = new ArrayList<String>();
 		if(ACTIVE_PROFILE.equals("test")) {
 			toEmailId.add("Sakthiraj.Kanakarathinam@i-med.com.au");
+			toEmailId.add("Martin.Cox@i-med.com.au");
+			toEmailId.add("Hidehiro.Uehara@i-med.com.au");
 		} else {
 			toEmailId.add(electronicReferralForm.getPatientEmail());
 		}
-		emailService.sendWithStreamAsAttachment(toEmailId, subject, emailBody, pdfStream,
+		emailService.sendWithStreamAsAttachmentWithHeaderFooter(toEmailId, subject, emailBody, pdfStream,
 				"Electronicreferral.pdf");
 
 	}
@@ -152,6 +159,22 @@ public class ElectronicReferralService {
 			return rilToEmailIds;
 		}
 
+	}
+	
+	private boolean validMobileNumber(String telephone) {
+		String mobileRegex = "^04[0-9]{8}$";	
+		Pattern pattern = Pattern.compile(mobileRegex);	
+		return pattern.matcher(telephone).matches();	
+	}
+	
+	private void sendSmsToPatient(String mobileNumber) throws Exception {
+		String[] receipeints = null;
+		if(ACTIVE_PROFILE.equals("test")) {
+			receipeints = new String [] {"0437118213", "0431155939", "0412225274"};
+		} else {
+			receipeints = new String [] {mobileNumber};
+		}
+		smsService.send(receipeints, "I-MED Radiology has received a request for imaging from your medical practitioner. We will be in contact shortly to arrange an appointment.");
 	}
 
 }
