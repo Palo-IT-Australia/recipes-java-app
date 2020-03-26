@@ -1,5 +1,8 @@
 package au.com.imed.portal.referrer.referrerportal.rest.electronicreferral.controller;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.jose4j.json.internal.json_simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import au.com.imed.portal.referrer.referrerportal.rest.electronicreferral.model.ElectronicReferralForm;
 import au.com.imed.portal.referrer.referrerportal.rest.electronicreferral.service.ElectronicReferralService;
+import au.com.imed.portal.referrer.referrerportal.rest.visage.service.AuditService;
 
 @RestController
 @RequestMapping("/electronicreferralrest")
@@ -22,7 +26,10 @@ public class ElectronicReferralRestController {
 	private Logger logger = LoggerFactory.getLogger(ElectronicReferralRestController.class);
 
 	@Autowired
-	ElectronicReferralService electronicReferralService;
+	private ElectronicReferralService electronicReferralService;
+	
+	@Autowired
+	private AuditService auditService;
 
 	@PostMapping("/referral")
 	public ResponseEntity<JSONObject> postEreferral(@RequestBody() ElectronicReferralForm referral,
@@ -33,6 +40,7 @@ public class ElectronicReferralRestController {
 			electronicReferralService.save(referral);
 			resp.put("msg", "Saved successfully");
 			resp.put("referralId", referral.getId());
+			doAudit(authentication.getName(), referral);
 			return ResponseEntity.status(HttpStatus.OK).body(resp);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -41,5 +49,17 @@ public class ElectronicReferralRestController {
 		}
 
 //		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(resp);
+	}
+	
+	private void doAudit(String username, ElectronicReferralForm referral) {
+		try {
+			Map<String, String> params = new HashMap<>();
+			params.put("id", "" + referral.getId());
+			params.put("patientName", referral.getPatientName());
+			params.put("patientDob", referral.getPatientDob());
+			auditService.doAudit("electronicreferral", username, params);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
 	}
 }
