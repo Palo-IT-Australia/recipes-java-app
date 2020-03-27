@@ -3,6 +3,7 @@ package au.com.imed.portal.referrer.referrerportal.rest.electronicreferral.contr
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jose4j.json.internal.json_simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,11 +38,16 @@ public class ElectronicReferralRestController {
 		logger.info("Received referral request : " + referral.toString());
 		JSONObject resp = new JSONObject();
 		try {
-			electronicReferralService.save(referral);
-			resp.put("msg", "Saved successfully");
-			resp.put("referralId", referral.getId());
-			doAudit(authentication.getName(), referral);
-			return ResponseEntity.status(HttpStatus.OK).body(resp);
+			if(StringUtils.isEmpty(referral.getDoctorAhpra()) && (authentication==null || StringUtils.isEmpty(authentication.getName()))) {
+				resp.put("msg", "AHPRA number is missing for non logged in user");
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(resp);
+			} else {
+				electronicReferralService.save(referral);
+				resp.put("msg", "Saved successfully");
+				resp.put("referralId", referral.getId());
+				doAudit((authentication==null || StringUtils.isEmpty(authentication.getName()))?"":authentication.getName(), referral);
+				return ResponseEntity.status(HttpStatus.OK).body(resp);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			resp.put("msg", "There was a problem occured");

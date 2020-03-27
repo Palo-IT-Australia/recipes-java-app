@@ -85,8 +85,14 @@ public class ElectronicReferralForm {
 	String doctorName;
 	@Column(name = "doctor_provider_number")
 	String doctorProviderNumber;
+	@Column(name = "doctor_requester_number")
+	String doctorRequesterNumber;
+	@Column(name = "doctor_ahpra")
+	String doctorAhpra;
 	@Column(name = "doctor_email")
 	String doctorEmail;
+	@Column(name = "doctor_practice_name")
+	String doctorPracticeName;
 	@Column(name = "doctor_street")
 	String doctorStreet;
 	@Column(name = "doctor_suburb")
@@ -99,8 +105,12 @@ public class ElectronicReferralForm {
 	String ccDoctorName;
 	@Column(name = "cc_doctor_provider_number")
 	String ccDoctorProviderNumber;
+	@Column(name = "cc_doctor_requester_number")
+	String ccDoctorRequesterNumber;
 	@Column(name = "cc_doctor_email")
 	String ccDoctorEmail;
+	@Column(name = "cc_doctor_practice_name")
+	String ccDoctorPracticeName;
 	@Column(name = "cc_doctor_street")
 	String ccDoctorStreet;
 	@Column(name = "cc_doctor_suburb")
@@ -509,26 +519,72 @@ public class ElectronicReferralForm {
 		this.patientGender = patientGender;
 	}
 
+	public String getDoctorPracticeName() {
+		return doctorPracticeName;
+	}
+
+	public void setDoctorPracticeName(String doctorPracticeName) {
+		this.doctorPracticeName = doctorPracticeName;
+	}
+
+	public String getCcDoctorPracticeName() {
+		return ccDoctorPracticeName;
+	}
+
+	public void setCcDoctorPracticeName(String ccDoctorPracticeName) {
+		this.ccDoctorPracticeName = ccDoctorPracticeName;
+	}
+	
+	public String getDoctorAhpra() {
+		return doctorAhpra;
+	}
+
+	public void setDoctorAhpra(String doctorAhpra) {
+		this.doctorAhpra = doctorAhpra;
+	}
+	
+	public String getDoctorRequesterNumber() {
+		return doctorRequesterNumber;
+	}
+
+	public void setDoctorRequesterNumber(String doctorRequesterNumber) {
+		this.doctorRequesterNumber = doctorRequesterNumber;
+	}
+
+	public String getCcDoctorRequesterNumber() {
+		return ccDoctorRequesterNumber;
+	}
+
+	public void setCcDoctorRequesterNumber(String ccDoctorRequesterNumber) {
+		this.ccDoctorRequesterNumber = ccDoctorRequesterNumber;
+	}
+	
+	
+	
+
 	@Override
 	public String toString() {
 		return "ElectronicReferralForm [id=" + id + ", patientName=" + patientName + ", patientDob=" + patientDob
-				+ ", patientPhone=" + patientPhone + ", patientStreet=" + patientStreet + ", patientSuburb="
-				+ patientSuburb + ", patientPostcode=" + patientPostcode + ", patientState=" + patientState
-				+ ", patientEmail=" + patientEmail + ", patientCompensation=" + patientCompensation + ", examDetails="
-				+ examDetails + ", clinicalDetails=" + clinicalDetails + ", patientPregnant=" + patientPregnant
-				+ ", ivContrastAllergy=" + ivContrastAllergy + ", ivRenal=" + ivRenal + ", ivDiabetes=" + ivDiabetes
-				+ ", ivCreatinineLevel=" + ivCreatinineLevel + ", ivCreatinineEgfr=" + ivCreatinineEgfr
-				+ ", ivCreatinineDate=" + ivCreatinineDate + ", mriMetal=" + mriMetal + ", mriPacemaker=" + mriPacemaker
-				+ ", mriBrainClip=" + mriBrainClip + ", mriCochlear=" + mriCochlear + ", mriCoil=" + mriCoil
-				+ ", mriUltrasound=" + mriUltrasound + ", mriNumber=" + mriNumber + ", mriDate=" + mriDate
-				+ ", doctorName=" + doctorName + ", doctorProviderNumber=" + doctorProviderNumber + ", doctorEmail="
-				+ doctorEmail + ", doctorStreet=" + doctorStreet + ", doctorSuburb=" + doctorSuburb + ", doctorState="
-				+ doctorState + ", doctorPostcode=" + doctorPostcode + ", ccDoctorName=" + ccDoctorName
-				+ ", ccDoctorProviderNumber=" + ccDoctorProviderNumber + ", ccDoctorEmail=" + ccDoctorEmail
-				+ ", ccDoctorStreet=" + ccDoctorStreet + ", ccDoctorSuburb=" + ccDoctorSuburb + ", ccDoctorState="
-				+ ccDoctorState + ", ccDoctorPostCode=" + ccDoctorPostcode + ", signatureName=" + signatureName
-				+ ", signatureDate=" + signatureDate + ", signatureEntitled=" + signatureEntitled + ", filmReport="
-				+ filmReport + ", pad=" + pad + ", submittedTime=" + submittedTime + "]";
+				+ ", patientGender=" + patientGender + ", patientPhone=" + patientPhone + ", patientStreet="
+				+ patientStreet + ", patientSuburb=" + patientSuburb + ", patientPostcode=" + patientPostcode
+				+ ", patientState=" + patientState + ", patientEmail=" + patientEmail + ", patientCompensation="
+				+ patientCompensation + ", examDetails=" + examDetails + ", clinicalDetails=" + clinicalDetails
+				+ ", patientPregnant=" + patientPregnant + ", ivContrastAllergy=" + ivContrastAllergy + ", ivRenal="
+				+ ivRenal + ", ivDiabetes=" + ivDiabetes + ", ivCreatinineLevel=" + ivCreatinineLevel
+				+ ", ivCreatinineEgfr=" + ivCreatinineEgfr + ", ivCreatinineDate=" + ivCreatinineDate + ", mriMetal="
+				+ mriMetal + ", mriPacemaker=" + mriPacemaker + ", mriBrainClip=" + mriBrainClip + ", mriCochlear="
+				+ mriCochlear + ", mriCoil=" + mriCoil + ", mriUltrasound=" + mriUltrasound + ", mriNumber=" + mriNumber
+				+ ", mriDate=" + mriDate + ", doctorName=" + doctorName + ", doctorProviderNumber="
+				+ doctorProviderNumber + ", doctorRequesterNumber=" + doctorRequesterNumber + ", doctorAhpra="
+				+ doctorAhpra + ", doctorEmail=" + doctorEmail + ", doctorPracticeName=" + doctorPracticeName
+				+ ", doctorStreet=" + doctorStreet + ", doctorSuburb=" + doctorSuburb + ", doctorState=" + doctorState
+				+ ", doctorPostcode=" + doctorPostcode + ", ccDoctorName=" + ccDoctorName + ", ccDoctorProviderNumber="
+				+ ccDoctorProviderNumber + ", ccDoctorRequesterNumber=" + ccDoctorRequesterNumber + ", ccDoctorEmail="
+				+ ccDoctorEmail + ", ccDoctorPracticeName=" + ccDoctorPracticeName + ", ccDoctorStreet="
+				+ ccDoctorStreet + ", ccDoctorSuburb=" + ccDoctorSuburb + ", ccDoctorState=" + ccDoctorState
+				+ ", ccDoctorPostcode=" + ccDoctorPostcode + ", signatureName=" + signatureName + ", signatureDate="
+				+ signatureDate + ", signatureEntitled=" + signatureEntitled + ", filmReport=" + filmReport + ", pad="
+				+ pad + ", submittedTime=" + submittedTime + "]";
 	}
 
 	@PrePersist

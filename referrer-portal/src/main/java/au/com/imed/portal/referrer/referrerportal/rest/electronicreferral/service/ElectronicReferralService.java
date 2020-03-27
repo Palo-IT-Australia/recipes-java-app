@@ -84,17 +84,33 @@ public class ElectronicReferralService {
 				+ "<br><br>" + "<b>Clinical Details:&nbsp;</b>"
 				+ (electronicReferralForm.getClinicalDetails() != null ? electronicReferralForm.getClinicalDetails()
 						: "")
-				+ "<br><br>" + "<b>Referring Dr:&nbsp;</b>"
+				+ "<br><br>" + "<b>Referring Practitioner:&nbsp;</b>"
 				+ (electronicReferralForm.getDoctorName() != null ? electronicReferralForm.getDoctorName() : "")
 				+ "<br><br>" + "<b>Provider No:&nbsp;</b>"
 				+ (electronicReferralForm.getDoctorProviderNumber() != null
 						? electronicReferralForm.getDoctorProviderNumber()
+						: "")
+				+ "<br><br>" + "<b>Requester No:&nbsp;</b>"
+				+ (electronicReferralForm.getDoctorRequesterNumber() != null
+						? electronicReferralForm.getDoctorRequesterNumber()
+						: "")
+				+ "<br><br>" + "<b>Practice name:&nbsp;</b>"
+				+ (electronicReferralForm.getDoctorPracticeName() != null
+						? electronicReferralForm.getDoctorPracticeName()
 						: "")
 				+ "<br><br>" + "<b>CC Dr:&nbsp;</b>"
 				+ (electronicReferralForm.getCcDoctorName() != null ? electronicReferralForm.getCcDoctorName() : "")
 				+ "<br><br>" + "<b>CC Dr Provider No:&nbsp;</b>"
 				+ (electronicReferralForm.getCcDoctorProviderNumber() != null
 						? electronicReferralForm.getCcDoctorProviderNumber()
+						: "")
+				+ "<br><br>" + "<b>CC Dr Requester No:&nbsp;</b>"
+				+ (electronicReferralForm.getCcDoctorRequesterNumber() != null
+						? electronicReferralForm.getCcDoctorRequesterNumber()
+						: "")
+				+ "<br><br>" + "<b>CC Dr Practice name:&nbsp;</b>"
+				+ (electronicReferralForm.getCcDoctorPracticeName() != null
+						? electronicReferralForm.getCcDoctorPracticeName()
 						: "")
 				+ "<br><br><br>" +
 
@@ -103,20 +119,22 @@ public class ElectronicReferralService {
 				"This is an automatically generated email, please do not reply to this email";
 
 		InputStreamSource electronicReferralStream = new ByteArrayResource(
-				pdfReferralGenerator.generatePdfReferral(electronicReferralForm));
+				pdfReferralGenerator.generatePdfReferral(electronicReferralForm, false));
 
 		List<String> toList = decideToEmailIds(electronicReferralForm.getPatientPostcode());
 		emailService.sendWithStreamAsAttachment(toList, subject, emailBody, electronicReferralStream,
 				"Electronicreferral.pdf");
 
+		electronicReferralStream = null;
+		
 		if(StringUtils.isNotEmpty(electronicReferralForm.getPatientEmail())) {
-			sendEmailToPatient(electronicReferralForm, electronicReferralStream);
+			sendEmailToPatient(electronicReferralForm);
 		} else if(StringUtils.isNotEmpty(electronicReferralForm.getPatientPhone()) && validMobileNumber(electronicReferralForm.getPatientPhone())){
 			sendSmsToPatient(electronicReferralForm.getPatientPhone());	
 		}
 	}
 
-	private void sendEmailToPatient(ElectronicReferralForm electronicReferralForm, InputStreamSource pdfStream) throws MessagingException {
+	private void sendEmailToPatient(ElectronicReferralForm electronicReferralForm) throws MessagingException, FileNotFoundException, IllegalArgumentException, IllegalAccessException, IOException {
 		String subject = "Imaging Services at I-MED Radiology";
 
 		String emailBody = "Dear &nbsp;" + electronicReferralForm.getPatientName()
@@ -135,8 +153,14 @@ public class ElectronicReferralService {
 		} else {
 			toEmailId.add(electronicReferralForm.getPatientEmail());
 		}
+		
+		InputStreamSource pdfStream = new ByteArrayResource(
+				pdfReferralGenerator.generatePdfReferral(electronicReferralForm, true));
+		
 		emailService.sendWithStreamAsAttachmentWithHeaderFooter(toEmailId, subject, emailBody, pdfStream,
 				"Electronicreferral.pdf");
+		
+		pdfStream=null;
 
 	}
 
