@@ -6,7 +6,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
+import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import com.itextpdf.html2pdf.HtmlConverter;
@@ -81,13 +83,21 @@ public class PdfGenerator {
 		sb.append(addEntryToPdf(electronicReferralForm, "doctorEmail", "Email"));
 		sb.append(addEntryToPdf(electronicReferralForm, "doctorPracticeName", "Practice name"));
 		sb.append("<tr><td>Address</td><td>");
-		sb.append(electronicReferralForm.getDoctorStreet());
-		sb.append(", ");
-		sb.append(electronicReferralForm.getDoctorSuburb());
-		sb.append(", ");
-		sb.append(electronicReferralForm.getDoctorState());
-		sb.append(", ");
-		sb.append(electronicReferralForm.getDoctorPostcode());
+		if(StringUtils.isNotEmpty(electronicReferralForm.getDoctorStreet())) {
+			sb.append(electronicReferralForm.getDoctorStreet());
+			sb.append(", ");
+		}
+		if(StringUtils.isNoneEmpty(electronicReferralForm.getDoctorSuburb())) {
+			sb.append(electronicReferralForm.getDoctorSuburb());
+			sb.append(", ");
+		}
+		if(StringUtils.isNoneEmpty(electronicReferralForm.getDoctorState())) {
+			sb.append(electronicReferralForm.getDoctorState());
+			sb.append(", ");
+		}
+		if(StringUtils.isNoneEmpty(electronicReferralForm.getDoctorPostcode())) {
+			sb.append(electronicReferralForm.getDoctorPostcode());
+		}
 		sb.append("<br>");
 		sb.append("</td></tr>");
 		sb.append("</tbody></table>");
@@ -101,13 +111,21 @@ public class PdfGenerator {
 		sb.append(addEntryToPdf(electronicReferralForm, "ccDoctorEmail", "Email"));
 		sb.append(addEntryToPdf(electronicReferralForm, "ccDoctorPracticeName", "Practice name"));
 		sb.append("<tr><td>Address</td><td>");
-		sb.append(electronicReferralForm.getCcDoctorStreet());
-		sb.append(", ");
-		sb.append(electronicReferralForm.getCcDoctorSuburb());
-		sb.append(", ");
-		sb.append(electronicReferralForm.getCcDoctorState());
-		sb.append(", ");
-		sb.append(electronicReferralForm.getCcDoctorPostcode());
+		if(StringUtils.isNoneEmpty(electronicReferralForm.getCcDoctorStreet())) {
+			sb.append(electronicReferralForm.getCcDoctorStreet());
+			sb.append(", ");
+		}
+		if(StringUtils.isNoneEmpty(electronicReferralForm.getCcDoctorSuburb())) {
+			sb.append(electronicReferralForm.getCcDoctorSuburb());
+			sb.append(", ");
+		}
+		if(StringUtils.isNoneEmpty(electronicReferralForm.getCcDoctorState())) {
+			sb.append(electronicReferralForm.getCcDoctorState());
+			sb.append(", ");
+		}
+		if(StringUtils.isNoneEmpty(electronicReferralForm.getCcDoctorPostcode())) {
+			sb.append(electronicReferralForm.getCcDoctorPostcode());
+		}
 		sb.append("<br>");
 		sb.append("</td></tr>");
 		sb.append("</tbody></table>");
