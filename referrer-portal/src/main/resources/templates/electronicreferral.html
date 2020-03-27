@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head th:include="fragments/layout/head :: head">
     <title id="pageTitle">E-Referral</title>
 </head>
@@ -8,13 +8,14 @@
 	
 	<div class="section">
 		<div class="wrapper">
-			<link rel="stylesheet" th:href="@{/js/auth/electronicreferral/dist/styles.css}">
+			<link rel="stylesheet" th:href="@{/js/public/electronicreferral/dist/styles.css}">
 			<div th:url="@{/}" id="electronicreferralapiroot"></div>
+			<div sec:authorize="isAuthenticated()" id="electronicreferralauth"></div>
 			<elecrefal-root></elecrefal-root>
-			<script type="text/javascript" th:src="@{/js/auth/electronicreferral/dist/runtime.js}"></script>
-			<script type="text/javascript" th:src="@{/js/auth/electronicreferral/dist/es2015-polyfills.js}" nomodule></script>
-			<script type="text/javascript" th:src="@{/js/auth/electronicreferral/dist/polyfills.js}"></script>
-			<script type="text/javascript" th:src="@{/js/auth/electronicreferral/dist/main.js}"></script>
+			<script type="text/javascript" th:src="@{/js/public/electronicreferral/dist/runtime.js}"></script>
+			<script type="text/javascript" th:src="@{/js/public/electronicreferral/dist/es2015-polyfills.js}" nomodule></script>
+			<script type="text/javascript" th:src="@{/js/public/electronicreferral/dist/polyfills.js}"></script>
+			<script type="text/javascript" th:src="@{/js/public/electronicreferral/dist/main.js}"></script>
 		</div>
 	</div>
 	 
