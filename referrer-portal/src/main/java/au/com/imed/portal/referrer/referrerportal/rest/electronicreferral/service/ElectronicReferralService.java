@@ -137,9 +137,9 @@ public class ElectronicReferralService {
 	private void sendEmailToPatient(ElectronicReferralForm electronicReferralForm) throws MessagingException, FileNotFoundException, IllegalArgumentException, IllegalAccessException, IOException {
 		String subject = "Imaging Services at I-MED Radiology";
 
-		String emailBody = "Dear &nbsp;" + electronicReferralForm.getPatientName()
-				+ "<br><br>Following your recent Telehealth consultation, we have received a request for imaging from "
-				+ electronicReferralForm.getDoctorName() +". A copy of the referral is attached.<br><br>"
+		String emailBody = "Dear " + electronicReferralForm.getPatientName().toUpperCase()
+				+ "<br><br>Following your recent Telehealth consultation, we have received a request for imaging from your medical Practitioner - "
+				+ electronicReferralForm.getDoctorName().toUpperCase() +". A copy of the referral is attached.<br><br>"
 				+ "We will call you in the next few days (during business hours) to arrange a suitable time and location for your radiology appointment.<br><br>"
 				+ "We look forward to speaking with you.<br><br>"
 				+ "Kind regards.<br><br><br><br>"

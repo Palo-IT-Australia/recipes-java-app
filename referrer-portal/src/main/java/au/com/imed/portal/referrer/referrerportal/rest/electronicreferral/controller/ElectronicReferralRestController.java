@@ -37,6 +37,9 @@ public class ElectronicReferralRestController {
 			Authentication authentication) {
 		logger.info("Received referral request : " + referral.toString());
 		JSONObject resp = new JSONObject();
+		
+		if(authentication!=null && StringUtils.isNotEmpty(authentication.getName()) && authentication.getName().equals("alchau")) {
+		
 		try {
 			if(StringUtils.isEmpty(referral.getDoctorAhpra()) && (authentication==null || StringUtils.isEmpty(authentication.getName()))) {
 				resp.put("msg", "AHPRA number is missing for non logged in user");
@@ -52,6 +55,11 @@ public class ElectronicReferralRestController {
 			e.printStackTrace();
 			resp.put("msg", "There was a problem occured");
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(resp);
+		}
+		
+		} else {
+			resp.put("msg", "The user is not allowed to send electronic referral");
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body(resp);
 		}
 
 //		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(resp);

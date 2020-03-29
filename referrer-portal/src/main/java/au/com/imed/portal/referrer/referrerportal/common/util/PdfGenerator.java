@@ -25,7 +25,7 @@ public class PdfGenerator {
 		SimpleDateFormat submittedDateTimeFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm a z");
 
 		StringBuffer sb = new StringBuffer();
-		sb.append("<body style=\"font-size:10px;\">");
+		sb.append("<body style=\"font-size:9px;\">");
 		sb.append(IMED_LOGO_TAG);
 
 		sb.append("<hr>");
@@ -42,13 +42,7 @@ public class PdfGenerator {
 		sb.append(addEntryToPdf(electronicReferralForm, "patientEmail", "Email"));
 
 		sb.append("<tr><td>Address</td><td>");
-		sb.append(electronicReferralForm.getPatientStreet());
-		sb.append(", ");
-		sb.append(electronicReferralForm.getPatientSuburb());
-		sb.append(", ");
-		sb.append(electronicReferralForm.getPatientState());
-		sb.append(", ");
-		sb.append(electronicReferralForm.getPatientPostcode());
+		sb.append(printAddress(electronicReferralForm.getPatientStreet(), electronicReferralForm.getPatientSuburb(), electronicReferralForm.getPatientState(), electronicReferralForm.getPatientPostcode()));
 		sb.append("<br>");
 		sb.append("</td></tr>");
 
@@ -83,21 +77,7 @@ public class PdfGenerator {
 		sb.append(addEntryToPdf(electronicReferralForm, "doctorEmail", "Email"));
 		sb.append(addEntryToPdf(electronicReferralForm, "doctorPracticeName", "Practice name"));
 		sb.append("<tr><td>Address</td><td>");
-		if(StringUtils.isNotEmpty(electronicReferralForm.getDoctorStreet())) {
-			sb.append(electronicReferralForm.getDoctorStreet());
-			sb.append(", ");
-		}
-		if(StringUtils.isNoneEmpty(electronicReferralForm.getDoctorSuburb())) {
-			sb.append(electronicReferralForm.getDoctorSuburb());
-			sb.append(", ");
-		}
-		if(StringUtils.isNoneEmpty(electronicReferralForm.getDoctorState())) {
-			sb.append(electronicReferralForm.getDoctorState());
-			sb.append(", ");
-		}
-		if(StringUtils.isNoneEmpty(electronicReferralForm.getDoctorPostcode())) {
-			sb.append(electronicReferralForm.getDoctorPostcode());
-		}
+		sb.append(printAddress(electronicReferralForm.getDoctorStreet(), electronicReferralForm.getDoctorSuburb(), electronicReferralForm.getDoctorState(), electronicReferralForm.getDoctorPostcode()));
 		sb.append("<br>");
 		sb.append("</td></tr>");
 		sb.append("</tbody></table>");
@@ -111,21 +91,7 @@ public class PdfGenerator {
 		sb.append(addEntryToPdf(electronicReferralForm, "ccDoctorEmail", "Email"));
 		sb.append(addEntryToPdf(electronicReferralForm, "ccDoctorPracticeName", "Practice name"));
 		sb.append("<tr><td>Address</td><td>");
-		if(StringUtils.isNoneEmpty(electronicReferralForm.getCcDoctorStreet())) {
-			sb.append(electronicReferralForm.getCcDoctorStreet());
-			sb.append(", ");
-		}
-		if(StringUtils.isNoneEmpty(electronicReferralForm.getCcDoctorSuburb())) {
-			sb.append(electronicReferralForm.getCcDoctorSuburb());
-			sb.append(", ");
-		}
-		if(StringUtils.isNoneEmpty(electronicReferralForm.getCcDoctorState())) {
-			sb.append(electronicReferralForm.getCcDoctorState());
-			sb.append(", ");
-		}
-		if(StringUtils.isNoneEmpty(electronicReferralForm.getCcDoctorPostcode())) {
-			sb.append(electronicReferralForm.getCcDoctorPostcode());
-		}
+		sb.append(printAddress(electronicReferralForm.getCcDoctorStreet(), electronicReferralForm.getCcDoctorSuburb(), electronicReferralForm.getCcDoctorState(), electronicReferralForm.getCcDoctorPostcode()));
 		sb.append("<br>");
 		sb.append("</td></tr>");
 		sb.append("</tbody></table>");
@@ -165,10 +131,20 @@ public class PdfGenerator {
 			if (field.getName().equals(fieldName)) {
 				field.setAccessible(true);
 				String result = "<tr><td>" + labelToPrint + "</td><td>"
-						+ (field.get(sourceForm) != null ? field.get(sourceForm).toString() : "") + "</td></tr>";
+						+ (field.get(sourceForm) != null ? field.get(sourceForm).toString().toUpperCase() : "") + "</td></tr>";
 				return result;
 			}
 		}
 		return "";
+	}
+	
+	private String printAddress(String street, String suburb, String state, String postalCode) {
+		String addressToPrint = "";
+		addressToPrint = addressToPrint + (StringUtils.isNotEmpty(street)?street:"<empty>") + ", ";
+		addressToPrint = addressToPrint + (StringUtils.isNotEmpty(suburb)?suburb:"<empty>") + ", ";
+		addressToPrint = addressToPrint + (StringUtils.isNotEmpty(state)?state:"<empty>") + ", ";
+		addressToPrint = addressToPrint + (StringUtils.isNotEmpty(postalCode)?postalCode:"<empty>, ");
+		addressToPrint = addressToPrint.replaceAll("<empty>, ", "");
+		return addressToPrint.toUpperCase();
 	}
 }
