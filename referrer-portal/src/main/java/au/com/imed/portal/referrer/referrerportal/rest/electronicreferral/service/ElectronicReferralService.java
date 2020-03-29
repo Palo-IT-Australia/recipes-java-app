@@ -70,47 +70,47 @@ public class ElectronicReferralService {
 		String subject = "I-MED Electronic referral submitted";
 
 		String emailBody = "A new E-referral has been received for:" + "<br><br>" + "<b>Patient name:&nbsp;</b>"
-				+ (electronicReferralForm.getPatientName() != null ? electronicReferralForm.getPatientName() : "")
+				+ (electronicReferralForm.getPatientName() != null ? electronicReferralForm.getPatientName().toUpperCase() : "")
 				+ "<br><br>" + "<b>DOB:&nbsp;</b>"
-				+ (electronicReferralForm.getPatientDob() != null ? electronicReferralForm.getPatientDob() : "")
-				+ "<br><br>" + "<b>Address:&nbsp;</b>" + electronicReferralForm.getPatientStreet() + ", "
-				+ electronicReferralForm.getPatientSuburb() + ", " + electronicReferralForm.getPatientState()+ ", "
-				+ electronicReferralForm.getPatientPostcode() + "<br><br>" + "<b>Patient Email:&nbsp;</b>"
-				+ (electronicReferralForm.getPatientEmail() != null ? electronicReferralForm.getPatientEmail() : "")
+				+ (electronicReferralForm.getPatientDob() != null ? electronicReferralForm.getPatientDob().toUpperCase() : "")
+				+ "<br><br>" + "<b>Address:&nbsp;</b>" + electronicReferralForm.getPatientStreet().toUpperCase() + ", "
+				+ electronicReferralForm.getPatientSuburb().toUpperCase() + ", " + electronicReferralForm.getPatientState().toUpperCase()+ ", "
+				+ electronicReferralForm.getPatientPostcode().toUpperCase() + "<br><br>" + "<b>Patient Email:&nbsp;</b>"
+				+ (electronicReferralForm.getPatientEmail() != null ? electronicReferralForm.getPatientEmail().toUpperCase() : "")
 				+ "<br><br>" + "<b>Telephone:&nbsp;</b>"
-				+ (electronicReferralForm.getPatientPhone() != null ? electronicReferralForm.getPatientPhone() : "")
+				+ (electronicReferralForm.getPatientPhone() != null ? electronicReferralForm.getPatientPhone().toUpperCase() : "")
 				+ "<br><br>" + "<b>Exam Details:&nbsp;</b>"
-				+ (electronicReferralForm.getExamDetails() != null ? electronicReferralForm.getExamDetails() : "")
+				+ (electronicReferralForm.getExamDetails() != null ? electronicReferralForm.getExamDetails().toUpperCase() : "")
 				+ "<br><br>" + "<b>Clinical Details:&nbsp;</b>"
-				+ (electronicReferralForm.getClinicalDetails() != null ? electronicReferralForm.getClinicalDetails()
+				+ (electronicReferralForm.getClinicalDetails() != null ? electronicReferralForm.getClinicalDetails().toUpperCase()
 						: "")
 				+ "<br><br>" + "<b>Referring Practitioner:&nbsp;</b>"
-				+ (electronicReferralForm.getDoctorName() != null ? electronicReferralForm.getDoctorName() : "")
+				+ (electronicReferralForm.getDoctorName() != null ? electronicReferralForm.getDoctorName().toUpperCase() : "")
 				+ "<br><br>" + "<b>Provider No:&nbsp;</b>"
 				+ (electronicReferralForm.getDoctorProviderNumber() != null
-						? electronicReferralForm.getDoctorProviderNumber()
+						? electronicReferralForm.getDoctorProviderNumber().toUpperCase()
 						: "")
 				+ "<br><br>" + "<b>Requester No:&nbsp;</b>"
 				+ (electronicReferralForm.getDoctorRequesterNumber() != null
-						? electronicReferralForm.getDoctorRequesterNumber()
+						? electronicReferralForm.getDoctorRequesterNumber().toUpperCase()
 						: "")
 				+ "<br><br>" + "<b>Practice name:&nbsp;</b>"
 				+ (electronicReferralForm.getDoctorPracticeName() != null
-						? electronicReferralForm.getDoctorPracticeName()
+						? electronicReferralForm.getDoctorPracticeName().toUpperCase()
 						: "")
 				+ "<br><br>" + "<b>CC Dr:&nbsp;</b>"
-				+ (electronicReferralForm.getCcDoctorName() != null ? electronicReferralForm.getCcDoctorName() : "")
+				+ (electronicReferralForm.getCcDoctorName() != null ? electronicReferralForm.getCcDoctorName().toUpperCase() : "")
 				+ "<br><br>" + "<b>CC Dr Provider No:&nbsp;</b>"
 				+ (electronicReferralForm.getCcDoctorProviderNumber() != null
-						? electronicReferralForm.getCcDoctorProviderNumber()
+						? electronicReferralForm.getCcDoctorProviderNumber().toUpperCase()
 						: "")
 				+ "<br><br>" + "<b>CC Dr Requester No:&nbsp;</b>"
 				+ (electronicReferralForm.getCcDoctorRequesterNumber() != null
-						? electronicReferralForm.getCcDoctorRequesterNumber()
+						? electronicReferralForm.getCcDoctorRequesterNumber().toUpperCase()
 						: "")
 				+ "<br><br>" + "<b>CC Dr Practice name:&nbsp;</b>"
 				+ (electronicReferralForm.getCcDoctorPracticeName() != null
-						? electronicReferralForm.getCcDoctorPracticeName()
+						? electronicReferralForm.getCcDoctorPracticeName().toUpperCase()
 						: "")
 				+ "<br><br><br>" +
 
