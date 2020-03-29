@@ -85,7 +85,7 @@ public class ElectronicReferralService {
 
 		String emailBody = 
 				"<b>Credential status:&nbsp;</b>" + (isReferrerLogged?"Pre-validated Referrer":"Referrer Validation <u>required</u>")
-				+ "<br>A new E-referral has been received for:" + "<br><br>" + "<b>Patient name:&nbsp;</b>"
+				+ "<br><br>A new E-referral has been received for:" + "<br><br>" + "<b>Patient name:&nbsp;</b>"
 				+ (electronicReferralForm.getPatientName() != null ? electronicReferralForm.getPatientName().toUpperCase() : "")
 				+ "<br><br>" + "<b>DOB:&nbsp;</b>"
 				+ (electronicReferralForm.getPatientDob() != null ? electronicReferralForm.getPatientDob().toUpperCase() : "")
@@ -181,11 +181,11 @@ public class ElectronicReferralService {
 
 		SimpleDateFormat submittedDateTimeFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm a z");
 		
-		String emailBody = "Dear Dr" + electronicReferralForm.getDoctorName().toUpperCase()
-				+ "<br>Thank you for referral to I-MED Radiology."
-				+ "<br>Please find attached a copy of the electronic referral you recently issued to " + electronicReferralForm.getPatientName().toUpperCase() + " at " + submittedDateTimeFormat.format(electronicReferralForm.getSubmittedTime()).toUpperCase()
-				+ "<br>We will call the patient in the next few days (during business hours) to arrange a suitable time and location for their radiology appointment."
-				+ "<br>Kind regards.<br><br><br><br>"
+		String emailBody = "Dear Dr " + electronicReferralForm.getDoctorName().toUpperCase()
+				+ "<br><br>Thank you for referral to I-MED Radiology."
+				+ "<br><br>Please find attached a copy of the electronic referral you recently issued to " + electronicReferralForm.getPatientName().toUpperCase() + " at " + submittedDateTimeFormat.format(electronicReferralForm.getSubmittedTime()).toUpperCase()
+				+ "<br><br>We will call the patient in the next few days (during business hours) to arrange a suitable time and location for their radiology appointment."
+				+ "<br><br>Kind regards.<br><br><br><br>"
 				+ "The team at I-MED Radiology Network.";
 
 		List<String> toEmailId = new ArrayList<String>();
