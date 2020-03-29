@@ -149,7 +149,7 @@ public class ElectronicReferralService {
 		String subject = "Imaging Services at I-MED Radiology";
 
 		String emailBody = "Dear " + electronicReferralForm.getPatientName().toUpperCase()
-				+ "<br><br>Following your recent Telehealth consultation, we have received a request for imaging from your medical Practitioner - "
+				+ "<br><br>Following your recent telehealth consultation, we have received a request for imaging from your medical practitioner - "
 				+ electronicReferralForm.getDoctorName().toUpperCase() +". A copy of the referral is attached.<br><br>"
 				+ "We will call you in the next few days (during business hours) to arrange a suitable time and location for your radiology appointment.<br><br>"
 				+ "We look forward to speaking with you.<br><br>"
@@ -183,7 +183,7 @@ public class ElectronicReferralService {
 		
 		String emailBody = "Dear Dr " + electronicReferralForm.getDoctorName().toUpperCase()
 				+ "<br><br>Thank you for referral to I-MED Radiology."
-				+ "<br><br>Please find attached a copy of the electronic referral you recently issued to " + electronicReferralForm.getPatientName().toUpperCase() + " at " + submittedDateTimeFormat.format(electronicReferralForm.getSubmittedTime()).toUpperCase()
+				+ "<br><br>Please find attached a copy of the electronic referral you recently issued to " + electronicReferralForm.getPatientName().toUpperCase() + " on " + submittedDateTimeFormat.format(electronicReferralForm.getSubmittedTime()).toUpperCase() +"."
 				+ "<br><br>We will call the patient in the next few days (during business hours) to arrange a suitable time and location for their radiology appointment."
 				+ "<br><br>Kind regards.<br><br><br><br>"
 				+ "The team at I-MED Radiology Network.";
