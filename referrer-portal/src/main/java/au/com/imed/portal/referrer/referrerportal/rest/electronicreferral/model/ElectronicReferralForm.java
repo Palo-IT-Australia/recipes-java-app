@@ -89,6 +89,8 @@ public class ElectronicReferralForm {
 	String doctorRequesterNumber;
 	@Column(name = "doctor_ahpra")
 	String doctorAhpra;
+	@Column(name = "doctor_phone")
+	String doctorPhone;
 	@Column(name = "doctor_email")
 	String doctorEmail;
 	@Column(name = "doctor_practice_name")
@@ -131,6 +133,9 @@ public class ElectronicReferralForm {
 	@Convert(converter = BooleanToStringConverter.class)
 	@Column(name = "pad")
 	boolean pad;
+	@Convert(converter = BooleanToStringConverter.class)
+	@Column(name = "copy_to_me")
+	boolean copyToMe;
 
 	@Column(name = "submitted_time")
 	Date submittedTime;
@@ -558,9 +563,22 @@ public class ElectronicReferralForm {
 	public void setCcDoctorRequesterNumber(String ccDoctorRequesterNumber) {
 		this.ccDoctorRequesterNumber = ccDoctorRequesterNumber;
 	}
-	
-	
-	
+
+	public String getDoctorPhone() {
+		return doctorPhone;
+	}
+
+	public void setDoctorPhone(String doctorPhone) {
+		this.doctorPhone = doctorPhone;
+	}
+
+	public boolean isCopyToMe() {
+		return copyToMe;
+	}
+
+	public void setCopyToMe(boolean copyToMe) {
+		this.copyToMe = copyToMe;
+	}
 
 	@Override
 	public String toString() {
@@ -576,15 +594,16 @@ public class ElectronicReferralForm {
 				+ mriCochlear + ", mriCoil=" + mriCoil + ", mriUltrasound=" + mriUltrasound + ", mriNumber=" + mriNumber
 				+ ", mriDate=" + mriDate + ", doctorName=" + doctorName + ", doctorProviderNumber="
 				+ doctorProviderNumber + ", doctorRequesterNumber=" + doctorRequesterNumber + ", doctorAhpra="
-				+ doctorAhpra + ", doctorEmail=" + doctorEmail + ", doctorPracticeName=" + doctorPracticeName
-				+ ", doctorStreet=" + doctorStreet + ", doctorSuburb=" + doctorSuburb + ", doctorState=" + doctorState
-				+ ", doctorPostcode=" + doctorPostcode + ", ccDoctorName=" + ccDoctorName + ", ccDoctorProviderNumber="
-				+ ccDoctorProviderNumber + ", ccDoctorRequesterNumber=" + ccDoctorRequesterNumber + ", ccDoctorEmail="
-				+ ccDoctorEmail + ", ccDoctorPracticeName=" + ccDoctorPracticeName + ", ccDoctorStreet="
-				+ ccDoctorStreet + ", ccDoctorSuburb=" + ccDoctorSuburb + ", ccDoctorState=" + ccDoctorState
-				+ ", ccDoctorPostcode=" + ccDoctorPostcode + ", signatureName=" + signatureName + ", signatureDate="
-				+ signatureDate + ", signatureEntitled=" + signatureEntitled + ", filmReport=" + filmReport + ", pad="
-				+ pad + ", submittedTime=" + submittedTime + "]";
+				+ doctorAhpra + ", doctorPhone=" + doctorPhone + ", doctorEmail=" + doctorEmail
+				+ ", doctorPracticeName=" + doctorPracticeName + ", doctorStreet=" + doctorStreet + ", doctorSuburb="
+				+ doctorSuburb + ", doctorState=" + doctorState + ", doctorPostcode=" + doctorPostcode
+				+ ", ccDoctorName=" + ccDoctorName + ", ccDoctorProviderNumber=" + ccDoctorProviderNumber
+				+ ", ccDoctorRequesterNumber=" + ccDoctorRequesterNumber + ", ccDoctorEmail=" + ccDoctorEmail
+				+ ", ccDoctorPracticeName=" + ccDoctorPracticeName + ", ccDoctorStreet=" + ccDoctorStreet
+				+ ", ccDoctorSuburb=" + ccDoctorSuburb + ", ccDoctorState=" + ccDoctorState + ", ccDoctorPostcode="
+				+ ccDoctorPostcode + ", signatureName=" + signatureName + ", signatureDate=" + signatureDate
+				+ ", signatureEntitled=" + signatureEntitled + ", filmReport=" + filmReport + ", pad=" + pad
+				+ ", copyToMe=" + copyToMe + ", submittedTime=" + submittedTime + "]";
 	}
 
 	@PrePersist

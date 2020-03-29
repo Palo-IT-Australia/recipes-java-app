@@ -38,14 +38,15 @@ public class ElectronicReferralRestController {
 		logger.info("Received referral request : " + referral.toString());
 		JSONObject resp = new JSONObject();
 		
-		if(authentication!=null && StringUtils.isNotEmpty(authentication.getName()) && authentication.getName().equals("alchau")) {
+//		if(authentication!=null && StringUtils.isNotEmpty(authentication.getName()) && authentication.getName().equals("alchau")) {
 		
 		try {
-			if(StringUtils.isEmpty(referral.getDoctorAhpra()) && (authentication==null || StringUtils.isEmpty(authentication.getName()))) {
+			boolean isReferrerLoggedIn = authentication!=null && StringUtils.isNotEmpty(authentication.getName());
+			if(StringUtils.isEmpty(referral.getDoctorAhpra()) && !isReferrerLoggedIn) {
 				resp.put("msg", "AHPRA number is missing for non logged in user");
 				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(resp);
 			} else {
-				electronicReferralService.save(referral);
+				electronicReferralService.save(referral, isReferrerLoggedIn);
 				resp.put("msg", "Saved successfully");
 				resp.put("referralId", referral.getId());
 				doAudit((authentication==null || StringUtils.isEmpty(authentication.getName()))?"":authentication.getName(), referral);
@@ -57,10 +58,10 @@ public class ElectronicReferralRestController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(resp);
 		}
 		
-		} else {
-			resp.put("msg", "The user is not allowed to send electronic referral");
-			return ResponseEntity.status(HttpStatus.FORBIDDEN).body(resp);
-		}
+//		} else {
+//			resp.put("msg", "The user is not allowed to send electronic referral");
+//			return ResponseEntity.status(HttpStatus.FORBIDDEN).body(resp);
+//		}
 
 //		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(resp);
 	}

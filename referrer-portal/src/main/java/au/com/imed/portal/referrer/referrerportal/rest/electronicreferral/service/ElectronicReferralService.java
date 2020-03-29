@@ -2,6 +2,7 @@ package au.com.imed.portal.referrer.referrerportal.rest.electronicreferral.servi
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -60,16 +61,31 @@ public class ElectronicReferralService {
 	@Value("#{'${imed.electronic.referral.ril.email.id}'.split(',')}")
 	List<String> rilToEmailIds;
 
-	public ElectronicReferralForm save(ElectronicReferralForm electronicReferralForm) throws Exception {
+	public ElectronicReferralForm save(ElectronicReferralForm electronicReferralForm, boolean isReferrerLogged) throws Exception {
 		electronicReferralForm = electronicReferralJPARepository.save(electronicReferralForm);
-		sendEmailToCrm(electronicReferralForm);
+		
+		sendEmailToCrm(electronicReferralForm, isReferrerLogged);
+		
+		
+		if(electronicReferralForm.isCopyToMe() && StringUtils.isNotEmpty(electronicReferralForm.getDoctorEmail())) {
+			sendEmailToReferrer(electronicReferralForm);
+		}
+		
+		if(StringUtils.isNotEmpty(electronicReferralForm.getPatientEmail())) {
+			sendEmailToPatient(electronicReferralForm);
+		} else if(StringUtils.isNotEmpty(electronicReferralForm.getPatientPhone()) && validMobileNumber(electronicReferralForm.getPatientPhone())){
+			sendSmsToPatient(electronicReferralForm.getPatientPhone());	
+		}
+		
 		return electronicReferralForm;
 	}
 
-	private void sendEmailToCrm(ElectronicReferralForm electronicReferralForm) throws Exception {
+	private void sendEmailToCrm(ElectronicReferralForm electronicReferralForm, boolean isReferrerLogged) throws Exception {
 		String subject = "I-MED Electronic referral submitted";
 
-		String emailBody = "A new E-referral has been received for:" + "<br><br>" + "<b>Patient name:&nbsp;</b>"
+		String emailBody = 
+				"<b>Credential status:&nbsp;</b>" + (isReferrerLogged?"Pre-validated Referrer":"Referrer Validation <u>required</u>")
+				+ "<br>A new E-referral has been received for:" + "<br><br>" + "<b>Patient name:&nbsp;</b>"
 				+ (electronicReferralForm.getPatientName() != null ? electronicReferralForm.getPatientName().toUpperCase() : "")
 				+ "<br><br>" + "<b>DOB:&nbsp;</b>"
 				+ (electronicReferralForm.getPatientDob() != null ? electronicReferralForm.getPatientDob().toUpperCase() : "")
@@ -119,19 +135,14 @@ public class ElectronicReferralService {
 				"This is an automatically generated email, please do not reply to this email";
 
 		InputStreamSource electronicReferralStream = new ByteArrayResource(
-				pdfReferralGenerator.generatePdfReferral(electronicReferralForm, false));
+				pdfReferralGenerator.generatePdfReferral(electronicReferralForm, false, false, isReferrerLogged));
 
 		List<String> toList = decideToEmailIds(electronicReferralForm.getPatientPostcode());
 		emailService.sendWithStreamAsAttachment(toList, subject, emailBody, electronicReferralStream,
 				"Electronicreferral.pdf");
 
 		electronicReferralStream = null;
-		
-		if(StringUtils.isNotEmpty(electronicReferralForm.getPatientEmail())) {
-			sendEmailToPatient(electronicReferralForm);
-		} else if(StringUtils.isNotEmpty(electronicReferralForm.getPatientPhone()) && validMobileNumber(electronicReferralForm.getPatientPhone())){
-			sendSmsToPatient(electronicReferralForm.getPatientPhone());	
-		}
+
 	}
 
 	private void sendEmailToPatient(ElectronicReferralForm electronicReferralForm) throws MessagingException, FileNotFoundException, IllegalArgumentException, IllegalAccessException, IOException {
@@ -155,7 +166,39 @@ public class ElectronicReferralService {
 		}
 		
 		InputStreamSource pdfStream = new ByteArrayResource(
-				pdfReferralGenerator.generatePdfReferral(electronicReferralForm, true));
+				pdfReferralGenerator.generatePdfReferral(electronicReferralForm, true, false, false));
+		
+		emailService.sendWithStreamAsAttachmentWithHeaderFooter(toEmailId, subject, emailBody, pdfStream,
+				"Electronicreferral.pdf");
+		
+		pdfStream=null;
+
+	}
+	
+	
+	private void sendEmailToReferrer(ElectronicReferralForm electronicReferralForm) throws MessagingException, FileNotFoundException, IllegalArgumentException, IllegalAccessException, IOException {
+		String subject = "E-Referral Notification - I-MED Radiology";
+
+		SimpleDateFormat submittedDateTimeFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm a z");
+		
+		String emailBody = "Dear Dr" + electronicReferralForm.getDoctorName().toUpperCase()
+				+ "<br>Thank you for referral to I-MED Radiology."
+				+ "<br>Please find attached a copy of the electronic referral you recently issued to " + electronicReferralForm.getPatientName().toUpperCase() + " at " + submittedDateTimeFormat.format(electronicReferralForm.getSubmittedTime()).toUpperCase()
+				+ "<br>We will call the patient in the next few days (during business hours) to arrange a suitable time and location for their radiology appointment."
+				+ "<br>Kind regards.<br><br><br><br>"
+				+ "The team at I-MED Radiology Network.";
+
+		List<String> toEmailId = new ArrayList<String>();
+		if(ACTIVE_PROFILE.equals("test")) {
+			toEmailId.add("Sakthiraj.Kanakarathinam@i-med.com.au");
+			toEmailId.add("Martin.Cox@i-med.com.au");
+			toEmailId.add("Hidehiro.Uehara@i-med.com.au");
+		} else {
+			toEmailId.add(electronicReferralForm.getDoctorEmail());
+		}
+		
+		InputStreamSource pdfStream = new ByteArrayResource(
+				pdfReferralGenerator.generatePdfReferral(electronicReferralForm, false, true, false));
 		
 		emailService.sendWithStreamAsAttachmentWithHeaderFooter(toEmailId, subject, emailBody, pdfStream,
 				"Electronicreferral.pdf");
