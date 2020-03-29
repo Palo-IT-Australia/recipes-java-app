@@ -57,6 +57,9 @@ public class ElectronicReferralService {
 
 	@Value("#{'${imed.electronic.referral.wa.email.id}'.split(',')}")
 	List<String> waToEmailIds;
+		
+	@Value("#{'${imed.electronic.referral.drjones.email.id}'.split(',')}")
+	List<String> drJonesToEmailIds;
 
 	@Value("#{'${imed.electronic.referral.ril.email.id}'.split(',')}")
 	List<String> rilToEmailIds;
@@ -222,6 +225,8 @@ public class ElectronicReferralService {
 			return qldToEmailIds;
 		case "Uniting Care QLD JV":
 			return qldToEmailIds;
+		case "Dr Jones SA/NT JV":
+			return drJonesToEmailIds;
 		default:
 			return rilToEmailIds;
 		}
