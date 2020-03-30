@@ -67,9 +67,10 @@ public class ElectronicReferralService {
 	public ElectronicReferralForm save(ElectronicReferralForm electronicReferralForm, boolean isReferrerLogged) throws Exception {
 		electronicReferralForm = electronicReferralJPARepository.save(electronicReferralForm);
 		
-		sendEmailToCrm(electronicReferralForm, isReferrerLogged);
-		
 		boolean isDrJonesBu = isDrJonesBu(electronicReferralForm.getPatientPostcode());
+				
+		sendEmailToCrm(electronicReferralForm, isReferrerLogged);
+				
 		if(electronicReferralForm.isCopyToMe() && StringUtils.isNotEmpty(electronicReferralForm.getDoctorEmail()) && !isDrJonesBu) {
 			sendEmailToReferrer(electronicReferralForm);
 		}
@@ -214,7 +215,11 @@ public class ElectronicReferralService {
 
 	private List<String> decideToEmailIds(String postalCode) {
 		String buName = "";
-		buName = crmPostcodeJpaRepository.findByPostcode(postalCode).get(0).getBu();
+		
+		List<CrmPostcodeEntity> postCodeResult = crmPostcodeJpaRepository.findByPostcode(postalCode); 
+		if (postCodeResult.size()>0) {
+			buName = postCodeResult.get(0).getBu();
+		}
 
 		switch (buName) {
 		case "I-MED NSW/ACT":
@@ -238,7 +243,10 @@ public class ElectronicReferralService {
 	
 	private boolean isDrJonesBu(String postalCode) {
 		String buName = "";
-		buName = crmPostcodeJpaRepository.findByPostcode(postalCode).get(0).getBu();
+		List<CrmPostcodeEntity> postCodeResult = crmPostcodeJpaRepository.findByPostcode(postalCode);
+		if (postCodeResult.size()>0) {
+			buName = postCodeResult.get(0).getBu();
+		}
 		return buName.equals("Dr Jones SA/NT JV");
 		
 	}
