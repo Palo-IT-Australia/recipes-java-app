@@ -49,7 +49,7 @@ public class ElectronicReferralRestController {
 				electronicReferralService.save(referral, isReferrerLoggedIn);
 				resp.put("msg", "Saved successfully");
 				resp.put("referralId", referral.getId());
-				doAudit((authentication==null || StringUtils.isEmpty(authentication.getName()))?"":authentication.getName(), referral);
+				doAudit(isReferrerLoggedIn?authentication.getName():"", referral);
 				return ResponseEntity.status(HttpStatus.OK).body(resp);
 			}
 		} catch (Exception e) {
