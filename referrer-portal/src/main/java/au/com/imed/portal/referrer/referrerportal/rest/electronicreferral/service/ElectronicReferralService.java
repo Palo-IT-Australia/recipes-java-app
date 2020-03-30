@@ -69,14 +69,14 @@ public class ElectronicReferralService {
 		
 		sendEmailToCrm(electronicReferralForm, isReferrerLogged);
 		
-		
-		if(electronicReferralForm.isCopyToMe() && StringUtils.isNotEmpty(electronicReferralForm.getDoctorEmail())) {
+		boolean isDrJonesBu = isDrJonesBu(electronicReferralForm.getPatientPostcode());
+		if(electronicReferralForm.isCopyToMe() && StringUtils.isNotEmpty(electronicReferralForm.getDoctorEmail()) && !isDrJonesBu) {
 			sendEmailToReferrer(electronicReferralForm);
 		}
 		
-		if(StringUtils.isNotEmpty(electronicReferralForm.getPatientEmail())) {
+		if(StringUtils.isNotEmpty(electronicReferralForm.getPatientEmail()) && !isDrJonesBu) {
 			sendEmailToPatient(electronicReferralForm);
-		} else if(StringUtils.isNotEmpty(electronicReferralForm.getPatientPhone()) && validMobileNumber(electronicReferralForm.getPatientPhone())){
+		} else if(StringUtils.isNotEmpty(electronicReferralForm.getPatientPhone()) && validMobileNumber(electronicReferralForm.getPatientPhone())  && !isDrJonesBu){
 			sendSmsToPatient(electronicReferralForm.getPatientPhone());	
 		}
 		
