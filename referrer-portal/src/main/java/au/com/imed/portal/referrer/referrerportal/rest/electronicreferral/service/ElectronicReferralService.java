@@ -85,10 +85,12 @@ public class ElectronicReferralService {
 
 	private void sendEmailToCrm(ElectronicReferralForm electronicReferralForm, boolean isReferrerLogged) throws Exception {
 		String subject = "I-MED Electronic referral submitted";
-
+		if(electronicReferralForm.isUrgentResult()) {
+			subject = subject + " - Urgent";
+		}
 		String emailBody = 
 				"<b>Credential status:&nbsp;</b>" + (isReferrerLogged?"Pre-validated Referrer":"Referrer Validation <u>required</u>")
-				+ "<br><br>A new E-referral has been received for:" + "<br><br>" + "<b>Patient name:&nbsp;</b>"
+				+ "<br><br>A new"+ (electronicReferralForm.isUrgentResult()?"<font color=\"red\"> Urgent </font>":"") +"E-referral has been received for:" + "<br><br>" + "<b>Patient name:&nbsp;</b>"
 				+ (electronicReferralForm.getPatientName() != null ? electronicReferralForm.getPatientName().toUpperCase() : "")
 				+ "<br><br>" + "<b>DOB:&nbsp;</b>"
 				+ (electronicReferralForm.getPatientDob() != null ? electronicReferralForm.getPatientDob().toUpperCase() : "")
@@ -181,11 +183,14 @@ public class ElectronicReferralService {
 	
 	private void sendEmailToReferrer(ElectronicReferralForm electronicReferralForm) throws MessagingException, FileNotFoundException, IllegalArgumentException, IllegalAccessException, IOException {
 		String subject = "Request for imaging services at I-MED Radiology";
+		if(electronicReferralForm.isUrgentResult()) {
+			subject = subject + " - Urgent";
+		}
 
 		SimpleDateFormat submittedDateTimeFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm a z");
 		
 		String emailBody = "Dear Dr " + electronicReferralForm.getDoctorName().toUpperCase()
-				+ "<br><br>Thank you for referral to I-MED Radiology."
+				+ "<br><br>Thank you for"+ (electronicReferralForm.isUrgentResult()?"<font color=\"red\"> Urgent </font>":"") + "referral to I-MED Radiology."
 				+ "<br><br>Please find attached a copy of the electronic referral you recently issued to " + electronicReferralForm.getPatientName().toUpperCase() + " on " + submittedDateTimeFormat.format(electronicReferralForm.getSubmittedTime()).toUpperCase() +"."
 				+ "<br><br>We will call your patient in the next few days (during business hours) to arrange a suitable time and location for their radiology appointment."
 				+ "<br><br>Kind regards.<br><br><br><br>"

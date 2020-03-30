@@ -136,6 +136,9 @@ public class ElectronicReferralForm {
 	@Convert(converter = BooleanToStringConverter.class)
 	@Column(name = "copy_to_me")
 	boolean copyToMe;
+	@Convert(converter = BooleanToStringConverter.class)
+	@Column(name = "urgent_result")
+	boolean urgentResult;
 
 	@Column(name = "submitted_time")
 	Date submittedTime;
@@ -580,6 +583,16 @@ public class ElectronicReferralForm {
 		this.copyToMe = copyToMe;
 	}
 
+	public boolean isUrgentResult() {
+		return urgentResult;
+	}
+
+	public void setUrgentResult(boolean urgentResult) {
+		this.urgentResult = urgentResult;
+	}
+	
+	
+
 	@Override
 	public String toString() {
 		return "ElectronicReferralForm [id=" + id + ", patientName=" + patientName + ", patientDob=" + patientDob
@@ -603,7 +616,8 @@ public class ElectronicReferralForm {
 				+ ", ccDoctorSuburb=" + ccDoctorSuburb + ", ccDoctorState=" + ccDoctorState + ", ccDoctorPostcode="
 				+ ccDoctorPostcode + ", signatureName=" + signatureName + ", signatureDate=" + signatureDate
 				+ ", signatureEntitled=" + signatureEntitled + ", filmReport=" + filmReport + ", pad=" + pad
-				+ ", copyToMe=" + copyToMe + ", submittedTime=" + submittedTime + "]";
+				+ ", copyToMe=" + copyToMe + ", urgentResult=" + urgentResult + ", submittedTime=" + submittedTime
+				+ "]";
 	}
 
 	@PrePersist
