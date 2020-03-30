@@ -162,8 +162,8 @@ public class ElectronicReferralService {
 		List<String> toEmailId = new ArrayList<String>();
 		if(ACTIVE_PROFILE.equals("test")) {
 			toEmailId.add("Sakthiraj.Kanakarathinam@i-med.com.au");
-//			toEmailId.add("Martin.Cox@i-med.com.au");
-//			toEmailId.add("Hidehiro.Uehara@i-med.com.au");
+			toEmailId.add("Martin.Cox@i-med.com.au");
+			toEmailId.add("Hidehiro.Uehara@i-med.com.au");
 		} else {
 			toEmailId.add(electronicReferralForm.getPatientEmail());
 		}
@@ -194,8 +194,8 @@ public class ElectronicReferralService {
 		List<String> toEmailId = new ArrayList<String>();
 		if(ACTIVE_PROFILE.equals("test")) {
 			toEmailId.add("Sakthiraj.Kanakarathinam@i-med.com.au");
-//			toEmailId.add("Martin.Cox@i-med.com.au");
-//			toEmailId.add("Hidehiro.Uehara@i-med.com.au");			
+			toEmailId.add("Martin.Cox@i-med.com.au");
+			toEmailId.add("Hidehiro.Uehara@i-med.com.au");			
 		} else {
 			toEmailId.add(electronicReferralForm.getDoctorEmail());
 		}
