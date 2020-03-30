@@ -164,6 +164,7 @@ public class ElectronicReferralService {
 			toEmailId.add("Sakthiraj.Kanakarathinam@i-med.com.au");
 			toEmailId.add("Martin.Cox@i-med.com.au");
 			toEmailId.add("Hidehiro.Uehara@i-med.com.au");
+			toEmailId.add("Sandra.Burleigh@i-med.com.au");
 		} else {
 			toEmailId.add(electronicReferralForm.getPatientEmail());
 		}
@@ -172,7 +173,7 @@ public class ElectronicReferralService {
 				pdfReferralGenerator.generatePdfReferral(electronicReferralForm, true, false, false));
 		
 		emailService.sendWithStreamAsAttachmentWithHeaderFooter(toEmailId, subject, emailBody, pdfStream,
-				"Electronicreferral.pdf");
+				"Electronicreferral.pdf", "static/images/public/Request_for_Imaging.png", "static/images/public/ER_Footer.png");
 		
 		pdfStream=null;
 
@@ -196,6 +197,7 @@ public class ElectronicReferralService {
 			toEmailId.add("Sakthiraj.Kanakarathinam@i-med.com.au");
 			toEmailId.add("Martin.Cox@i-med.com.au");
 			toEmailId.add("Hidehiro.Uehara@i-med.com.au");
+			toEmailId.add("Sandra.Burleigh@i-med.com.au");
 		} else {
 			toEmailId.add(electronicReferralForm.getDoctorEmail());
 		}
@@ -204,7 +206,7 @@ public class ElectronicReferralService {
 				pdfReferralGenerator.generatePdfReferral(electronicReferralForm, false, true, false));
 		
 		emailService.sendWithStreamAsAttachmentWithHeaderFooter(toEmailId, subject, emailBody, pdfStream,
-				"Electronicreferral.pdf");
+				"Electronicreferral.pdf", "static/images/public/Request_for_Imaging.png", "static/images/public/ER_Footer.png");
 		
 		pdfStream=null;
 
@@ -231,6 +233,14 @@ public class ElectronicReferralService {
 			return rilToEmailIds;
 		}
 
+	}
+	
+	
+	private boolean isDrJonesBu(String postalCode) {
+		String buName = "";
+		buName = crmPostcodeJpaRepository.findByPostcode(postalCode).get(0).getBu();
+		return buName.equals("Dr Jones SA/NT JV");
+		
 	}
 	
 	private boolean validMobileNumber(String telephone) {

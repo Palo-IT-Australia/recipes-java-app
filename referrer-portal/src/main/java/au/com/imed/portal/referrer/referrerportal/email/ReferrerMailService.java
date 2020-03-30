@@ -281,14 +281,14 @@ public class ReferrerMailService {
 	 * @throws MessagingException 
 	 */
 	public void sendWithStreamsAsAttachmentWithHeaderFooter(final List<String> tos, final String subject, final String content,
-			List<InputStreamSource> dataSources, List<String> attachmentFileName) throws MessagingException {
+			List<InputStreamSource> dataSources, List<String> attachmentFileName, String headerImgLoc, String footerImgLoc) throws MessagingException {
 		
 			MimeMessage msg = mailSender.createMimeMessage();
 
 			MimeMessageHelper emailMsgHelper = new MimeMessageHelper(msg, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED, "utf-8");
 
-			emailMsgHelper.addAttachment(LOGO_KEY, REQUEST_FOR_IMAGE_IMED_LOGO);
-			emailMsgHelper.addAttachment(REQUEST_FOR_IMAGE_BANNER_KEY, IMED_REQUEST_FOR_IMG);
+			emailMsgHelper.addAttachment(LOGO_KEY, (new ClassPathResource(footerImgLoc)));
+			emailMsgHelper.addAttachment(REQUEST_FOR_IMAGE_BANNER_KEY, (new ClassPathResource(headerImgLoc)));
 			
 			for (String to : tos) {
 				emailMsgHelper.addTo(to);
@@ -340,12 +340,12 @@ public class ReferrerMailService {
 	 * @throws MessagingException 
 	 */
 	public void sendWithStreamAsAttachmentWithHeaderFooter(final List<String> tos, final String subject, final String content,
-			InputStreamSource dataSource, String attachmentFileName) throws MessagingException {
+			InputStreamSource dataSource, String attachmentFileName, String headerImgLoc, String footerImgLoc) throws MessagingException {
 		List<InputStreamSource> tempDatasourceList = new ArrayList<InputStreamSource>();
 		tempDatasourceList.add(dataSource);
 		List<String> tempFileNameList = new ArrayList<String>();
 		tempFileNameList.add(attachmentFileName);
-		sendWithStreamsAsAttachmentWithHeaderFooter(tos, subject, content, tempDatasourceList, tempFileNameList);		
+		sendWithStreamsAsAttachmentWithHeaderFooter(tos, subject, content, tempDatasourceList, tempFileNameList, headerImgLoc, footerImgLoc);		
 	}
 
 	public void sendAddPractice(final AddPractice practice, final DetailedLdapUserDetails detail) {
