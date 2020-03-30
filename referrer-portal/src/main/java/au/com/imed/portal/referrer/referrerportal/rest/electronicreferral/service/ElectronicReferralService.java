@@ -90,7 +90,7 @@ public class ElectronicReferralService {
 		}
 		String emailBody = 
 				"<b>Credential status:&nbsp;</b>" + (isReferrerLogged?"Pre-validated Referrer":"Referrer Validation <u>required</u>")
-				+ "<br><br>A new"+ (electronicReferralForm.isUrgentResult()?"<font color=\"red\"> Urgent </font>":"") +"E-referral has been received for:" + "<br><br>" + "<b>Patient name:&nbsp;</b>"
+				+ "<br><br>A new "+ (electronicReferralForm.isUrgentResult()?"<font color=\"red\">Urgent </font>":"") +"E-referral has been received for:" + "<br><br>" + "<b>Patient name:&nbsp;</b>"
 				+ (electronicReferralForm.getPatientName() != null ? electronicReferralForm.getPatientName().toUpperCase() : "")
 				+ "<br><br>" + "<b>DOB:&nbsp;</b>"
 				+ (electronicReferralForm.getPatientDob() != null ? electronicReferralForm.getPatientDob().toUpperCase() : "")
@@ -190,7 +190,7 @@ public class ElectronicReferralService {
 		SimpleDateFormat submittedDateTimeFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm a z");
 		
 		String emailBody = "Dear Dr " + electronicReferralForm.getDoctorName().toUpperCase()
-				+ "<br><br>Thank you for"+ (electronicReferralForm.isUrgentResult()?"<font color=\"red\"> Urgent </font>":"") + "referral to I-MED Radiology."
+				+ "<br><br>Thank you for "+ (electronicReferralForm.isUrgentResult()?"<font color=\"red\">Urgent </font>":"") + "referral to I-MED Radiology."
 				+ "<br><br>Please find attached a copy of the electronic referral you recently issued to " + electronicReferralForm.getPatientName().toUpperCase() + " on " + submittedDateTimeFormat.format(electronicReferralForm.getSubmittedTime()).toUpperCase() +"."
 				+ "<br><br>We will call your patient in the next few days (during business hours) to arrange a suitable time and location for their radiology appointment."
 				+ "<br><br>Kind regards.<br><br><br><br>"
