@@ -2494,7 +2494,7 @@ strong {
 }
 
 .image-index.referrer {
-	background-image: url('../../images/public/covid.jpg');
+	background-image: url('../../images/public/telehealth.jpg');
 	background-position: 50% 3%;
 	background-size: cover;
 	background-repeat: no-repeat
@@ -2508,11 +2508,11 @@ strong {
 }
 
 .image-index.support.notice {
-    background-image: url(../../images/public/notice.jpg);
+    background-image: url(../../images/public/serviceman.jpg);
 }
 
 .image-index.resources {
-	background-image: url('../../images/public/resources.jpg');
+	background-image: url('../../images/public/ereferral.jpg');
 	background-position: 50% 100%;
 	background-size: cover;
 	background-repeat: no-repeat
