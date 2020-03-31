@@ -38,7 +38,7 @@ public class ElectronicReferralRestController {
 		logger.info("Received referral request : " + referral.toString());
 		JSONObject resp = new JSONObject();
 		
-//		if(authentication!=null && StringUtils.isNotEmpty(authentication.getName()) && authentication.getName().equals("alchau")) {
+
 		
 		try {
 			boolean isReferrerLoggedIn = authentication!=null && StringUtils.isNotEmpty(authentication.getName());
@@ -58,12 +58,7 @@ public class ElectronicReferralRestController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(resp);
 		}
 		
-//		} else {
-//			resp.put("msg", "The user is not allowed to send electronic referral");
-//			return ResponseEntity.status(HttpStatus.FORBIDDEN).body(resp);
-//		}
 
-//		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(resp);
 	}
 	
 	private void doAudit(String username, ElectronicReferralForm referral) {
