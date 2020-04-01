@@ -108,18 +108,11 @@ public class ElectronicReferralService {
 				File eReferralsFile = createEReferralCsv(ereferralListToSend);		
 				fileMap.put("electronic_referrals.csv", eReferralsFile);
 				
-				List<String> crmEmailList = new ArrayList<String>();
+				String[] toEmailIds = null;
 				if("prod".equals(ACTIVE_PROFILE)) {
-					crmEmailList.add("All-CustomerRelationshipManagers@i-med.com.au");
-					crmEmailList.add("Susie.Morgan@i-med.com.au");
-					crmEmailList.add("Rebecca.Button@i-med.com.au");
-					crmEmailList.add("Mark.Burgess@i-med.com.au");
-					crmEmailList.add("Melanie.Buttsworth@i-med.com.au");
-					crmEmailList.add("Dominique.Gauci@i-med.com.au");
-				    crmEmailList.add("Sally.Douglas@i-med.com.au");
+					toEmailIds = new String [] {"All-CustomerRelationshipManagers@i-med.com.au", "Susie.Morgan@i-med.com.au", "Rebecca.Button@i-med.com.au", "Mark.Burgess@i-med.com.au", "Melanie.Buttsworth@i-med.com.au", "Dominique.Gauci@i-med.com.au", "Sally.Douglas@i-med.com.au"};
 				} else {
-					crmEmailList.add("Sakthiraj.Kanakarathinam@i-med.com.au");
-					crmEmailList.add("Hidehiro.Uehara@i-med.com.au");
+					toEmailIds = new String [] {"Sakthiraj.Kanakarathinam@i-med.com.au", "Hidehiro.Uehara@i-med.com.au", "Martin.Cox@i-med.com.au"};
 				}
 				
 				String formattedStartDate = submittedDateTimeFormat.format(startTime);
@@ -132,7 +125,7 @@ public class ElectronicReferralService {
 						"<br><br>" + 
 						"Thanks.<br>",formattedStartDate, formattedEndDate);
 				
-				emailService.sendWithFileMap(((String[])crmEmailList.toArray()), 
+				emailService.sendWithFileMap(toEmailIds, 
 						subject, emailBody, fileMap);
 
 			} catch(Exception ex) {
@@ -402,5 +395,6 @@ public class ElectronicReferralService {
 			}
 		}
 	}
+	
 
 }
