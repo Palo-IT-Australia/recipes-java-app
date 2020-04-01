@@ -22,12 +22,14 @@ public class EReferralReportScheduler {
 	@Value("${imed.scheduler.ereferral.server.name}")
 	private String SCHEDULER_SERVER_NAME;
 
-	@Scheduled(cron = "0 52 14 * * ?")
+	@Scheduled(cron = "0 54 14 * * ?")
 	public void schedulEReferralReport() {
 		try {
 			logger.info("Started to send ereferral audit report to CRM");
 			if (SCHEDULER_SERVER_NAME.equals(InetAddress.getLocalHost().getHostName())) {
 				electronicReferralService.sendDailyEReferralToCrm();
+			} else {
+				logger.info("This is not the server to run ereferral email" + InetAddress.getLocalHost().getHostName());
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
