@@ -22,7 +22,7 @@ public class EReferralReportScheduler {
 	@Value("${imed.scheduler.ereferral.server.name}")
 	private String SCHEDULER_SERVER_NAME;
 
-	@Scheduled(cron = "0 54 14 * * ?")
+	@Scheduled(cron = "0 1 15 * * ?")
 	public void schedulEReferralReport() {
 		try {
 			logger.info("Started to send ereferral audit report to CRM");

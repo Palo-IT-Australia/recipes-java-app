@@ -120,9 +120,9 @@ public class ElectronicReferralService {
 				String subject = String.format("E-Referral audit report for %s to %s",formattedStartDate, formattedEndDate);
 				
 				String emailBody = String.format("Hello Team," + 
-						"<br><br>" + 
+						"\r\n\r\n" + 
 						"Please find attached the E-Referral audit report for the period between %s to %s" + 
-						"<br><br>" + 
+						"\r\n\r\n" + 
 						"Thanks.<br>",formattedStartDate, formattedEndDate);
 				
 				emailService.sendWithFileMap(toEmailIds, 
