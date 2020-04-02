@@ -37,7 +37,7 @@ public class EReferralReportScheduler {
 	}
 	
 //	@Scheduled(cron = "0 0 8 * * MON-FRI")
-	@Scheduled(cron = "0 1 16 * * MON-FRI")
+	@Scheduled(cron = "0 6 16 * * MON-FRI")
 	public void schedulEReferralCrmReport() {
 		try {
 			logger.info("Started to send ereferral report to CRM");

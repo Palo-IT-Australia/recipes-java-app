@@ -255,21 +255,21 @@ public class ElectronicReferralService {
 				
 				String emailBody = String.format("Hello Team," + 
 						"\r\n\r\n" + 
-						"Please find attached your daily E-referral referrer usage report for the period between %s to %s" +
+						"Please find attached your daily E-referral referrer usage report for the period between %s to %s." +
 						"\r\n\r\n" + 
 						"To filter the sheet to your BU:" +
 						"\r\n\r\n" +
-						"Highlight Line 1 by click the number \"1\"" +
+						"Highlight Line 1 by click the number \"1\"." +
 						"\r\n" +
-						"Select \"Sort and Filter\" (right end of Home toolbar) and then \"Filter\"" +
+						"Select \"Sort and Filter\" (right end of Home toolbar) and then \"Filter\"." +
 						"\r\n" +
-						"Click the arrow for column \"E\" and uncheck to display your state" +
+						"Click the arrow for column \"E\" and uncheck to display your state." +
 						"\r\n\r\n" +
 						"To expand all the column quickly:" +
 						"\r\n\r\n" +
-						"Select the green triangle in the top left corner of the sheet Put the cursor on the line between columns \"A\" and \"B\"" +
+						"Select the green triangle in the top left corner of the sheet Put the cursor on the line between columns \"A\" and \"B\"." +
 						"\r\n" +
-						"When you see the arrows in each direction appear \"double click\"" +
+						"When you see the arrows in each direction appear \"double click\"." +
 						"\r\n\r\n" +
 						"Thanks.",formattedStartDate, formattedEndDate);
 				
