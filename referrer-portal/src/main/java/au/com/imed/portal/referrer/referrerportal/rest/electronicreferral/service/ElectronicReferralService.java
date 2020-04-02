@@ -6,7 +6,9 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -97,33 +99,47 @@ public class ElectronicReferralService {
 	}
 	
 	
-	public void sendDailyEReferralToCrm() throws Exception {
-		Date endTime = new Date();
-		Date startTime = new Date(endTime.getTime() - (24 * 60 * 60 * 1000));
+	/**
+	 * Sends ereferral daily audit report to Martin with all the details.
+	 * @throws Exception
+	 */
+	public void sendDailyEReferralAuditReport() throws Exception {
+		Calendar date = new GregorianCalendar();
+		// reset hour, minutes, seconds and millis
+		date.set(Calendar.HOUR_OF_DAY, 0);
+		date.set(Calendar.MINUTE, 0);
+		date.set(Calendar.SECOND, 0);
+		date.set(Calendar.MILLISECOND, 0);
+		
+		Date endTime = date.getTime();
+
+		// Minus one day
+		date.add(Calendar.DAY_OF_MONTH, -1);		
+		Date startTime = date.getTime();		
+
 		SimpleDateFormat submittedDateTimeFormat = new SimpleDateFormat("dd/MM/yyyy");
 		Map<String, File> fileMap = new HashMap<>(1);
 		List<ElectronicReferralForm> ereferralListToSend = electronicReferralJPARepository.findBySubmittedTimeBetweenOrderByIdAsc(startTime, endTime);
 		if(ereferralListToSend.size() > 0) {
 			try {
-				File eReferralsFile = createEReferralCsv(ereferralListToSend);		
-				fileMap.put("electronic_referrals.csv", eReferralsFile);
+				File eReferralsFile = createEReferralDailyAuditCsv(ereferralListToSend);		
+				fileMap.put("electronic_referrals_daily_audit.csv", eReferralsFile);
 				
 				String[] toEmailIds = null;
 				if("prod".equals(ACTIVE_PROFILE)) {
-					toEmailIds = new String [] {"All-CustomerRelationshipManagers@i-med.com.au", "Susie.Morgan@i-med.com.au", "Rebecca.Button@i-med.com.au", "Mark.Burgess@i-med.com.au", "Melanie.Buttsworth@i-med.com.au", "Dominique.Gauci@i-med.com.au", "Sally.Douglas@i-med.com.au"};
+					toEmailIds = new String [] {"Martin.Cox@i-med.com.au"};
 				} else {
 					toEmailIds = new String [] {"Sakthiraj.Kanakarathinam@i-med.com.au", "Hidehiro.Uehara@i-med.com.au", "Martin.Cox@i-med.com.au"};
 				}
 				
 				String formattedStartDate = submittedDateTimeFormat.format(startTime);
 				String formattedEndDate = submittedDateTimeFormat.format(endTime);
-				String subject = String.format("E-Referral audit report for %s to %s",formattedStartDate, formattedEndDate);
+				String subject = String.format("E-Referral Daily Audit Log for %s to %s (Sensitive)",formattedStartDate, formattedEndDate);
 				
-				String emailBody = String.format("Hello Team," + 
-						"\r\n\r\n" + 
-						"Please find attached the E-Referral audit report for the period between %s to %s" + 
-						"\r\n\r\n" + 
-						"Thanks.<br>",formattedStartDate, formattedEndDate);
+				String emailBody = String.format("Daily audit log attached.\r\n\r\n"
+						+ "This is a sensitive document and not to be distributed without express purpose and the document redacted to suit.\r\n\r\n"
+						+ "Any sharing is to be limited to the information required and removal of patient identifies is required unless specifically required.\r\n\r\n"
+						+ "Not for redistribution externally under any circumstances.");
 				
 				emailService.sendWithFileMap(toEmailIds, 
 						subject, emailBody, fileMap);
@@ -134,19 +150,18 @@ public class ElectronicReferralService {
 				deleteTempFiles(fileMap);
 			}
 		} else {
-			logger.info("There is no new electronic referrals to send to CRM.");
+			logger.info("There is no new electronic referrals to send daily audit report to Martin.");
 		}
 	}
 	
-	
-	private File createEReferralCsv(List<ElectronicReferralForm> ereferralListToSend) throws Exception {
+	private File createEReferralDailyAuditCsv(List<ElectronicReferralForm> ereferralListToSend) throws Exception {
 	File tempFile = File.createTempFile("ereferral-", "-csv");
 	SimpleDateFormat submittedDateTimeFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm a z");
 	
     PrintWriter printWriter = new PrintWriter(tempFile);    
-    printWriter.println("id,patient_name,patient_gender,patient_dob,patient_phoneno,patient_email,patient_street,patient_suburb,patient_state,patient_postcode,patient_worker_compensation,exam_detail,patient_pregnant,iv_contrast_allergy,iv_renal_disease,iv_diabetes_metformin_treatment,referrer_name,referrer_email,referrer_ahpra,referrer_provider_no,referrer_requester_no,referrer_practice_name,referrer_contact_no,referrer_street,referrer_suburb,referrer_state,referrer_postcode,cc_referrer_name,cc_referrer_email,cc_referrer_provider_no,cc_referrer_requester_no,cc_referrer_practice_name,cc_referrer_street,cc_referrer_suburb,cc_referrer_state,cc_referrer_postcode,urgent,copy_to_me,submitted_time");    
+    printWriter.println("id,patient_name,patient_gender,patient_dob,patient_phoneno,patient_email,patient_street,patient_suburb,patient_state,patient_postcode,patient_worker_compensation,exam_detail,clinical_detail,patient_pregnant,iv_contrast_allergy,iv_renal_disease,iv_diabetes_metformin_treatment,referrer_name,referrer_email,referrer_ahpra,referrer_provider_no,referrer_requester_no,referrer_practice_name,referrer_contact_no,referrer_street,referrer_suburb,referrer_state,referrer_postcode,cc_referrer_name,cc_referrer_email,cc_referrer_provider_no,cc_referrer_requester_no,cc_referrer_practice_name,cc_referrer_street,cc_referrer_suburb,cc_referrer_state,cc_referrer_postcode,urgent,copy_to_me,submitted_time,signature,signature_date");    
     for(ElectronicReferralForm entity : ereferralListToSend) {
-      printWriter.print(String.format("\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n",
+      printWriter.print(String.format("\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n",
     		StringConversionUtil.nonQuote(String.valueOf(entity.getId())),
     		StringConversionUtil.nonQuote(printEmptyStringIfEmptyOrNull(entity.getPatientName())),
     		StringConversionUtil.nonQuote(printEmptyStringIfEmptyOrNull(entity.getPatientGender())),    		
@@ -159,6 +174,7 @@ public class ElectronicReferralService {
     		StringConversionUtil.nonQuote(printEmptyStringIfEmptyOrNull(entity.getPatientPostcode())),      		      		
       		StringConversionUtil.nonQuote(printYesNoForBoolean(entity.isPatientCompensation())),
       		StringConversionUtil.nonQuote(printEmptyStringIfEmptyOrNull(entity.getExamDetails())),
+      		StringConversionUtil.nonQuote(printEmptyStringIfEmptyOrNull(entity.getClinicalDetails())),
       		StringConversionUtil.nonQuote(printEmptyStringIfEmptyOrNull(entity.getPatientPregnant())),
       		StringConversionUtil.nonQuote(printEmptyStringIfEmptyOrNull(entity.getIvContrastAllergy())),      		
       		StringConversionUtil.nonQuote(printEmptyStringIfEmptyOrNull(entity.getIvRenal())),
@@ -185,8 +201,119 @@ public class ElectronicReferralService {
       		StringConversionUtil.nonQuote(printEmptyStringIfEmptyOrNull(entity.getCcDoctorPostcode())),
       		StringConversionUtil.nonQuote(printYesNoForBoolean(entity.isUrgentResult())),
       		StringConversionUtil.nonQuote(printYesNoForBoolean(entity.isCopyToMe())),
-      		StringConversionUtil.nonQuote(printEmptyStringIfEmptyOrNull(submittedDateTimeFormat.format(entity.getSubmittedTime()))
-   		)));
+      		StringConversionUtil.nonQuote(printEmptyStringIfEmptyOrNull(submittedDateTimeFormat.format(entity.getSubmittedTime()))),
+      		StringConversionUtil.nonQuote(printEmptyStringIfEmptyOrNull(entity.getSignatureName())),
+      		StringConversionUtil.nonQuote(printEmptyStringIfEmptyOrNull(entity.getSignatureDate()))
+      		));
+    }
+    printWriter.close();
+    return tempFile;
+	}
+	
+	/**
+	 * Sends ereferral daily report to CRM with specific details.
+	 * @throws Exception
+	 */
+	public void sendWeekdayEReferralReportToCrm() throws Exception {
+		Calendar date = new GregorianCalendar();
+		// reset hour, minutes, seconds and millis
+		date.set(Calendar.HOUR_OF_DAY, 0);
+		date.set(Calendar.MINUTE, 0);
+		date.set(Calendar.SECOND, 0);
+		date.set(Calendar.MILLISECOND, 0);
+		
+		Date endTime = date.getTime();
+		
+		if(date.get(Calendar.DAY_OF_WEEK) == Calendar.MONDAY) {
+			// Minus three days if today is Monday
+			date.add(Calendar.DAY_OF_MONTH, -3);
+		} else {
+			// Minus one day
+			date.add(Calendar.DAY_OF_MONTH, -1);			
+		}
+
+		Date startTime = date.getTime();		
+
+		SimpleDateFormat submittedDateTimeFormat = new SimpleDateFormat("dd/MM/yyyy");
+		Map<String, File> fileMap = new HashMap<>(1);
+		List<ElectronicReferralForm> ereferralListToSend = electronicReferralJPARepository.findBySubmittedTimeBetweenOrderByIdAsc(startTime, endTime);
+		if(ereferralListToSend.size() > 0) {
+			try {
+				File eReferralsFile = createEReferralCrmReportCsv(ereferralListToSend);		
+				fileMap.put("electronic_referrals_report.csv", eReferralsFile);
+				
+				String[] toEmailIds = null;
+				if("prod".equals(ACTIVE_PROFILE)) {
+					toEmailIds = new String [] {"All-CustomerRelationshipManagers@i-med.com.au", "Susie.Morgan@i-med.com.au", "Rebecca.Button@i-med.com.au", "Mark.Burgess@i-med.com.au", "Melanie.Buttsworth@i-med.com.au", "Dominique.Gauci@i-med.com.au", "Sally.Douglas@i-med.com.au"};
+				} else {
+					toEmailIds = new String [] {"Sakthiraj.Kanakarathinam@i-med.com.au", "Hidehiro.Uehara@i-med.com.au", "Martin.Cox@i-med.com.au"};
+				}
+				
+				String formattedStartDate = submittedDateTimeFormat.format(startTime);
+				String formattedEndDate = submittedDateTimeFormat.format(endTime);
+				String subject = String.format("Daily E-Referral Report for %s to %s (Sensitve)",formattedStartDate, formattedEndDate);
+				
+				String emailBody = String.format("Hello Team," + 
+						"\r\n\r\n" + 
+						"Please find attached your daily E-referral referrer usage report for the period between %s to %s" +
+//						"\r\n\r\n" + 
+//						"To filter this report <TBD>" +
+						"\r\n\r\n" + 
+						"Thanks.",formattedStartDate, formattedEndDate);
+				
+				emailService.sendWithFileMap(toEmailIds, 
+						subject, emailBody, fileMap);
+
+			} catch(Exception ex) {
+				ex.printStackTrace();
+			} finally {
+				deleteTempFiles(fileMap);
+			}
+		} else {
+			logger.info("There is no new electronic referrals to send to CRM.");
+		}
+	}
+	
+	
+
+	
+	
+	private File createEReferralCrmReportCsv(List<ElectronicReferralForm> ereferralListToSend) throws Exception {
+	File tempFile = File.createTempFile("ereferralforcrm-", "-csv");
+	SimpleDateFormat submittedDateTimeFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm a z");
+	
+    PrintWriter printWriter = new PrintWriter(tempFile);    
+    printWriter.println("id,patient_gender,patient_dob,patient_suburb,patient_state,patient_postcode,referrer_name,referrer_email,referrer_provider_no,referrer_requester_no,referrer_practice_name,referrer_contact_no,referrer_street,referrer_suburb,referrer_state,referrer_postcode,cc_referrer_name,cc_referrer_email,cc_referrer_provider_no,cc_referrer_practice_name,cc_referrer_street,cc_referrer_suburb,cc_referrer_state,cc_referrer_postcode,urgent,copy_to_me,submitted_time");    
+    for(ElectronicReferralForm entity : ereferralListToSend) {
+      printWriter.print(String.format("\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n",
+    		StringConversionUtil.nonQuote(String.valueOf(entity.getId())),
+    		StringConversionUtil.nonQuote(printEmptyStringIfEmptyOrNull(entity.getPatientGender())),    		
+      		StringConversionUtil.nonQuote(printEmptyStringIfEmptyOrNull(entity.getPatientDob())),      		
+      		StringConversionUtil.nonQuote(printEmptyStringIfEmptyOrNull(entity.getPatientSuburb())),
+      		StringConversionUtil.nonQuote(printEmptyStringIfEmptyOrNull(entity.getPatientState())),
+    		StringConversionUtil.nonQuote(printEmptyStringIfEmptyOrNull(entity.getPatientPostcode())),
+      		StringConversionUtil.nonQuote(printEmptyStringIfEmptyOrNull(entity.getDoctorName())),
+      		StringConversionUtil.nonQuote(printEmptyStringIfEmptyOrNull(entity.getDoctorEmail())),
+      		StringConversionUtil.nonQuote(printEmptyStringIfEmptyOrNull(entity.getDoctorProviderNumber())),
+      		StringConversionUtil.nonQuote(printEmptyStringIfEmptyOrNull(entity.getDoctorRequesterNumber())),
+      		StringConversionUtil.nonQuote(printEmptyStringIfEmptyOrNull(entity.getDoctorPracticeName())),
+      		StringConversionUtil.nonQuote(printEmptyStringIfEmptyOrNull(entity.getDoctorPhone())),
+      		StringConversionUtil.nonQuote(printEmptyStringIfEmptyOrNull(entity.getDoctorStreet())),
+      		StringConversionUtil.nonQuote(printEmptyStringIfEmptyOrNull(entity.getDoctorSuburb())),
+      		StringConversionUtil.nonQuote(printEmptyStringIfEmptyOrNull(entity.getDoctorState())),
+      		StringConversionUtil.nonQuote(printEmptyStringIfEmptyOrNull(entity.getDoctorPostcode())),
+      		StringConversionUtil.nonQuote(printEmptyStringIfEmptyOrNull(entity.getCcDoctorName())),
+      		StringConversionUtil.nonQuote(printEmptyStringIfEmptyOrNull(entity.getCcDoctorEmail())),      		
+      		StringConversionUtil.nonQuote(printEmptyStringIfEmptyOrNull(entity.getCcDoctorProviderNumber())),
+      		StringConversionUtil.nonQuote(printEmptyStringIfEmptyOrNull(entity.getCcDoctorPracticeName())),
+      		StringConversionUtil.nonQuote(printEmptyStringIfEmptyOrNull(entity.getCcDoctorStreet())),
+      		StringConversionUtil.nonQuote(printEmptyStringIfEmptyOrNull(entity.getCcDoctorSuburb())),
+      		StringConversionUtil.nonQuote(printEmptyStringIfEmptyOrNull(entity.getCcDoctorState())),
+      		StringConversionUtil.nonQuote(printEmptyStringIfEmptyOrNull(entity.getCcDoctorPostcode())),
+      		StringConversionUtil.nonQuote(printYesNoForBoolean(entity.isUrgentResult())),
+      		StringConversionUtil.nonQuote(printYesNoForBoolean(entity.isCopyToMe())),
+      		StringConversionUtil.nonQuote(printEmptyStringIfEmptyOrNull(submittedDateTimeFormat.format(entity.getSubmittedTime())))
+      		));
     }
     printWriter.close();
     return tempFile;

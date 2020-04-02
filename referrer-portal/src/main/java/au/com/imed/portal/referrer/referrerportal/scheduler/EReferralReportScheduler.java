@@ -22,16 +22,30 @@ public class EReferralReportScheduler {
 	@Value("${imed.scheduler.ereferral.server.name}")
 	private String SCHEDULER_SERVER_NAME;
 
-	@Scheduled(cron = "0 1 15 * * ?")
-	public void schedulEReferralReport() {
+//	@Scheduled(cron = "0 30 7 * * ?")
+	@Scheduled(cron = "0 19 15 * * ?")
+	public void schedulEReferralAuditReport() {
 		try {
-			logger.info("Started to send ereferral audit report to CRM");
+			logger.info("Started to send ereferral audit report to Martin");
 			if (SCHEDULER_SERVER_NAME.equals(InetAddress.getLocalHost().getHostName())) {
-				electronicReferralService.sendDailyEReferralToCrm();
-			} else {
-				logger.info("This is not the server to run ereferral email" + InetAddress.getLocalHost().getHostName());
+				electronicReferralService.sendDailyEReferralAuditReport();
 			}
 		} catch (Exception e) {
+			logger.info("Exception occured while trying to send ereferral audit report to Martin");
+			e.printStackTrace();
+		}
+	}
+	
+//	@Scheduled(cron = "0 0 8 * * MON-FRI")
+	@Scheduled(cron = "0 19 15 * * MON-FRI")
+	public void schedulEReferralCrmReport() {
+		try {
+			logger.info("Started to send ereferral report to CRM");
+			if (SCHEDULER_SERVER_NAME.equals(InetAddress.getLocalHost().getHostName())) {
+				electronicReferralService.sendWeekdayEReferralReportToCrm();
+			}
+		} catch (Exception e) {
+			logger.info("Exception occured while trying to send ereferral report to CRM");
 			e.printStackTrace();
 		}
 	}
