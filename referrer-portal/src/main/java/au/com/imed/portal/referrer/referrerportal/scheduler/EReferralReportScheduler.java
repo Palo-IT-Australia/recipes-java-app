@@ -22,8 +22,7 @@ public class EReferralReportScheduler {
 	@Value("${imed.scheduler.ereferral.server.name}")
 	private String SCHEDULER_SERVER_NAME;
 
-//	@Scheduled(cron = "0 30 7 * * ?")
-	@Scheduled(cron = "0 19 15 * * ?")
+	@Scheduled(cron = "0 30 7 * * ?")
 	public void schedulEReferralAuditReport() {
 		try {
 			logger.info("Started to send ereferral audit report to Martin");
@@ -36,8 +35,7 @@ public class EReferralReportScheduler {
 		}
 	}
 	
-//	@Scheduled(cron = "0 0 8 * * MON-FRI")
-	@Scheduled(cron = "0 6 16 * * MON-FRI")
+	@Scheduled(cron = "0 0 8 * * MON-FRI")
 	public void schedulEReferralCrmReport() {
 		try {
 			logger.info("Started to send ereferral report to CRM");
