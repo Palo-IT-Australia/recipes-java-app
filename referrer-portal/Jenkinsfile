@@ -1,0 +1,75 @@
+pipeline {
+	agent any  
+	stages {
+		stage('Build') {
+			steps {
+				script {
+				
+					if (env.ENV_TO_DEPLOY == 'PROD') {
+						echo 'Going to build the project for prod environment.'
+						dir(path: 'patient-portal') {
+						  sh 'mvn package -Pprod'
+						}						
+					} else {
+						echo 'Going to build the project for test environment.'
+						dir(path: 'patient-portal') {
+						  sh 'mvn package -Ptest'
+						}						
+					}
+				}
+			}
+		}
+
+		stage('Deploy') {
+			environment {				
+					DEPLY_CREDS = credentials("${env.ENV_TO_DEPLOY == 'PROD'?'prodpatportaltomcat':'testpatportaltomcat'}");
+			}
+			steps {
+				script {
+					def serversToDeploy = "${env.ENV_TO_DEPLOY == 'PROD'?'imedpdtom01,imedpdtom02,imedpdtom03,imedpdtom04':'imedtstom01,imedtstom02,imedtstom03,imedtstom04'}";
+					
+					println('Deploy UserId : ' + DEPLY_CREDS_USR);
+					println('Deploy Servers: ' + serversToDeploy);
+					
+					serversToDeploy.tokenize(',').each {						
+						echo 'Going to deploy the application in the server :' + it
+						dir(path: 'patient-portal/target') {
+							sh 'curl http://' + it + '.imed:8080/manager/text/undeploy?path=/myimed -u ' + DEPLY_CREDS_USR + ':' + DEPLY_CREDS_PSW
+							sh 'curl -T myimed.war http://' + it + '.imed:8080/manager/text/deploy?path=/myimed -u ' + DEPLY_CREDS_USR + ':' + DEPLY_CREDS_PSW
+						}
+						echo 'Deployed the application in the server :' + it
+					}
+					echo 'Completed the deployment to test environment'
+
+				}
+			}
+		}
+
+	}
+	
+	post {
+		cleanup {
+			
+			deleteDir()
+			
+			dir("${workspace}@tmp") {
+				deleteDir()
+			}
+			
+			dir("${workspace}@script") {
+				deleteDir()
+			}
+		}
+	}
+  
+	tools {
+		maven 'MAVEN_TOOL'
+		jdk 'JAVA'
+	}
+}
+
+void abortCurrentBuild(String reason) {
+	println(reason);
+	currentBuild.result = 'ABORTED';
+	error(reason);
+}
