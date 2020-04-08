@@ -129,7 +129,7 @@ public class ElectronicReferralService {
 				if("prod".equals(ACTIVE_PROFILE)) {
 					toEmailIds = new String [] {"Martin.Cox@i-med.com.au"};
 				} else {
-					toEmailIds = new String [] {"Sakthiraj.Kanakarathinam@i-med.com.au", "Hidehiro.Uehara@i-med.com.au", "Martin.Cox@i-med.com.au"};
+					toEmailIds = new String [] {"Hidehiro.Uehara@i-med.com.au", "Martin.Cox@i-med.com.au"};
 				}
 				
 				String formattedStartDate = submittedDateTimeFormat.format(startTime);
@@ -246,7 +246,7 @@ public class ElectronicReferralService {
 				if("prod".equals(ACTIVE_PROFILE)) {
 					toEmailIds = new String [] {"All-CustomerRelationshipManagers@i-med.com.au", "Susie.Morgan@i-med.com.au", "Rebecca.Button@i-med.com.au", "Mark.Burgess@i-med.com.au", "Melanie.Buttsworth@i-med.com.au", "Dominique.Gauci@i-med.com.au", "Sally.Douglas@i-med.com.au"};
 				} else {
-					toEmailIds = new String [] {"Sakthiraj.Kanakarathinam@i-med.com.au", "Hidehiro.Uehara@i-med.com.au", "Martin.Cox@i-med.com.au"};
+					toEmailIds = new String [] {"Hidehiro.Uehara@i-med.com.au", "Martin.Cox@i-med.com.au"};
 				}
 				
 				String formattedStartDate = submittedDateTimeFormat.format(startTime);
@@ -419,7 +419,6 @@ public class ElectronicReferralService {
 
 		List<String> toEmailId = new ArrayList<String>();
 		if(ACTIVE_PROFILE.equals("test")) {
-			toEmailId.add("Sakthiraj.Kanakarathinam@i-med.com.au");
 			toEmailId.add("Martin.Cox@i-med.com.au");
 			toEmailId.add("Hidehiro.Uehara@i-med.com.au");
 		} else {
@@ -451,7 +450,6 @@ public class ElectronicReferralService {
 
 		List<String> toEmailId = new ArrayList<String>();
 		if(ACTIVE_PROFILE.equals("test")) {
-			toEmailId.add("Sakthiraj.Kanakarathinam@i-med.com.au");
 			toEmailId.add("Martin.Cox@i-med.com.au");
 			toEmailId.add("Hidehiro.Uehara@i-med.com.au");			
 		} else {
@@ -517,7 +515,7 @@ public class ElectronicReferralService {
 	private void sendSmsToPatient(String mobileNumber) throws Exception {
 		String[] receipeints = null;
 		if(ACTIVE_PROFILE.equals("test")) {
-			receipeints = new String [] {"0437118213", "0431155939", "0412225274"};
+			receipeints = new String [] {"0437118213", "0412225274"};
 		} else {
 			receipeints = new String [] {mobileNumber};
 		}
