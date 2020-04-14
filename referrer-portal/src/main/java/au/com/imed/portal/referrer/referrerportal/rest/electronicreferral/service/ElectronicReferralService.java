@@ -127,7 +127,7 @@ public class ElectronicReferralService {
 				
 				String[] toEmailIds = null;
 				if("prod".equals(ACTIVE_PROFILE)) {
-					toEmailIds = new String [] {"Martin.Cox@i-med.com.au"};
+					toEmailIds = new String [] {"Martin.Cox@i-med.com.au, Heather.Hinchley@i-med.com.au, Tanya.Beale@i-med.com.au, Jessica.Eames@i-med.com.au"};
 				} else {
 					toEmailIds = new String [] {"Hidehiro.Uehara@i-med.com.au", "Martin.Cox@i-med.com.au"};
 				}
