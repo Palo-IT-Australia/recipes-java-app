@@ -60,6 +60,9 @@ public final class PortalConstant {
 	public static final String VALIDATION_STATUS_PASSED = "passed";  // 1st to check ahpra
 	public static final String VALIDATION_STATUS_VALID = "valid"; // 2nd acnt created
 	public static final String VALIDATION_STATUS_NOTIFIED = "notified"; // 3rd notified by emails
+	
+	// Auto account validation messages
+	public static final String VALIDATION_MSG_ACCOUNT_CREATED = "Account created, ready to notify";
 
 	public static final String REP_VISAGE_USER = "myimed";
 }
