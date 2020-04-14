@@ -24,6 +24,7 @@
 						<a class="home nav-link w-hidden-medium w-hidden-small w-hidden-tiny w-nav-link wpthemeLeft" th:href="@{/}">Home</a>
 						<a class="home nav-link w-hidden-medium w-hidden-small w-hidden-tiny w-nav-link wpthemeLeft" sec:authorize="!isAuthenticated()" th:href="@{/login}">Results</a>
 						<a class="home nav-link w-hidden-medium w-hidden-small w-hidden-tiny w-nav-link wpthemeLeft" sec:authorize="isAuthenticated()" th:href="@{/results}">Results</a>
+						<a class="home nav-link w-hidden-medium w-hidden-small w-hidden-tiny w-nav-link wpthemeLeft" th:href="@{/electronicreferral}">E-Referral</a>
 						<a class="home nav-link w-hidden-medium w-hidden-small w-hidden-tiny w-nav-link wpthemeLeft" sec:authorize="hasAuthority('ROLE_HOSPITAL')" th:href="@{/hospital}">Hospital</a>
 						<a class="home nav-link w-hidden-medium w-hidden-small w-hidden-tiny w-nav-link wpthemeLeft" sec:authorize="hasAuthority('ROLE_ADMIN')" th:href="@{/admin}">Admin</a>
 						<a class="home nav-link w-hidden-medium w-hidden-small w-hidden-tiny w-nav-link wpthemeLeft" sec:authorize="hasAuthority('ROLE_EDITOR')" th:href="@{/editor}">Editor</a>
@@ -103,6 +104,9 @@
 	            </a>
 	            <a th:href="@{/results}" class="nav-link-mobile no-expand w-hidden-main">
 	                <span lang="en" dir="ltr">Results</span>
+	            </a>
+	            <a th:href="@{/electronicreferral}" class="nav-link-mobile no-expand w-hidden-main">
+	                <span lang="en" dir="ltr">E-Referral</span>
 	            </a>
 	            <a sec:authorize="!isAuthenticated()" th:href="@{/apply}" class="nav-link-mobile no-expand w-hidden-main">
 	                <span lang="en" dir="ltr">Create Account</span>

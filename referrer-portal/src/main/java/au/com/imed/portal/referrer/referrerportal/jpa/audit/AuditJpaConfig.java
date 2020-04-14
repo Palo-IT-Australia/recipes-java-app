@@ -20,7 +20,7 @@ import com.zaxxer.hikari.HikariDataSource;
 
 @Configuration
 @EnableTransactionManagement
-@EnableJpaRepositories(basePackages = {"au.com.imed.portal.referrer.referrerportal.jpa.audit","au.com.imed.portal.referrer.referrerportal.jpa.history"},
+@EnableJpaRepositories(basePackages = {"au.com.imed.portal.referrer.referrerportal.jpa.audit","au.com.imed.portal.referrer.referrerportal.jpa.history","au.com.imed.portal.referrer.referrerportal.rest.electronicreferral"},
 entityManagerFactoryRef = "auditEntityManagerFactory", 
 transactionManagerRef = "auditTransactionManager")
 public class AuditJpaConfig {
@@ -29,7 +29,7 @@ public class AuditJpaConfig {
   public LocalContainerEntityManagerFactoryBean auditEntityManagerFactory(EntityManagerFactoryBuilder builder) {
   	return builder
   			.dataSource(auditDataSource())
-  			.packages("au.com.imed.portal.referrer.referrerportal.jpa.audit", "au.com.imed.portal.referrer.referrerportal.jpa.history")
+  			.packages("au.com.imed.portal.referrer.referrerportal.jpa.audit", "au.com.imed.portal.referrer.referrerportal.jpa.history", "au.com.imed.portal.referrer.referrerportal.rest.electronicreferral")
   			.persistenceUnit("IMED_AUDITDB")
   			.build();
   }

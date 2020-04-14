@@ -20,6 +20,26 @@
 		<java.version>11</java.version>
 		<dcm4che.version>dcm4chee-arc-light-5.10.1</dcm4che.version>
 	</properties>
+	
+	<profiles>
+      <profile>
+          <id>test</id>
+          <activation>
+              <activeByDefault>true</activeByDefault>
+          </activation>
+          <properties>
+              <build.profile.id>test</build.profile.id>
+              <profileActive>test</profileActive>
+          </properties>
+      </profile>
+      <profile>
+          <id>prod</id>
+          <properties>
+              <build.profile.id>prod</build.profile.id>
+              <profileActive>prod</profileActive>
+          </properties>
+      </profile>
+  </profiles>
 
 	<profiles>
       <profile>
@@ -265,6 +285,13 @@
 			<artifactId>hapi-base</artifactId>
 			<version>2.2</version>
 		</dependency>
+		
+		<dependency>
+		    <groupId>com.itextpdf</groupId>
+		    <artifactId>html2pdf</artifactId>
+		    <version>2.0.2</version>
+		</dependency>
+		
 	</dependencies>
 
 	<build>
@@ -282,7 +309,7 @@
 					<update>true</update>
 					
 					<!-- TEST -->
-					<url>http://imedtstom08.imed:8080/manager/text</url>
+					<url>http://imedtstom06.imed:8080/manager/text</url>
 					<username>huehara</username>
 					<password>D3pl0ym3nt%</password>   
 

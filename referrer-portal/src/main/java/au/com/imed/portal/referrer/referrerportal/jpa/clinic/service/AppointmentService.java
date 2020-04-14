@@ -33,7 +33,7 @@ public class AppointmentService {
 			toEmails = clinic.getAppointmentEmails().split(",");
 			logger.info("Appointment clinic emails = " + toEmails);
 		} else {
-			toEmails = new String[] { "Hidehiro.Uehara@i-med.com.au", "Sakthiraj.Kanakarathinam@i-med.com.au" };
+			toEmails = new String[] { "Hidehiro.Uehara@i-med.com.au" };
 		}
 
 		referrerEmailService.sendHtmlMail(toEmails, EMAIL_SUBJECT, this.buildEmailContent(appointment), referral);

@@ -57,8 +57,12 @@ public class ReferrerMailService {
   private final static String TEMPLATE_END_APPROVED = "tempApproveEmailEnd.html";
   private final static String NL = "\n";
 	private static final ClassPathResource IMED_BANNER = new ClassPathResource("static/images/public/banner.jpg");
+	private static final ClassPathResource IMED_REQUEST_FOR_IMG = new ClassPathResource("static/images/public/Request_for_Imaging.png");
 	private static final String BANNER_KEY = "banner.jpg";
 	private static final String INLINE_BANNER = "<br/><img src=\"cid:banner.jpg\"></img><br/><br/>";
+	private static final String REQUEST_FOR_IMAGE_BANNER_KEY = "request_for_image_banner.png";
+	private static final String INLINE_REQUEST_FOR_IMAGE_BANNER = "<br/><img src=\"cid:request_for_image_banner.png\"></img><br/><br/>";
+	private static final ClassPathResource REQUEST_FOR_IMAGE_IMED_LOGO = new ClassPathResource("static/images/public/ER_Footer.png");
 
   
   private final static Map<String, String> IMG_CID_MAP_APPROVED = new HashMap<>();
@@ -267,6 +271,46 @@ public class ReferrerMailService {
 	}
 	
 	/**
+	 * Send email with attachment from the given array of streams
+	 *
+	 * @param tos
+	 * @param subject
+	 * @param content
+	 * @param dataSources
+	 * @param attachmentFileName
+	 * @throws MessagingException 
+	 */
+	public void sendWithStreamsAsAttachmentWithHeaderFooter(final List<String> tos, final String subject, final String content,
+			List<InputStreamSource> dataSources, List<String> attachmentFileName, String headerImgLoc, String footerImgLoc) throws MessagingException {
+		
+			MimeMessage msg = mailSender.createMimeMessage();
+
+			MimeMessageHelper emailMsgHelper = new MimeMessageHelper(msg, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED, "utf-8");
+
+			emailMsgHelper.addAttachment(LOGO_KEY, (new ClassPathResource(footerImgLoc)));
+			emailMsgHelper.addAttachment(REQUEST_FOR_IMAGE_BANNER_KEY, (new ClassPathResource(headerImgLoc)));
+			
+			for (String to : tos) {
+				emailMsgHelper.addTo(to);
+			}
+			
+			emailMsgHelper.setFrom("do_not_reply@i-med.com.au");
+			emailMsgHelper.setSubject(subject);
+			emailMsgHelper.setText("<table width=\"600\"><tr><td>" + INLINE_REQUEST_FOR_IMAGE_BANNER + "</td></tr><tr><td><div style='font-family: Arial;'>" + content + "</div></td></tr><tr><td>" + INLINE_LOGO + "</td></tr></table>", true);
+			emailMsgHelper.setSentDate(new Date());
+			
+			// Attach given streams with given file name
+			int i = 0;
+			for (InputStreamSource attachmentEntry : dataSources) {
+				emailMsgHelper.addAttachment(attachmentFileName.get(i), attachmentEntry);
+				i++;
+			}
+			
+			mailSender.send(msg);		
+
+	}
+	
+	/**
 	 * Send email with attachment from the given stream
 	 *
 	 * @param tos
@@ -283,6 +327,25 @@ public class ReferrerMailService {
 		List<String> tempFileNameList = new ArrayList<String>();
 		tempFileNameList.add(attachmentFileName);
 		sendWithStreamsAsAttachment(tos, subject, content, tempDatasourceList, tempFileNameList);		
+	}
+	
+	/**
+	 * Send email with attachment from the given stream
+	 *
+	 * @param tos
+	 * @param subject
+	 * @param content
+	 * @param writers
+	 * @param attachmentFileName
+	 * @throws MessagingException 
+	 */
+	public void sendWithStreamAsAttachmentWithHeaderFooter(final List<String> tos, final String subject, final String content,
+			InputStreamSource dataSource, String attachmentFileName, String headerImgLoc, String footerImgLoc) throws MessagingException {
+		List<InputStreamSource> tempDatasourceList = new ArrayList<InputStreamSource>();
+		tempDatasourceList.add(dataSource);
+		List<String> tempFileNameList = new ArrayList<String>();
+		tempFileNameList.add(attachmentFileName);
+		sendWithStreamsAsAttachmentWithHeaderFooter(tos, subject, content, tempDatasourceList, tempFileNameList, headerImgLoc, footerImgLoc);		
 	}
 
 	public void sendAddPractice(final AddPractice practice, final DetailedLdapUserDetails detail) {

@@ -24,6 +24,9 @@ public class CrmPostcodeEntity {
   @Column(name = "suburb")
   private String suburb;
 
+  @Column(name = "bu")
+  private String bu;
+  
 	public int getId() {
 		return id;
 	}
@@ -54,6 +57,14 @@ public class CrmPostcodeEntity {
 
 	public void setSuburb(String suburb) {
 		this.suburb = suburb;
+	}
+
+	public String getBu() {
+		return bu;
+	}
+
+	public void setBu(String bu) {
+		this.bu = bu;
 	}
   
   
