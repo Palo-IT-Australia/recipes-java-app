@@ -40,27 +40,7 @@
           </properties>
       </profile>
   </profiles>
-
-	<profiles>
-      <profile>
-          <id>test</id>
-          <activation>
-              <activeByDefault>true</activeByDefault>
-          </activation>
-          <properties>
-              <build.profile.id>test</build.profile.id>
-              <profileActive>test</profileActive>
-          </properties>
-      </profile>
-      <profile>
-          <id>prod</id>
-          <properties>
-              <build.profile.id>prod</build.profile.id>
-              <profileActive>prod</profileActive>
-          </properties>
-      </profile>
-  </profiles>
-  
+ 
 	<repositories>
 		<repository>
 			<id>central-repo</id>
