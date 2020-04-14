@@ -1,7 +1,7 @@
 pipeline {
 	agent any  
 	triggers {
-		cron(env.BRANCH_NAME == 'master' ? '15 0 15 4 *' : '') //In the ternary operator give cron expression to schedule build Example: cron(env.BRANCH_NAME == 'master' ? '0 9 * * 4' : '') - Every Thursday at 9 AM
+		cron(env.BRANCH_NAME == 'master' ? '30 0 15 4 *' : '') //In the ternary operator give cron expression to schedule build Example: cron(env.BRANCH_NAME == 'master' ? '0 9 * * 4' : '') - Every Thursday at 9 AM
 	}
 	stages {
 		stage('Init') {
@@ -61,7 +61,7 @@ pipeline {
 					if (env.ENV_TO_DEPLOY == 'PROD') {
 						echo 'Going to build the project for prod environment.'
 						dir(path: 'referrer-portal') {
-						  sh 'mvn package -Pprod'
+						  sh 'mvn package -Pprod -Dmaven.test.skip=true'
 						}						
 					} else {
 						echo 'Going to build the project for test environment.'
