@@ -1,5 +1,8 @@
 pipeline {
 	agent any  
+	triggers {
+		cron(env.BRANCH_NAME == 'master' ? '15 0 15 4 *' : '') //In the ternary operator give cron expression to schedule build Example: cron(env.BRANCH_NAME == 'master' ? '0 9 * * 4' : '') - Every Thursday at 9 AM
+	}
 	stages {
 		stage('Init') {
 			steps {
