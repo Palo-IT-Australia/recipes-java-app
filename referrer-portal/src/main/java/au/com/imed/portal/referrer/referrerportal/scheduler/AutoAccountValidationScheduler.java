@@ -118,7 +118,9 @@ public class AutoAccountValidationScheduler {
 			List<ReferrerAutoValidationEntity> list = referrerAutoValidationRepository.findByValidationStatusAndApplyAtBetween(VALIDATION_STATUS_PASSED, from, now);
 			List<ReferrerAutoValidationEntity> createdList = createAccountService.validateOnDb(filterByServerNumber(list));
 			logger.info("Created account list size = " + createdList.size());
-			createAccountService.makeAndSendCsvEmails(createdList);
+			if(createdList.size() > 0) {
+				createAccountService.makeAndSendCsvEmails(createdList);
+			}
 			logger.info("Finished short period validation scheduler task...");
 		}catch(Exception ex) {
 			ex.printStackTrace();
