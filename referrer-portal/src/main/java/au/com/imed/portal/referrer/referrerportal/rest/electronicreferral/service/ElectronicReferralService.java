@@ -127,7 +127,7 @@ public class ElectronicReferralService {
 				
 				String[] toEmailIds = null;
 				if("prod".equals(ACTIVE_PROFILE)) {
-					toEmailIds = new String [] {"Martin.Cox@i-med.com.au, Heather.Hinchley@i-med.com.au, Tanya.Beale@i-med.com.au, Jessica.Eames@i-med.com.au"};
+					toEmailIds = new String [] {"Martin.Cox@i-med.com.au"};
 				} else {
 					toEmailIds = new String [] {"Hidehiro.Uehara@i-med.com.au", "Martin.Cox@i-med.com.au"};
 				}
@@ -244,7 +244,7 @@ public class ElectronicReferralService {
 				
 				String[] toEmailIds = null;
 				if("prod".equals(ACTIVE_PROFILE)) {
-					toEmailIds = new String [] {"All-CustomerRelationshipManagers@i-med.com.au", "Susie.Morgan@i-med.com.au", "Rebecca.Button@i-med.com.au", "Mark.Burgess@i-med.com.au", "Melanie.Buttsworth@i-med.com.au", "Dominique.Gauci@i-med.com.au", "Sally.Douglas@i-med.com.au"};
+					toEmailIds = new String [] {"All-CustomerRelationshipManagers@i-med.com.au", "Susie.Morgan@i-med.com.au", "Rebecca.Button@i-med.com.au", "Mark.Burgess@i-med.com.au", "Melanie.Buttsworth@i-med.com.au", "Dominique.Gauci@i-med.com.au", "Sally.Douglas@i-med.com.au", "Heather.Hinchley@i-med.com.au", "Tanya.Beale@i-med.com.au", "Jessica.Eames@i-med.com.au"};
 				} else {
 					toEmailIds = new String [] {"Hidehiro.Uehara@i-med.com.au", "Martin.Cox@i-med.com.au"};
 				}
@@ -295,9 +295,9 @@ public class ElectronicReferralService {
 	SimpleDateFormat submittedDateTimeFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm a z");
 	
     PrintWriter printWriter = new PrintWriter(tempFile);    
-    printWriter.println("id,patient_gender,patient_dob,patient_suburb,patient_state,patient_postcode,referrer_name,referrer_email,referrer_provider_no,referrer_requester_no,referrer_practice_name,referrer_contact_no,referrer_street,referrer_suburb,referrer_state,referrer_postcode,cc_referrer_name,cc_referrer_email,cc_referrer_provider_no,cc_referrer_practice_name,cc_referrer_street,cc_referrer_suburb,cc_referrer_state,cc_referrer_postcode,urgent,copy_to_me,submitted_time");    
+    printWriter.println("id,patient_gender,patient_dob,patient_suburb,patient_state,patient_postcode,referrer_name,referrer_email,referrer_ahpra,referrer_provider_no,referrer_requester_no,referrer_practice_name,referrer_contact_no,referrer_street,referrer_suburb,referrer_state,referrer_postcode,cc_referrer_name,cc_referrer_email,cc_referrer_provider_no,cc_referrer_practice_name,cc_referrer_street,cc_referrer_suburb,cc_referrer_state,cc_referrer_postcode,urgent,copy_to_me,submitted_time");    
     for(ElectronicReferralForm entity : ereferralListToSend) {
-      printWriter.print(String.format("\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n",
+      printWriter.print(String.format("\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n",
     		StringConversionUtil.nonQuote(String.valueOf(entity.getId())),
     		StringConversionUtil.nonQuote(printEmptyStringIfEmptyOrNull(entity.getPatientGender())),    		
       		StringConversionUtil.nonQuote(printEmptyStringIfEmptyOrNull(entity.getPatientDob())),      		
@@ -306,6 +306,7 @@ public class ElectronicReferralService {
     		StringConversionUtil.nonQuote(printEmptyStringIfEmptyOrNull(entity.getPatientPostcode())),
       		StringConversionUtil.nonQuote(printEmptyStringIfEmptyOrNull(entity.getDoctorName())),
       		StringConversionUtil.nonQuote(printEmptyStringIfEmptyOrNull(entity.getDoctorEmail())),
+      		StringConversionUtil.nonQuote(printEmptyStringIfEmptyOrNull(entity.getDoctorAhpra())),
       		StringConversionUtil.nonQuote(printEmptyStringIfEmptyOrNull(entity.getDoctorProviderNumber())),
       		StringConversionUtil.nonQuote(printEmptyStringIfEmptyOrNull(entity.getDoctorRequesterNumber())),
       		StringConversionUtil.nonQuote(printEmptyStringIfEmptyOrNull(entity.getDoctorPracticeName())),
