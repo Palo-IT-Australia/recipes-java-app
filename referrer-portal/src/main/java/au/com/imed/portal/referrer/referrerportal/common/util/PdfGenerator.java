@@ -135,7 +135,7 @@ public class PdfGenerator {
 		// password protection/////////
 		ByteArrayOutputStream protectionos = new ByteArrayOutputStream();
 		try {
-			PdfReader reader = new PdfReader(outputstream.toString());
+			PdfReader reader = new PdfReader(outputstream.toByteArray());
 			PdfStamper stamper = new PdfStamper(reader, protectionos);
 			Map<String, String> info = reader.getInfo();
 			info.put("Title", "IMEDONLINE EREFERRAL");
