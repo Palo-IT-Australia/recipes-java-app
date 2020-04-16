@@ -2,16 +2,18 @@ package au.com.imed.portal.referrer.referrerportal.common.util;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
-import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
-import com.itextpdf.html2pdf.HtmlConverter;
+import com.itextpdf.text.pdf.PdfDate;
+import com.itextpdf.text.pdf.PdfReader;
+import com.itextpdf.text.pdf.PdfStamper;
+import com.itextpdf.text.pdf.PdfWriter;
 
 import au.com.imed.portal.referrer.referrerportal.rest.electronicreferral.model.ElectronicReferralForm;
 
@@ -126,9 +128,29 @@ public class PdfGenerator {
 //		}
 		
 		ByteArrayOutputStream outputstream = new ByteArrayOutputStream();
-		HtmlConverter.convertToPdf(sb.toString(), outputstream);
+		
+		// for password protection HtmlConverter.convertToPdf(sb.toString(), outputstream);
+		
+		// password protection/////////
+		try {
+			PdfReader reader = new PdfReader(sb.toString());
+			PdfStamper stamper = new PdfStamper(reader, outputstream);
+			Map<String, String> info = reader.getInfo();
+			info.put("Title", "IMEDONLINE EREFERRAL");
+			info.put("Subject", "IMED EREFERRAL PDF");
+			info.put("Keywords", "IMED EREFERRAL PDF");
+			info.put("Author", "OBTAINED BY IMEDONLINE at " + new PdfDate().toString());
+			stamper.setMoreInfo(info);
+			stamper.setEncryption(electronicReferralForm.getDoctorProviderNumber().getBytes(), "IMEDPDFOWNERPASSCODE".getBytes(),
+					0, PdfWriter.ENCRYPTION_AES_128 | PdfWriter.DO_NOT_ENCRYPT_METADATA);
+			stamper.close();
+			reader.close();
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		///////////////////
+		
 		return outputstream.toByteArray();
-
 	}
 
 	private String addEntryToPdf(ElectronicReferralForm sourceForm, String fieldName, String labelToPrint)
