@@ -10,6 +10,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
+import com.itextpdf.html2pdf.HtmlConverter;
 import com.itextpdf.text.pdf.PdfDate;
 import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.PdfStamper;
@@ -129,12 +130,13 @@ public class PdfGenerator {
 		
 		ByteArrayOutputStream outputstream = new ByteArrayOutputStream();
 		
-		// for password protection HtmlConverter.convertToPdf(sb.toString(), outputstream);
+		HtmlConverter.convertToPdf(sb.toString(), outputstream);
 		
 		// password protection/////////
+		ByteArrayOutputStream protectionos = new ByteArrayOutputStream();
 		try {
-			PdfReader reader = new PdfReader(sb.toString());
-			PdfStamper stamper = new PdfStamper(reader, outputstream);
+			PdfReader reader = new PdfReader(outputstream.toString());
+			PdfStamper stamper = new PdfStamper(reader, protectionos);
 			Map<String, String> info = reader.getInfo();
 			info.put("Title", "IMEDONLINE EREFERRAL");
 			info.put("Subject", "IMED EREFERRAL PDF");
@@ -150,7 +152,7 @@ public class PdfGenerator {
 		}
 		///////////////////
 		
-		return outputstream.toByteArray();
+		return protectionos.toByteArray();
 	}
 
 	private String addEntryToPdf(ElectronicReferralForm sourceForm, String fieldName, String labelToPrint)
