@@ -397,7 +397,7 @@ public class ElectronicReferralService {
 				"This is an automatically generated email, please do not reply to this email";
 
 		InputStreamSource electronicReferralStream = new ByteArrayResource(
-				pdfReferralGenerator.generatePdfReferral(electronicReferralForm, false, false, isReferrerLogged));
+				pdfReferralGenerator.generatePdfReferral(electronicReferralForm, false, false, isReferrerLogged, null));
 
 		List<String> toList = decideToEmailIds(electronicReferralForm.getPatientPostcode());
 		emailService.sendWithStreamAsAttachment(toList, subject, emailBody, electronicReferralStream,
@@ -427,7 +427,7 @@ public class ElectronicReferralService {
 		}
 		
 		InputStreamSource pdfStream = new ByteArrayResource(
-				pdfReferralGenerator.generatePdfReferral(electronicReferralForm, true, false, false));
+				pdfReferralGenerator.generatePdfReferral(electronicReferralForm, true, false, false, electronicReferralForm.getPatientDob()));
 		
 		emailService.sendWithStreamAsAttachmentWithHeaderFooter(toEmailId, subject, emailBody, pdfStream,
 				"Electronicreferral.pdf", "static/images/public/Request_for_Imaging.png", "static/images/public/ER_Footer.png");
@@ -458,7 +458,7 @@ public class ElectronicReferralService {
 		}
 		
 		InputStreamSource pdfStream = new ByteArrayResource(
-				pdfReferralGenerator.generatePdfReferral(electronicReferralForm, false, true, false));
+				pdfReferralGenerator.generatePdfReferral(electronicReferralForm, false, true, false, electronicReferralForm.getDoctorProviderNumber()));
 		
 		emailService.sendWithStreamAsAttachmentWithHeaderFooter(toEmailId, subject, emailBody, pdfStream,
 				"Electronicreferral.pdf", "static/images/public/Request_for_Imaging.png", "static/images/public/ER_Footer.png");
