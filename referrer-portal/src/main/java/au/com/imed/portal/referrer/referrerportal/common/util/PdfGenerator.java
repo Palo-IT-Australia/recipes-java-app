@@ -143,7 +143,7 @@ public class PdfGenerator {
 			info.put("Keywords", "IMED EREFERRAL PDF");
 			info.put("Author", "OBTAINED BY IMEDONLINE at " + new PdfDate().toString());
 			stamper.setMoreInfo(info);
-			stamper.setEncryption(electronicReferralForm.getDoctorProviderNumber().getBytes(), "IMEDPDFOWNERPASSCODE".getBytes(),
+			stamper.setEncryption(electronicReferralForm.getPatientDob().getBytes(), "IMEDPDFOWNERPASSCODE".getBytes(),
 					0, PdfWriter.ENCRYPTION_AES_128 | PdfWriter.DO_NOT_ENCRYPT_METADATA);
 			stamper.close();
 			reader.close();
