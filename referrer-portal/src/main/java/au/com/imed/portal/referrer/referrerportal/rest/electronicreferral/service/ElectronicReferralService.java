@@ -465,7 +465,6 @@ public class ElectronicReferralService {
 				"Electronicreferral.pdf", "static/images/public/Request_for_Imaging.png", "static/images/public/ER_Footer.png");
 		
 		pdfStream=null;
-
 	}
 
 	private List<String> decideToEmailIds(String postalCode) {
