@@ -504,7 +504,6 @@ public class ElectronicReferralService {
 			buName = postCodeResult.get(0).getBu();
 		}
 		return buName.equals("Dr Jones SA/NT JV");
-		
 	}
 	
 	private boolean validMobileNumber(String telephone) {
