@@ -91,8 +91,8 @@ pipeline {
 						echo 'Going to deploy the application in the server :' + it
 
 						dir(path: 'referrer-portal/target') {
-							sh 'curl http://' + it + '.imed:8080/manager/text/undeploy?path=/referrer -u ' + usrcred
-							sh 'curl -T referrer.war http://' + it + '.imed:8080/manager/text/deploy?path=/referrer -u ' + usrcred
+							sh 'curl http://' + it + '.imed:8080/manager/text/undeploy?path=/referrer -u ' + DEPLY_CREDS_USR + ':' + DEPLY_CREDS_PSW
+							sh 'curl -T referrer.war http://' + it + '.imed:8080/manager/text/deploy?path=/referrer -u ' + DEPLY_CREDS_USR + ':' + DEPLY_CREDS_PSW
 						}
 						echo 'Deployed the application in the server :' + it
 					}
