@@ -146,7 +146,7 @@ public class PdfGenerator {
 			stamper.setMoreInfo(info);
 			if(pdfPassword != null) {
 				stamper.setEncryption(pdfPassword.getBytes(), "IMEDPDFOWNERPASSCODE".getBytes(),
-						0, PdfWriter.ENCRYPTION_AES_128 | PdfWriter.DO_NOT_ENCRYPT_METADATA);
+						EncryptionConstants.ALLOW_PRINTING, PdfWriter.ENCRYPTION_AES_128 | PdfWriter.DO_NOT_ENCRYPT_METADATA);
 			}
 			stamper.close();
 			reader.close();
