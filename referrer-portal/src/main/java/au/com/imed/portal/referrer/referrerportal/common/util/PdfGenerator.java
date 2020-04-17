@@ -11,6 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import com.itextpdf.html2pdf.HtmlConverter;
+import com.itextpdf.kernel.pdf.EncryptionConstants;
 import com.itextpdf.text.pdf.PdfDate;
 import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.PdfStamper;
@@ -145,7 +146,7 @@ public class PdfGenerator {
 			stamper.setMoreInfo(info);
 			if(pdfPassword != null) {
 				stamper.setEncryption(pdfPassword.getBytes(), "IMEDPDFOWNERPASSCODE".getBytes(),
-					0, PdfWriter.ENCRYPTION_AES_128 | PdfWriter.DO_NOT_ENCRYPT_METADATA);
+						EncryptionConstants.ALLOW_PRINTING, PdfWriter.ENCRYPTION_AES_128 | PdfWriter.DO_NOT_ENCRYPT_METADATA | PdfWriter.ALLOW_PRINTING);
 			}
 			stamper.close();
 			reader.close();
