@@ -84,8 +84,8 @@ pipeline {
 					println('Deploy UserId : ' + DEPLY_CREDS_USR);
 					println('Deploy Servers: ' + serversToDeploy);
 					
-					def usrcred = "${env.ENV_TO_DEPLOY == 'PROD'?'huehara:PR0DD3pl0ym3nt%X':'huehara:D3pl0ym3nt%'}";
-					echo 'deployment user credential ' + usrcred
+					//def usrcred = "${env.ENV_TO_DEPLOY == 'PROD'?'huehara:PR0DD3pl0ym3nt%X':'huehara:D3pl0ym3nt%'}";
+					//echo 'deployment user credential ' + usrcred
 
 					serversToDeploy.tokenize(',').each {						
 						echo 'Going to deploy the application in the server :' + it
