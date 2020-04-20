@@ -20,6 +20,7 @@ import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Primary;
@@ -232,7 +233,7 @@ public class ReferrerAccountService extends ABasicAccountService {
 		Map<String, String> resultMap = new HashMap<String, String>();
 		if (!ValidationUtility.isValidEmail(detail.getEmail())) {
 			resultMap.put(MODEL_KEY_ERROR_MSG, "Invalid email");
-		} else if (!ValidationUtility.hasAtleastOneNumberWithOptionalSpace(detail.getMobile())) {
+		} else if (StringUtils.isNotEmpty(detail.getMobile()) && !ValidationUtility.hasAtleastOneNumberWithOptionalSpace(detail.getMobile())) {
 			resultMap.put(MODEL_KEY_ERROR_MSG, "Invalid phone number");
 		} else {
 			AndFilter filter = new AndFilter();

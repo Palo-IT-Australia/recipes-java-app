@@ -397,7 +397,7 @@ public class ElectronicReferralService {
 				"This is an automatically generated email, please do not reply to this email";
 
 		InputStreamSource electronicReferralStream = new ByteArrayResource(
-				pdfReferralGenerator.generatePdfReferral(electronicReferralForm, false, false, isReferrerLogged));
+				pdfReferralGenerator.generatePdfReferral(electronicReferralForm, false, false, isReferrerLogged, null));
 
 		List<String> toList = decideToEmailIds(electronicReferralForm.getPatientPostcode());
 		emailService.sendWithStreamAsAttachment(toList, subject, emailBody, electronicReferralStream,
@@ -412,7 +412,7 @@ public class ElectronicReferralService {
 
 		String emailBody = "Dear " + electronicReferralForm.getPatientName().toUpperCase()
 				+ "<br><br>Following your recent telehealth consultation, we have received a request for imaging from your medical practitioner - "
-				+ electronicReferralForm.getDoctorName().toUpperCase() +". A copy of the referral is attached.<br><br>"
+				+ electronicReferralForm.getDoctorName().toUpperCase() + ". A copy of the referral is attached. To display  this, please input your date of birth in this format – dd/mm/yyyy.<br><br>"
 				+ "We will call you in the next few days (during business hours) to arrange a suitable time and location for your radiology appointment.<br><br>"
 				+ "We look forward to speaking with you.<br><br>"
 				+ "Kind regards.<br><br><br><br>"
@@ -427,7 +427,7 @@ public class ElectronicReferralService {
 		}
 		
 		InputStreamSource pdfStream = new ByteArrayResource(
-				pdfReferralGenerator.generatePdfReferral(electronicReferralForm, true, false, false));
+				pdfReferralGenerator.generatePdfReferral(electronicReferralForm, true, false, false, electronicReferralForm.getPatientDob()));
 		
 		emailService.sendWithStreamAsAttachmentWithHeaderFooter(toEmailId, subject, emailBody, pdfStream,
 				"Electronicreferral.pdf", "static/images/public/Request_for_Imaging.png", "static/images/public/ER_Footer.png");
@@ -444,7 +444,8 @@ public class ElectronicReferralService {
 		
 		String emailBody = "Dear Dr " + electronicReferralForm.getDoctorName().toUpperCase()
 				+ "<br><br>Thank you for referral to I-MED Radiology."
-				+ "<br><br>Please find attached a copy of the electronic referral you recently issued to " + electronicReferralForm.getPatientName().toUpperCase() + " on " + submittedDateTimeFormat.format(electronicReferralForm.getSubmittedTime()).toUpperCase() +"."
+				+ "<br><br>Please find attached a copy of the electronic referral you recently issued to " + electronicReferralForm.getPatientName().toUpperCase() + " on " + submittedDateTimeFormat.format(electronicReferralForm.getSubmittedTime()).toUpperCase() + "."
+				+ " To display this, please enter the provider number (case sensitive) associated with this request."
 				+ "<br><br>We will call your patient in the next few days (during business hours) to arrange a suitable time and location for their radiology appointment."
 				+ "<br><br>Kind regards.<br><br><br><br>"
 				+ "The team at I-MED Radiology Network.";
@@ -458,13 +459,12 @@ public class ElectronicReferralService {
 		}
 		
 		InputStreamSource pdfStream = new ByteArrayResource(
-				pdfReferralGenerator.generatePdfReferral(electronicReferralForm, false, true, false));
+				pdfReferralGenerator.generatePdfReferral(electronicReferralForm, false, true, false, electronicReferralForm.getDoctorProviderNumber()));
 		
 		emailService.sendWithStreamAsAttachmentWithHeaderFooter(toEmailId, subject, emailBody, pdfStream,
 				"Electronicreferral.pdf", "static/images/public/Request_for_Imaging.png", "static/images/public/ER_Footer.png");
 		
 		pdfStream=null;
-
 	}
 
 	private List<String> decideToEmailIds(String postalCode) {
@@ -504,7 +504,6 @@ public class ElectronicReferralService {
 			buName = postCodeResult.get(0).getBu();
 		}
 		return buName.equals("Dr Jones SA/NT JV");
-		
 	}
 	
 	private boolean validMobileNumber(String telephone) {

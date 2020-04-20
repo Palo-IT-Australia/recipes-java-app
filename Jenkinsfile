@@ -84,15 +84,15 @@ pipeline {
 					println('Deploy UserId : ' + DEPLY_CREDS_USR);
 					println('Deploy Servers: ' + serversToDeploy);
 					
-					def usrcred = "${env.ENV_TO_DEPLOY == 'PROD'?'huehara:PR0DD3pl0ym3nt%X':'huehara:D3pl0ym3nt%'}";
-					echo 'deployment user credential ' + usrcred
+					//def usrcred = "${env.ENV_TO_DEPLOY == 'PROD'?'huehara:PR0DD3pl0ym3nt%X':'huehara:D3pl0ym3nt%'}";
+					//echo 'deployment user credential ' + usrcred
 
 					serversToDeploy.tokenize(',').each {						
 						echo 'Going to deploy the application in the server :' + it
 
 						dir(path: 'referrer-portal/target') {
-							sh 'curl http://' + it + '.imed:8080/manager/text/undeploy?path=/referrer -u ' + usrcred
-							sh 'curl -T referrer.war http://' + it + '.imed:8080/manager/text/deploy?path=/referrer -u ' + usrcred
+							sh 'curl http://' + it + '.imed:8080/manager/text/undeploy?path=/referrer -u ' + DEPLY_CREDS_USR + ':' + DEPLY_CREDS_PSW
+							sh 'curl -T referrer.war http://' + it + '.imed:8080/manager/text/deploy?path=/referrer -u ' + DEPLY_CREDS_USR + ':' + DEPLY_CREDS_PSW
 						}
 						echo 'Deployed the application in the server :' + it
 					}
