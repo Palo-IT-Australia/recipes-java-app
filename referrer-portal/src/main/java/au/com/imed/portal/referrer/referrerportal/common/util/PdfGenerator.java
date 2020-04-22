@@ -119,7 +119,7 @@ public class PdfGenerator {
 		if(isPatientCopy) {
 			sb.append("<br><br><div>Your doctor has recommended that you use I-MED Radiology. You may choose another provider but please discuss this with your doctor first.</div>");
 		}
-		sb.append("<style>@page {margin:2pt;}</style>");
+		sb.append("<style>@page {margin:2pt 8pt;}</style>");
 		sb.append("</body>");
 
 //		if(isPatientCopy) {
