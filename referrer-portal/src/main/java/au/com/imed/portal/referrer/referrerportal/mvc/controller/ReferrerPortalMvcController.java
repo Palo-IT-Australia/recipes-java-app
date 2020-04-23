@@ -3,6 +3,7 @@ package au.com.imed.portal.referrer.referrerportal.mvc.controller;
 import static au.com.imed.portal.referrer.referrerportal.common.PortalConstant.MODEL_KEY_ACTION_STATUS;
 import static au.com.imed.portal.referrer.referrerportal.common.PortalConstant.MODEL_KEY_ERROR_MSG;
 import static au.com.imed.portal.referrer.referrerportal.common.PortalConstant.MODEL_KEY_FORM_MODEL;
+import static au.com.imed.portal.referrer.referrerportal.common.PortalConstant.MODEL_KEY_SECRET_MODE;
 import static au.com.imed.portal.referrer.referrerportal.common.PortalConstant.MODEL_KEY_SUCCESS_MSG;
 
 import java.io.File;
@@ -16,7 +17,6 @@ import java.util.concurrent.ForkJoinPool;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.poi.util.TempFile;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +39,9 @@ import org.springframework.web.servlet.ModelAndView;
 
 import au.com.imed.portal.referrer.referrerportal.crm.MyCrmExcelService;
 import au.com.imed.portal.referrer.referrerportal.crm.MyCrmImageService;
+import au.com.imed.portal.referrer.referrerportal.electronicreferraldownload.ElectronicReferralDownloadModel;
+import au.com.imed.portal.referrer.referrerportal.electronicreferraldownload.ElectronicReferralDownloadSecretModel;
+import au.com.imed.portal.referrer.referrerportal.electronicreferraldownload.ElectronicReferralDownloadService;
 import au.com.imed.portal.referrer.referrerportal.email.ReferrerMailService;
 import au.com.imed.portal.referrer.referrerportal.filetoaccount.AccountExcelImportService;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.entity.ReferrerPasswordResetEntity;
@@ -52,6 +55,7 @@ import au.com.imed.portal.referrer.referrerportal.model.ResetConfirmModel;
 import au.com.imed.portal.referrer.referrerportal.model.ResetModel;
 import au.com.imed.portal.referrer.referrerportal.reportaccess.ReportAccessModel;
 import au.com.imed.portal.referrer.referrerportal.reportaccess.ReportAccessService;
+import au.com.imed.portal.referrer.referrerportal.rest.electronicreferral.model.ElectronicReferralForm;
 import au.com.imed.portal.referrer.referrerportal.security.DetailedLdapUserDetails;
 import au.com.imed.portal.referrer.referrerportal.service.ConfirmProcessDataService;
 import au.com.imed.portal.referrer.referrerportal.service.EnvironmentVariableService;
@@ -104,6 +108,9 @@ public class ReferrerPortalMvcController {
 	
 	@Autowired
 	private AccountExcelImportService accountExcelImportService;
+	
+	@Autowired
+	private ElectronicReferralDownloadService electronicReferralDownloadService;
 
 	@GetMapping("/login")
 	public ModelAndView getLogin() {
@@ -529,6 +536,56 @@ public class ReferrerPortalMvcController {
 			modelMap.put(MODEL_KEY_ACTION_STATUS, "invalid");
 		}
 		return "reportdownload";
+	}
+	
+	@GetMapping("/electronicreferraldownload")
+	public String getElectronicreferralDownload(ModelMap modelMap, @RequestParam("code") String secret) {
+		ElectronicReferralDownloadSecretModel secretModel = electronicReferralDownloadService.decodeToSecretModel(secret);
+		if(secretModel != null)
+		{ 
+			ElectronicReferralDownloadModel confirm = new ElectronicReferralDownloadModel();
+			confirm.setSecret(secret);
+			modelMap.put(MODEL_KEY_FORM_MODEL, confirm);
+			modelMap.put(MODEL_KEY_ACTION_STATUS, "normal");			
+			modelMap.put(MODEL_KEY_SECRET_MODE, secretModel.getMode()); 
+		}
+		else
+		{
+			modelMap.put(MODEL_KEY_FORM_MODEL, new ElectronicReferralDownloadModel());
+			modelMap.put(MODEL_KEY_ACTION_STATUS, "invalid");
+			modelMap.put(MODEL_KEY_SECRET_MODE, ""); 
+		}
+		return "electronicreferraldownload";
+	}
+	
+	@PostMapping("/electronicreferraldownload")
+	public String postElectronicreferralDownload(ModelMap modelMap, HttpServletResponse response, @ModelAttribute(MODEL_KEY_FORM_MODEL) ElectronicReferralDownloadModel downloadModel) {
+		ElectronicReferralDownloadSecretModel secretModel = electronicReferralDownloadService.decodeToSecretModel(downloadModel.getSecret());
+		if(secretModel != null)
+		{ 
+			ElectronicReferralForm entity = electronicReferralDownloadService.getMatchingEntity(secretModel, downloadModel.getPasscode());
+			if(entity != null) { // TODO && failure < 3
+				logger.info("Entity " + entity + ", secret model " + secretModel);
+				electronicReferralDownloadService.download(entity, secretModel,  response);
+				ElectronicReferralDownloadModel confirm = new ElectronicReferralDownloadModel();
+				confirm.setSecret(downloadModel.getSecret());
+				modelMap.put(MODEL_KEY_FORM_MODEL, confirm);
+				modelMap.put(MODEL_KEY_ACTION_STATUS, "normal");			
+				modelMap.put(MODEL_KEY_SECRET_MODE, secretModel.getMode());
+			} else {
+				// TODO failure++
+				modelMap.put(MODEL_KEY_FORM_MODEL, new ElectronicReferralDownloadModel());
+				modelMap.put(MODEL_KEY_ACTION_STATUS, "error");
+				modelMap.put(MODEL_KEY_SECRET_MODE, secretModel.getMode());
+			}
+		}
+		else
+		{
+			modelMap.put(MODEL_KEY_FORM_MODEL, new ElectronicReferralDownloadModel());
+			modelMap.put(MODEL_KEY_ACTION_STATUS, "invalid");
+			modelMap.put(MODEL_KEY_SECRET_MODE, "");
+		}
+		return "electronicreferraldownload";
 	}
 	
 	@GetMapping("/")
