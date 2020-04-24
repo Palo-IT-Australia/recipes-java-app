@@ -573,7 +573,9 @@ public class ReferrerPortalMvcController {
 				modelMap.put(MODEL_KEY_ACTION_STATUS, "normal");			
 				modelMap.put(MODEL_KEY_SECRET_MODE, secretModel.getMode());
 			} else {
-				modelMap.put(MODEL_KEY_FORM_MODEL, new ElectronicReferralDownloadModel());
+				ElectronicReferralDownloadModel confirm = new ElectronicReferralDownloadModel();
+				confirm.setSecret(downloadModel.getSecret());
+				modelMap.put(MODEL_KEY_FORM_MODEL, confirm);
 				modelMap.put(MODEL_KEY_ACTION_STATUS, "error");
 				modelMap.put(MODEL_KEY_SECRET_MODE, secretModel.getMode());
 			}

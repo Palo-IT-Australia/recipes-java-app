@@ -80,6 +80,7 @@ public class ElectronicReferralDownloadService {
 	}
 	
 	public boolean isFormEffective(ElectronicReferralDownloadSecretModel secretModel) {
+		logger.info("secretModel " + secretModel);
 		boolean isEffective = false;
 		if(secretModel != null && secretModel.getTableId() > 0) {
 			ElectronicReferralForm candidate = electronicReferralRepository.findById(secretModel.getTableId()).orElse(null);
@@ -174,7 +175,8 @@ public class ElectronicReferralDownloadService {
 			response.setContentLength(pdf.length);
 			ServletOutputStream os = response.getOutputStream();
 			try {
-				os.write(pdf , 0, pdf.length);
+				os.write(pdf, 0, pdf.length);
+				os.flush();
 			} catch (Exception excp) {
 				excp.printStackTrace();
 			} finally {
