@@ -11,7 +11,7 @@ import javax.persistence.Id;
 import javax.persistence.PrePersist;
 import javax.persistence.Table;
 
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import au.com.imed.portal.referrer.referrerportal.common.util.BooleanToStringConverter;
@@ -142,6 +142,14 @@ public class ElectronicReferralForm {
 
 	@Column(name = "submitted_time")
 	Date submittedTime;
+	
+	@JsonIgnore
+	@Column(name = "doctor_failures")
+	private Integer doctorFailures = 0;
+
+	@JsonIgnore
+	@Column(name = "patient_failures")
+	private Integer patientFailures = 0;
 
 	public String getPatientName() {
 		return patientName;
@@ -590,8 +598,22 @@ public class ElectronicReferralForm {
 	public void setUrgentResult(boolean urgentResult) {
 		this.urgentResult = urgentResult;
 	}
-	
-	
+
+	public Integer getDoctorFailures() {
+		return doctorFailures == null ? 0 : doctorFailures;
+	}
+
+	public void setDoctorFailures(Integer doctorFailures) {
+		this.doctorFailures = doctorFailures == null ? 0 : doctorFailures;
+	}
+
+	public Integer getPatientFailures() {
+		return patientFailures == null ? 0 : patientFailures;
+	}
+
+	public void setPatientFailures(Integer patientFailures) {
+		this.patientFailures = patientFailures == null ? 0 : patientFailures;
+	}
 
 	@Override
 	public String toString() {

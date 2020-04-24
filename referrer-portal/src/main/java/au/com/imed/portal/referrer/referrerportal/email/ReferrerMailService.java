@@ -310,6 +310,27 @@ public class ReferrerMailService {
 
 	}
 	
+	public void sendWithHeaderFooter(final List<String> tos, final String subject, final String content, String headerImgLoc, String footerImgLoc) throws MessagingException {
+			MimeMessage msg = mailSender.createMimeMessage();
+
+			MimeMessageHelper emailMsgHelper = new MimeMessageHelper(msg, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED, "utf-8");
+
+			emailMsgHelper.addAttachment(LOGO_KEY, (new ClassPathResource(footerImgLoc)));
+			emailMsgHelper.addAttachment(REQUEST_FOR_IMAGE_BANNER_KEY, (new ClassPathResource(headerImgLoc)));
+			
+			for (String to : tos) {
+				emailMsgHelper.addTo(to);
+			}
+			
+			emailMsgHelper.setFrom("do_not_reply@i-med.com.au");
+			emailMsgHelper.setSubject(subject);
+			emailMsgHelper.setText("<table width=\"600\"><tr><td>" + INLINE_REQUEST_FOR_IMAGE_BANNER + "</td></tr><tr><td><div style='font-family: Arial;'>" + content + "</div></td></tr><tr><td>" + INLINE_LOGO + "</td></tr></table>", true);
+			emailMsgHelper.setSentDate(new Date());
+			
+			mailSender.send(msg);		
+	}
+
+	
 	/**
 	 * Send email with attachment from the given stream
 	 *

@@ -541,7 +541,7 @@ public class ReferrerPortalMvcController {
 	@GetMapping("/electronicreferraldownload")
 	public String getElectronicreferralDownload(ModelMap modelMap, @RequestParam("code") String secret) {
 		ElectronicReferralDownloadSecretModel secretModel = electronicReferralDownloadService.decodeToSecretModel(secret);
-		if(secretModel != null)
+		if(secretModel != null && electronicReferralDownloadService.isFormEffective(secretModel))
 		{ 
 			ElectronicReferralDownloadModel confirm = new ElectronicReferralDownloadModel();
 			confirm.setSecret(secret);
@@ -561,10 +561,10 @@ public class ReferrerPortalMvcController {
 	@PostMapping("/electronicreferraldownload")
 	public String postElectronicreferralDownload(ModelMap modelMap, HttpServletResponse response, @ModelAttribute(MODEL_KEY_FORM_MODEL) ElectronicReferralDownloadModel downloadModel) {
 		ElectronicReferralDownloadSecretModel secretModel = electronicReferralDownloadService.decodeToSecretModel(downloadModel.getSecret());
-		if(secretModel != null)
+		if(secretModel != null && electronicReferralDownloadService.isFormEffective(secretModel))
 		{ 
 			ElectronicReferralForm entity = electronicReferralDownloadService.getMatchingEntity(secretModel, downloadModel.getPasscode());
-			if(entity != null) { // TODO && failure < 3
+			if(entity != null) { 
 				logger.info("Entity " + entity + ", secret model " + secretModel);
 				electronicReferralDownloadService.download(entity, secretModel,  response);
 				ElectronicReferralDownloadModel confirm = new ElectronicReferralDownloadModel();
@@ -573,7 +573,6 @@ public class ReferrerPortalMvcController {
 				modelMap.put(MODEL_KEY_ACTION_STATUS, "normal");			
 				modelMap.put(MODEL_KEY_SECRET_MODE, secretModel.getMode());
 			} else {
-				// TODO failure++
 				modelMap.put(MODEL_KEY_FORM_MODEL, new ElectronicReferralDownloadModel());
 				modelMap.put(MODEL_KEY_ACTION_STATUS, "error");
 				modelMap.put(MODEL_KEY_SECRET_MODE, secretModel.getMode());

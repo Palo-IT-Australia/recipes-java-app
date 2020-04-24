@@ -27,6 +27,7 @@ public class ElectronicReferralDownloadService {
 	private Logger logger = LoggerFactory.getLogger(ElectronicReferralDownloadService.class);
 	
 	private static final String DATE_FORMAT = "yyyyMMddHHmmss";
+	private static final int MAX_FAILURES = 3;
 	
 	public static final String SECRET_MODE_PATIENT = "patient";
 	public static final String SECRET_MODE_REFERRER = "referrer";
@@ -68,15 +69,32 @@ public class ElectronicReferralDownloadService {
 		logger.info("decodeToSecretModel() returning " + erdsm);
 		return erdsm;
 	}
+
+	private boolean isDateValid(String datestr) {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(new Date());
+		cal.add(Calendar.YEAR, -1);
+		String expiredAt = new SimpleDateFormat(DATE_FORMAT).format(cal.getTime());
+		logger.info("isDateValid() Expirty {} this {}", expiredAt, datestr); 
+		return expiredAt.compareTo(datestr) < 0;
+	}
 	
-	 private boolean isDateValid(String datestr) {
-		 Calendar cal = Calendar.getInstance();
-		 cal.setTime(new Date());
-		 cal.add(Calendar.YEAR, -1);
-		 String expiredAt = new SimpleDateFormat(DATE_FORMAT).format(cal.getTime());
-		 logger.info("isDateValid() Expirty {} this {}", expiredAt, datestr); 
-	   return expiredAt.compareTo(datestr) < 0;
-	 }
+	public boolean isFormEffective(ElectronicReferralDownloadSecretModel secretModel) {
+		boolean isEffective = false;
+		if(secretModel != null && secretModel.getTableId() > 0) {
+			ElectronicReferralForm candidate = electronicReferralRepository.findById(secretModel.getTableId()).orElse(null);
+			if(candidate != null) {
+				// Check # of failures
+				if(SECRET_MODE_REFERRER.equals(secretModel.getMode()) && candidate.getDoctorFailures() < MAX_FAILURES) {
+					isEffective = true;
+				} else if (SECRET_MODE_PATIENT.equals(secretModel.getMode()) && candidate.getPatientFailures() < MAX_FAILURES) {
+					isEffective = true;
+				}
+			}
+		}
+		logger.info("Is form effective ? " + isEffective);
+		return isEffective;
+	}
 	
 	public ElectronicReferralForm getMatchingEntity(ElectronicReferralDownloadSecretModel secretModel, String passcode) {
 		ElectronicReferralForm entity = null;
@@ -87,22 +105,27 @@ public class ElectronicReferralDownloadService {
 				if(candidate != null) {
 					if(SECRET_MODE_REFERRER.equals(secretModel.getMode())) {
 						// provider #
-						if(candidate.getDoctorProviderNumber().equals(passcode)) {
+						int docfails = candidate.getDoctorFailures();
+						if(candidate.getDoctorProviderNumber().equalsIgnoreCase(passcode) &&  docfails < MAX_FAILURES) {
 							logger.info("Found matching referrer provider#");
 							entity = candidate;
+						} else {
+							logger.info("Wrong passcode for referrer");
+							candidate.setDoctorFailures(++docfails);
+							electronicReferralRepository.saveAndFlush(candidate);
 						}
 					} else if (SECRET_MODE_PATIENT.equals(secretModel.getMode())) {
 						// dob
-						if(candidate.getPatientDob().equals(passcode)) {
+						int patfails = candidate.getPatientFailures();
+						if(candidate.getPatientDob().equals(passcode) && patfails < MAX_FAILURES) {
 							logger.info("Found matching patient dob");
 							entity = candidate;
+						} else {
+							logger.info("Wrong passcode for patient");
+							candidate.setPatientFailures(++patfails);
+							electronicReferralRepository.saveAndFlush(candidate);
 						}
-					}
-					
-					if(entity == null) {
-						logger.info("Invalid passcode.");
-						// TODO update failue# + 1 and save
-					}
+					}					
 				} else {
 					logger.info("No entity candidate found.");
 				}
