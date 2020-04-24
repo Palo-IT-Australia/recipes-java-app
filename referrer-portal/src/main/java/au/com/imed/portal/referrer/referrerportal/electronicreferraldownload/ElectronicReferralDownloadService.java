@@ -2,18 +2,17 @@ package au.com.imed.portal.referrer.referrerportal.electronicreferraldownload;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.compress.utils.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +25,8 @@ import au.com.imed.portal.referrer.referrerportal.rest.electronicreferral.reposi
 @Service
 public class ElectronicReferralDownloadService {
 	private Logger logger = LoggerFactory.getLogger(ElectronicReferralDownloadService.class);
+	
+	private static final String DATE_FORMAT = "yyyyMMddHHmmss";
 	
 	public static final String SECRET_MODE_PATIENT = "patient";
 	public static final String SECRET_MODE_REFERRER = "referrer";
@@ -53,7 +54,12 @@ public class ElectronicReferralDownloadService {
 				if(StringUtils.isNotEmpty(json)) {
 					logger.info("decodeToSecretModel json = " + json);
 					ObjectMapper objectMapper = new ObjectMapper();
-					erdsm = objectMapper.readValue(json, ElectronicReferralDownloadSecretModel.class);
+					ElectronicReferralDownloadSecretModel candidate = objectMapper.readValue(json, ElectronicReferralDownloadSecretModel.class);
+					if(isDateValid(candidate.getDate())) {
+						erdsm = candidate;
+					} else {
+						logger.info("URL is expired.");
+					}
 				}
 			} catch (Exception ex) {
 				ex.printStackTrace();
@@ -62,6 +68,15 @@ public class ElectronicReferralDownloadService {
 		logger.info("decodeToSecretModel() returning " + erdsm);
 		return erdsm;
 	}
+	
+	 private boolean isDateValid(String datestr) {
+		 Calendar cal = Calendar.getInstance();
+		 cal.setTime(new Date());
+		 cal.add(Calendar.YEAR, -1);
+		 String expiredAt = new SimpleDateFormat(DATE_FORMAT).format(cal.getTime());
+		 logger.info("isDateValid() Expirty {} this {}", expiredAt, datestr); 
+	   return expiredAt.compareTo(datestr) < 0;
+	 }
 	
 	public ElectronicReferralForm getMatchingEntity(ElectronicReferralDownloadSecretModel secretModel, String passcode) {
 		ElectronicReferralForm entity = null;
@@ -104,7 +119,7 @@ public class ElectronicReferralDownloadService {
 		ElectronicReferralDownloadSecretModel model = new ElectronicReferralDownloadSecretModel();
 		model.setMode(mode);
 		model.setTableId(tableId);
-		model.setDate(new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()));
+		model.setDate(new SimpleDateFormat(DATE_FORMAT).format(new Date()));
 		String url = PORTAL_ROOT_URL + "/electronicreferraldownload?code=" + encodeToSecretString(model);
 		logger.info("generateSecretUrl() " + url); 
 		return url;

@@ -71,18 +71,6 @@ public class ElectronicReferralDownloadAesUtil {
 		return str;
 	}
 
-	// public static Date getExpiryDate() {
-	//   Calendar cal = Calendar.getInstance();
-	//   cal.setTime(new Date());
-	//   cal.add(Calendar.DATE, 1);
-	//   return cal.getTime();
-	// }
-	//
-	// public static boolean isExpired(Date expire) {
-	//   return expire.compareTo(new Date()) < 0;
-	// }
-
-
 	// public static void main(String args[]) throws Exception
 	// {
 	//   final String strToEncrypt = HashPasscodeUtil.randomString(32);
