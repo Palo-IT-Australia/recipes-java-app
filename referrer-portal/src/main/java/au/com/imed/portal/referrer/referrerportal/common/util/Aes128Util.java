@@ -13,6 +13,7 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -127,7 +128,8 @@ public class Aes128Util {
         Map<String, String> params = getParams(decoded);
         // urls are perpetual
         sr.setAccessionNumber(params.get(PARAM_ACC_NUM));
-        sr.setItem(params.get(PARAM_ITEM));
+        String itemstr = params.get(PARAM_ITEM);
+        sr.setItem(itemstr);
         sr.setPatientId(params.get(PARAM_PATIENT_ID));
       }
       catch(Exception ex) {

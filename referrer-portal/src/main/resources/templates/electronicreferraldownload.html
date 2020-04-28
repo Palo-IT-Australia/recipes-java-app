@@ -1,0 +1,44 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragments/layout/head :: head">
+    <title id="pageTitle">E-Referral Download</title>
+</head>
+<body>
+
+	<div th:replace="fragments/layout/simpleheader :: simpleheader"></div>
+	
+	<div class="section">
+
+		<div class="wrapper">
+			<h2 th:if="${status=='error'}">Your passcode does not match. Please try again.</h2>
+			<h1 th:if="${status=='invalid'}">URL is invalid, expired, or had too many passcode failures.</h1>
+			<div th:if="${status=='normal' || status=='error'}">
+				<h2 th:if="${secretmode=='referrer'}">Please enter the Provide Number your provided when completing the request to download e-referral.</h2>
+				<h2 th:if="${secretmode=='patient'}">Please enter your date of birth as DD/MM/YYYY format to download e-referral.</h2>
+				<form name="f" th:action="@{/electronicreferraldownload}" th:object="${fmodel}" method="post">  
+					<input id="downloadpasscode" onkeyup="passcodeKeyup()" th:field="*{passcode}" class="field-text w-input" placeholder="Your Passcode" type="text" />
+					<input th:field="*{secret}" name="secret" type="hidden"/>
+          <div class="form-actions">
+          	<button id="downloadbutton" type="submit" class="link-info button-primary w-button full-width" disabled>Download</button>
+          </div>
+				</form>		
+				<ul style="color:#3a3a3a;">
+					<li>Your email link is valid for 1 year only.</li>
+					<li>You have three attempts to successfully enter the passcode.</li>
+				</ul>
+			</div>
+		</div>
+		<script>
+			function passcodeKeyup() {
+				if($("#downloadpasscode").val().length > 0) {
+					$("#downloadbutton").removeAttr("disabled");
+				} else {
+					$("#downloadbutton").attr("disabled", "disabled");	
+				}
+			}
+		</script>
+	</div>
+
+	<div th:replace="fragments/layout/footer :: footer"></div>
+</body>
+</html>

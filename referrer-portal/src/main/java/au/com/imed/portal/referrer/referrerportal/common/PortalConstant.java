@@ -10,6 +10,7 @@ public final class PortalConstant {
 	public static final String KEY_RETRY_FLAG = "mayRetry";
 	public static final String SUCCESS = "success";
 	public static final String ERROR = "error";
+	public static final String MODEL_KEY_SECRET_MODE = "secretmode";
 
 	// Quick report related constatns
 	public static final String PARAM_IMED_SECIRITY = "imsec";
