@@ -182,14 +182,14 @@ public class VisageController {
           OrderDetails orderDetails = obtainOrderDetails(PortalConstant.REP_VISAGE_USER, dmap);
           if(orderDetails != null) {
             orderDetails.setDicom(dicomService.findDicomList(orderDetails));
-            if("test".equals(ACTIVE_PROFILE)) {
-            	logger.info("TEST only, making DICOM dummy information...");
-            	if(orderDetails.getDicom().length == 0) {
-            		DicomPacs dp = new DicomPacs();
-            		dp.setAccessionNumber(orderDetails.getAccessionNumber());
-            		orderDetails.setDicom(new DicomPacs [] {dp});
-            	}
-            }
+//            if("test".equals(ACTIVE_PROFILE)) {
+//            	logger.info("TEST only, making DICOM dummy information...");
+//            	if(orderDetails.getDicom().length == 0) {
+//            		DicomPacs dp = new DicomPacs();
+//            		dp.setAccessionNumber(orderDetails.getAccessionNumber());
+//            		orderDetails.setDicom(new DicomPacs [] {dp});
+//            	}
+//            }
           }
           quickReport.setOrder(orderDetails);
           
