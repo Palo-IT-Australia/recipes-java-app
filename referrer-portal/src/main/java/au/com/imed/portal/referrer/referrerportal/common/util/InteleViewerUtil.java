@@ -87,7 +87,7 @@ public class InteleViewerUtil {
     sb.append("/UserAuthentication?action=createSession&username=");
     sb.append(userName);
     sb.append("&pacsUser=");
-    sb.append("alzimet1");  // Falling back to this user if userName unavailable
+    sb.append(GlobalVals.PACS_FALLBACK);  // Falling back to this user if userName unavailable
     sb.append("&clientId=portal&authToken=");
     sb.append(token);
     return sb.toString();

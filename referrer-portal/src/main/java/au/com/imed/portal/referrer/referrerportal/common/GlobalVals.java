@@ -15,7 +15,14 @@ public class GlobalVals {
 	public static String PACS_URL;
 	public static String PACS_AUTH_TOKEN;
 	public static String [] PACS_AUTH_SERVERS;
+	public static String PACS_FALLBACK;
 	
+	
+	@Value("${imed.pacs.fallback}")
+	public void setPacsFallback(String user) {
+		PACS_FALLBACK = user;
+	}
+
 	@Value("${imed.pacs.url}")
 	public void setPacsUrl(String url) {
 		PACS_URL = url;
