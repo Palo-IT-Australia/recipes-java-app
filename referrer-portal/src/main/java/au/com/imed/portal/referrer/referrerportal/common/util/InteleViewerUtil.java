@@ -9,9 +9,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
+import au.com.imed.portal.referrer.referrerportal.common.GlobalVals;
+
 public class InteleViewerUtil {
   private static final String [] SERVERS = new String [] {"10.20.160.100", "10.20.160.101", "10.30.160.100", "10.30.160.101"};
-  private static final String AUTH_TOKEN = "ea14d1651fb169a70f8a79fddb44d0d9";
+  //private static final String AUTH_TOKEN = "ea14d1651fb169a70f8a79fddb44d0d9";
   private static final List<String> ERROR_STRINGS = new ArrayList<String>(4);  // OK status but error message given
   
   public static final String URL_EV = "URL_EV";
@@ -46,7 +48,7 @@ public class InteleViewerUtil {
     }
     RestTemplate restTemplate = (factory == null) ? new RestTemplate() : new RestTemplate(factory);
     
-    final String postFix = buildAuthUrlPostfix(userName, AUTH_TOKEN);
+    final String postFix = buildAuthUrlPostfix(userName, GlobalVals.PACS_AUTH_TOKEN);
     List<String> urlList = new ArrayList<String>(SERVERS.length);
     for(int i = 0; i < SERVERS.length; i++) {
       try {
@@ -93,7 +95,7 @@ public class InteleViewerUtil {
   
   private static String buildViewUrl(final String userName, final String accessionNumber, final String patientId, final String sessionId) {
     StringBuffer sb = new StringBuffer(256);
-    sb.append("https://pacs.i-med.com.au/InteleBrowser/ViewImages?sessionId=");
+    sb.append(GlobalVals.PACS_URL + "/InteleBrowser/ViewImages?sessionId=");
     sb.append(sessionId);
     sb.append("&username=");
     sb.append(userName);
@@ -106,10 +108,10 @@ public class InteleViewerUtil {
     return sb.toString();
   }
   
-  private static final String IVEV_IMAGE_URL_FMT = "https://pacs.i-med.com.au/enhancedviewer/viewer/%s/%s?sessionId=%s&toolmode=superstacking&seriesLayoutName=1x1";
-  private static final String IVEV_MOBILE_IMAGE_URL_FMT = "https://pacs.i-med.com.au/m.enhancedviewer/viewer/%s/%s?sessionId=%s";
-  private static final String IVEV_REST_IMAGE_URL_FMT = "https://pacs.i-med.com.au/Portal/view/orders/%s?sessionId=%s";
-  //private static final String IVEV_REST_IMAGE_URL_FMT = "https://pacs.i-med.com.au/Portal/view/orders/%s?SID=%s&signature=%s";
+  private static final String IVEV_IMAGE_URL_FMT = GlobalVals.PACS_URL + "/enhancedviewer/viewer/%s/%s?sessionId=%s&toolmode=superstacking&seriesLayoutName=1x1";
+  private static final String IVEV_MOBILE_IMAGE_URL_FMT = GlobalVals.PACS_URL + "/m.enhancedviewer/viewer/%s/%s?sessionId=%s";
+  private static final String IVEV_REST_IMAGE_URL_FMT = GlobalVals.PACS_URL + "/Portal/view/orders/%s?sessionId=%s";
+  //private static final String IVEV_REST_IMAGE_URL_FMT = GlobalVals.PACS_URL + "/Portal/view/orders/%s?SID=%s&signature=%s";
   private static String buildIvEvUrl(final String userName, final String accessionNum, final String patientId, final String sessionId) {
     return String.format(IVEV_IMAGE_URL_FMT, patientId, accessionNum, sessionId);
   }

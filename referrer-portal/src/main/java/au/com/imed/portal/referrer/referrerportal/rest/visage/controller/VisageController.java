@@ -182,14 +182,14 @@ public class VisageController {
           OrderDetails orderDetails = obtainOrderDetails(PortalConstant.REP_VISAGE_USER, dmap);
           if(orderDetails != null) {
             orderDetails.setDicom(dicomService.findDicomList(orderDetails));
-//            if("test".equals(ACTIVE_PROFILE)) {
-//            	logger.info("TEST only, making DICOM dummy information...");
-//            	if(orderDetails.getDicom().length == 0) {
-//            		DicomPacs dp = new DicomPacs();
-//            		dp.setAccessionNumber(orderDetails.getAccessionNumber());
-//            		orderDetails.setDicom(new DicomPacs [] {dp});
-//            	}
-//            }
+            if("test".equals(ACTIVE_PROFILE)) {
+            	logger.info("Test server only, making DICOM dummy information...");
+            	if(orderDetails.getDicom().length == 0) {
+            		DicomPacs dp = new DicomPacs();
+            		dp.setAccessionNumber(orderDetails.getAccessionNumber());
+            		orderDetails.setDicom(new DicomPacs [] {dp});
+            	}
+            }
           }
           quickReport.setOrder(orderDetails);
           
@@ -236,13 +236,25 @@ public class VisageController {
             
             // Image
             if(sharedReport.getItem().contains("image")) {
-              Map<String, String> vmap = new HashMap<>(2);
-              vmap.put("orderUri", order.getUri());
-              vmap.put("viewer", "3");
-              ResponseEntity<String> ventity = viewImageService.generateUrl(PortalConstant.REP_VISAGE_USER, vmap, orderDetails);  
-              if(HttpStatus.OK.equals(ventity.getStatusCode())) {
-                quickReport.setViewUrl(ventity.getBody());
-              }
+            	logger.info("item image has been specified.");
+            	if("test".equals(ACTIVE_PROFILE)) {
+            		logger.info("Test server Using EV...");
+            		Map<String, String> vmap = new HashMap<>(2);
+            		vmap.put("orderUri", order.getUri());
+            		ResponseEntity<String[]> event = viewImageService.generateIvEvImageUrls(PortalConstant.REP_VISAGE_USER, vmap, orderDetails);  
+            		if(HttpStatus.OK.equals(event.getStatusCode()) && event.getBody().length > 0){
+            			quickReport.setViewUrl(event.getBody()[0]);
+            		}
+            	} else {
+            		logger.info("Prod server Using VM...");
+            		Map<String, String> vmap = new HashMap<>(2);
+            		vmap.put("orderUri", order.getUri());
+            		vmap.put("viewer", "3");
+            		ResponseEntity<String> ventity = viewImageService.generateUrl(PortalConstant.REP_VISAGE_USER, vmap, orderDetails);  
+            		if(HttpStatus.OK.equals(ventity.getStatusCode())) {
+            			quickReport.setViewUrl(ventity.getBody());
+            		}            		
+            	}
             }
           }
         }
