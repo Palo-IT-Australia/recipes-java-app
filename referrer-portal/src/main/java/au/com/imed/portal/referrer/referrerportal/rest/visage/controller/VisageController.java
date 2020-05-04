@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,6 +38,7 @@ import au.com.imed.portal.referrer.referrerportal.jpa.history.repository.ReportF
 import au.com.imed.portal.referrer.referrerportal.jpa.history.repository.ReportNotificationJPARepository;
 import au.com.imed.portal.referrer.referrerportal.ldap.ReferrerAccountService;
 import au.com.imed.portal.referrer.referrerportal.rest.consts.OrderStatusConst;
+import au.com.imed.portal.referrer.referrerportal.rest.visage.model.DicomPacs;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.model.HospitalOrderSummary;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.model.HospitalUserPreferences;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.model.Order;
@@ -80,6 +82,9 @@ import au.com.imed.portal.referrer.referrerportal.service.ReferrerPortalRestApiS
 @RequestMapping("/imedvisage/v1")
 public class VisageController {
 	private Logger logger = LoggerFactory.getLogger(VisageController.class);
+	
+	@Value("${spring.profiles.active}")
+	private String ACTIVE_PROFILE;
 
 	@Autowired
 	private AuditService auditService;
@@ -177,6 +182,14 @@ public class VisageController {
           OrderDetails orderDetails = obtainOrderDetails(PortalConstant.REP_VISAGE_USER, dmap);
           if(orderDetails != null) {
             orderDetails.setDicom(dicomService.findDicomList(orderDetails));
+            if("test".equals(ACTIVE_PROFILE)) {
+            	logger.info("TEST only, making DICOM dummy information...");
+            	if(orderDetails.getDicom().length == 0) {
+            		DicomPacs dp = new DicomPacs();
+            		dp.setAccessionNumber(orderDetails.getAccessionNumber());
+            		orderDetails.setDicom(new DicomPacs [] {dp});
+            	}
+            }
           }
           quickReport.setOrder(orderDetails);
           
