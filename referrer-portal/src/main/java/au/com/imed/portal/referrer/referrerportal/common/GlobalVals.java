@@ -14,6 +14,7 @@ public class GlobalVals {
 
 	public static String PACS_URL;
 	public static String PACS_AUTH_TOKEN;
+	public static String [] PACS_AUTH_SERVERS;
 	
 	@Value("${imed.pacs.url}")
 	public void setPacsUrl(String url) {
@@ -23,6 +24,11 @@ public class GlobalVals {
 	@Value("${imed.pacs.token}")
 	public void setPacsAuthToken(String key) {
 		PACS_AUTH_TOKEN = key;
+	}
+	
+	@Value("${imed.pacs.servers}")
+	public void setPacsAuthToken(String [] servers) {
+		PACS_AUTH_SERVERS = servers;
 	}
 
 	@Value("${imed.vuemotion.enckey}")

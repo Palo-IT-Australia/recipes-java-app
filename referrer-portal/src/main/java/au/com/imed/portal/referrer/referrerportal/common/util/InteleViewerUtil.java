@@ -12,7 +12,7 @@ import org.springframework.web.client.RestTemplate;
 import au.com.imed.portal.referrer.referrerportal.common.GlobalVals;
 
 public class InteleViewerUtil {
-  private static final String [] SERVERS = new String [] {"10.20.160.100", "10.20.160.101", "10.30.160.100", "10.30.160.101"};
+  //private static final String [] SERVERS = new String [] {"10.20.160.100", "10.20.160.101", "10.30.160.100", "10.30.160.101"};
   //private static final String AUTH_TOKEN = "ea14d1651fb169a70f8a79fddb44d0d9";
   private static final List<String> ERROR_STRINGS = new ArrayList<String>(4);  // OK status but error message given
   
@@ -49,10 +49,10 @@ public class InteleViewerUtil {
     RestTemplate restTemplate = (factory == null) ? new RestTemplate() : new RestTemplate(factory);
     
     final String postFix = buildAuthUrlPostfix(userName, GlobalVals.PACS_AUTH_TOKEN);
-    List<String> urlList = new ArrayList<String>(SERVERS.length);
-    for(int i = 0; i < SERVERS.length; i++) {
+    List<String> urlList = new ArrayList<String>(GlobalVals.PACS_AUTH_SERVERS.length);
+    for(int i = 0; i < GlobalVals.PACS_AUTH_SERVERS.length; i++) {
       try {
-        String url = "https://" + SERVERS[i] + postFix;
+        String url = "https://" + GlobalVals.PACS_AUTH_SERVERS[i] + postFix;
         System.out.println(url);
         ResponseEntity<String> entity = restTemplate.getForEntity(url, String.class);
         if(HttpStatus.OK.equals(entity.getStatusCode())) {
