@@ -241,6 +241,7 @@ public class VisageController {
             		logger.info("Test server Using EV...");
             		Map<String, String> vmap = new HashMap<>(2);
             		vmap.put("orderUri", order.getUri());
+            		vmap.put("accessionNumber", orderDetails.getAccessionNumber());
             		ResponseEntity<String[]> event = viewImageService.generateIvEvImageUrls(PortalConstant.REP_VISAGE_USER, vmap, orderDetails);  
             		if(HttpStatus.OK.equals(event.getStatusCode()) && event.getBody().length > 0){
             			quickReport.setViewUrl(event.getBody()[0]);
