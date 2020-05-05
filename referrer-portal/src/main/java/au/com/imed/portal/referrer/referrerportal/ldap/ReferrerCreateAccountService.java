@@ -12,7 +12,13 @@ import static au.com.imed.portal.referrer.referrerportal.common.PortalConstant.V
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.attribute.PosixFilePermission;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -80,6 +86,9 @@ public class ReferrerCreateAccountService extends ReferrerAccountService {
 	@Value("${spring.profiles.active}")
 	private String ACTIVE_PROFILE;
 	
+	@Value("${imed.shared.folder.mnt}")
+	private String SHARED_MOUNTED_FOLDER;
+	
 	@Autowired
 	private ReferrerProviderJpaRepository referrerProviderJpaRepository;
 	
@@ -109,14 +118,15 @@ public class ReferrerCreateAccountService extends ReferrerAccountService {
 					imedExternalUser.setConfirmPassword(IMED_TEMPORAL_PASSWORD);
 				}
 
+				// Auto Validation process (QLD only at this moment)
+				boolean isAutoValidationTarget = isAutoValidationTarget(imedExternalUser);
+				
 				final String proposedUid = imedExternalUser.getUserid(); 
 				if(autoUidRequired(imedExternalUser)) 
 				{
 					imedExternalUser.setUserid(generateUsername(imedExternalUser));
 				}
 				
-				// Auto Validation process (QLD only at this moment)
-				boolean isAutoValidationTarget = isAutoValidationTarget(imedExternalUser);
 				AutoValidationResult result = null;
 				if(isAutoValidationTarget) {
 					result = validateOnFormSubmission(imedExternalUser);
@@ -515,9 +525,11 @@ public class ReferrerCreateAccountService extends ReferrerAccountService {
 			List<ReferrerProviderEntity> provs = referrerProviderJpaRepository.findByUsername(entity.getUid());
 			String ahpra = entity.getAhpra();
 			AhpraDetails [] ahpras = this.ahpraBotService.findByNumberRetry(ahpra);
+			AhpraDetails detail = null;
 			if(ahpras.length > 0) {
-				AhpraDetails detail = ahpras[0]; // Should be one
+				detail = ahpras[0]; // Should be one
 				isValid = validAhpra(entity, detail, provs);
+				logger.info("validateOnDb() AHPRA details valid ? " + isValid);
 			} else {
 				logger.info("validateOnDb() ahpra not available in ahpra.gov.au : " + ahpra);
 			}
@@ -533,12 +545,11 @@ public class ReferrerCreateAccountService extends ReferrerAccountService {
 					entity.setAccountAt(new Date());
 					updateValidationStatus(entity, VALIDATION_STATUS_VALID, VALIDATION_MSG_ACCOUNT_CREATED);
 					created.add(entity);
-					// Shift to csv file
-//					if("prod".equals(ACTIVE_PROFILE)) {
-//						emailService.emailAutoValidatedReferrerAccount(ReferrerMailService.SUPPORT_ADDRESS, imedExternalUser, false, null);
-//					} else {
-//						emailService.emailAutoValidatedReferrerAccount("Hidehiro.Uehara@i-med.com.au", imedExternalUser, false, null);						
-//					}
+					if("prod".equals(ACTIVE_PROFILE)) {
+						emailService.emailAutoValidatedReferrerAccount(ReferrerMailService.SUPPORT_ADDRESS, imedExternalUser, false, null);
+					} else {
+						emailService.emailAutoValidatedReferrerAccount("Hidehiro.Uehara@i-med.com.au", imedExternalUser, false, null);						
+					}
 
 				} catch(Exception ex) {
 					ex.printStackTrace();
@@ -566,7 +577,7 @@ public class ReferrerCreateAccountService extends ReferrerAccountService {
 		logger.info("validateOnDb() # of created accounts " + created.size());
 		return created;
 	}
-	
+
 	private void saveActivationDb(ExternalUser imedExternalUser) {
 		ReferrerActivationEntity rae = new ReferrerActivationEntity();
 		rae.setUid(imedExternalUser.getUserid());
@@ -578,6 +589,182 @@ public class ReferrerCreateAccountService extends ReferrerAccountService {
 		rae.setActivatedAt(new Date());
 		referrerActivationEntityJapRepository.saveAndFlush(rae);
 		logger.info("saveActivationDb() saved " + imedExternalUser.getUserid());
+	}
+	
+	private List<File> getVisageCsvFiles() {
+		List<File> csvs = new ArrayList<>(0);
+		logger.info("getVisageCsvFiles() getting csvs from " + SHARED_MOUNTED_FOLDER + "/from");
+		try {
+			csvs = Files.walk(Paths.get(SHARED_MOUNTED_FOLDER + "/from"))
+		    .filter(Files::isRegularFile)
+		    .map(Path::toFile)
+		    .filter(f -> f.getName().endsWith(".csv"))
+		    .collect(Collectors.toList());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		logger.info("getVisageCsvFiles() # of files = " + csvs.size()); 
+		return csvs;
+	}
+	
+	public void notifyNewAccountByVisageCsvFiles() {
+		List<File> csvs = getVisageCsvFiles();
+		List<ReferrerAutoValidationEntity> listSuccess = new ArrayList<>();
+		List<ReferrerAutoValidationEntity> listError = new ArrayList<>();
+		
+		if(csvs.size() > 0) {
+			// Welcome and CRMs
+			for(File csv : csvs) {
+				String fname = csv.getName();
+				if(fname.contains("success")) {
+					logger.info("Visage success file " + fname);
+					List<ReferrerAutoValidationEntity> slist = csvToCreatedReferrers(csv);
+					notifyNewAccounts(slist);
+					listSuccess.addAll(slist);
+				} else if(fname.contains("error")) {
+					logger.info("Visage error file " + fname);
+					List<ReferrerAutoValidationEntity> elist = csvToCreatedReferrers(csv);
+					listError.addAll(elist);
+					for(ReferrerAutoValidationEntity eent : elist) {
+						eent.setNotifyAt(new Date());
+						updateValidationStatus(eent, VALIDATION_STATUS_NOTIFIED, "Visage account manual creation");
+					}
+				}
+			}
+			
+			// Notify support team
+			try {
+				sendVisageCsvFilesEmail(csvs, listSuccess, listError);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			
+			// Move files into processed folder
+			for(File from : csvs) {
+				try {
+					logger.info("Moving file to processed foler : " + from.getName());
+					from.renameTo(new File(SHARED_MOUNTED_FOLDER + "/processed/" + from.getName()));
+					from.delete();
+				} catch (Exception ex) {
+					ex.printStackTrace();
+				}
+			}
+		}
+	}
+	
+	private void buildReferrerCsvFilesContent(PrintWriter referrerWriter, PrintWriter providerWriter, List<ReferrerAutoValidationEntity> list) {
+		referrerWriter.println("uid,firstname,lastname,email,AHPRA#,BusinessUnit,phone,mobile,Contact,Filmless");
+		providerWriter.println("uid,provider#,practiceName,phone,fax,street,suburb,state,postcode");
+		for(ReferrerAutoValidationEntity entity : list) {
+			referrerWriter.println(String.format("\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"",
+					entity.getUid(), nonQuote(entity.getFirstName()), nonQuote(entity.getLastName()), nonQuote(entity.getEmail()),
+					nonQuote(entity.getAhpra()), entity.getBusinessUnit(), nonQuote(entity.getPhone()), nonQuote(entity.getMobile()),
+					nonQuote(entity.getContactAdvanced()), nonQuote(entity.getFilmless()) ));
+			List<ReferrerProviderEntity> provs = referrerProviderJpaRepository.findByUsername(entity.getUid());
+			for(ReferrerProviderEntity provider : provs) {
+				providerWriter.println(String.format("\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"", 
+					provider.getUsername(), nonQuote(provider.getProviderNumber()), nonQuote(provider.getPracticeName()), nonQuote(provider.getPracticePhone()), nonQuote(provider.getPracticeFax()),
+					nonQuote(provider.getPracticeStreet()), nonQuote(provider.getPracticeSuburb()),nonQuote(provider.getPracticeState()), nonQuote(provider.getPracticePostcode()) ));
+			}
+		}		
+	}
+	
+	private void sendVisageCsvFilesEmail(List<File> csvs, List<ReferrerAutoValidationEntity> listSuccess, List<ReferrerAutoValidationEntity> listError) throws Exception {
+		Map<String, File> fileMap = new HashMap<>(6);		
+		for(File file : csvs) {
+			fileMap.put(file.getName(), file);
+		}
+		
+		File referrerFile = null;
+		File providerFile = null;
+		if(listSuccess.size() > 0) {
+			referrerFile = File.createTempFile("referrerssuccess-", ".csv");
+			providerFile = File.createTempFile("providerssuccess-", ".csv");
+	    PrintWriter referrerWriter = new PrintWriter(referrerFile);
+	    PrintWriter providerWriter = new PrintWriter(providerFile);
+	    buildReferrerCsvFilesContent(referrerWriter, providerWriter, listSuccess);
+	    referrerWriter.close();
+	    providerWriter.close();  
+	    fileMap.put("referrers_success.csv", referrerFile);
+			fileMap.put("providers_success.csv", providerFile);
+		}
+		
+		File referrerErrorFile = null;
+		File providerErrorFile = null;
+		if(listError.size() > 0) {
+			referrerErrorFile = File.createTempFile("referrererror-", ".csv");
+			providerErrorFile = File.createTempFile("providererror-", ".csv");
+	    PrintWriter referrerErrorWriter = new PrintWriter(referrerErrorFile);
+	    PrintWriter providerErrorWriter = new PrintWriter(providerErrorFile);
+	    buildReferrerCsvFilesContent(referrerErrorWriter, providerErrorWriter, listError);
+	    referrerErrorWriter.close();
+	    providerErrorWriter.close();  
+			fileMap.put("referrers_error.csv", referrerErrorFile);
+			fileMap.put("providers_error.csv", providerErrorFile);
+		}		
+		
+    if("prod".equals(ACTIVE_PROFILE)) {
+    	emailService.sendWithFileMap(new String[] {ReferrerMailService.SUPPORT_ADDRESS}, 
+    			"I-MED Online 2.0 Visage account creation result Csv files", "Please find attached csv files", fileMap);
+		} else {
+			emailService.sendWithFileMap(new String[] {"Hidehiro.Uehara@i-med.com.au"}, 
+					"I-MED Online 2.0 Visage account creation result Csv files", "Please find attached csv files", fileMap);
+		}
+    
+    if(listSuccess.size() > 0) {
+    	referrerFile.delete();
+    	providerFile.delete();
+    }
+    if(listError.size() > 0) {
+    	referrerErrorFile.delete();
+    	providerErrorFile.delete();
+    }
+	}
+	
+	public void makeAndShareVisageCsvFile(List<ReferrerAutoValidationEntity> created) throws Exception {
+		logger.info("makeAndShareVisageCsvFile() list = " + created);
+		if(created.size() > 0) {
+			Date now = new Date();
+			SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");  
+			logger.info("makeAndShareVisageCsvFile() creating csv to visage folder of " + SHARED_MOUNTED_FOLDER);
+			File referrerFile = new File(SHARED_MOUNTED_FOLDER + "/to/referrer_user_export_" + formatter.format(now) + ".csv");
+			referrerFile.createNewFile();
+			// Read permission to all
+			Set<PosixFilePermission> perms = new HashSet<>();
+	    perms.add(PosixFilePermission.OWNER_READ);
+	    perms.add(PosixFilePermission.OWNER_WRITE);
+	    perms.add(PosixFilePermission.OTHERS_READ);
+	    perms.add(PosixFilePermission.OTHERS_WRITE);
+	    perms.add(PosixFilePermission.GROUP_READ);
+	    perms.add(PosixFilePermission.GROUP_WRITE);
+	    Files.setPosixFilePermissions(referrerFile.toPath(), perms);
+	    
+			PrintWriter referrerWriter = new PrintWriter(referrerFile);
+			referrerWriter.println("username,role,email_address,family_name,given_names,middle_name,preferred_name,title,area_code,number,short_id,previous_names,provider_number");
+			
+			for(ReferrerAutoValidationEntity entity : created) {
+				List<ReferrerProviderEntity> provs = referrerProviderJpaRepository.findByUsername(entity.getUid());
+	      // Join provider #s with pipe 
+	      String pnumstr = "";
+	      String postcode = "";
+	      if(provs.size() > 0) {
+	      	List<String> pnums = provs.stream().map(p -> p.getProviderNumber()).collect(Collectors.toList());
+	      	pnumstr = String.join("|", pnums);
+	      	postcode = provs.get(0).getPracticePostcode();
+	      }
+	      String row = String.format("%s,Referrer,%s,%s,%s,,,,%s,%s,%s,,%s", 
+      		entity.getUid(), nonQuote(entity.getEmail()), nonQuote(entity.getFirstName()), nonQuote(entity.getLastName()),
+      		postcode, nonQuote(entity.getMobile()), entity.getUid(), pnumstr);
+	      logger.info(row);
+	      referrerWriter.println(row);
+			}
+			
+			referrerWriter.close();
+		}
+		else
+		{
+			logger.info("No account for visage csv");
+		}
 	}
 	
 	public void makeAndSendCsvEmails(List<ReferrerAutoValidationEntity> created) throws Exception {
@@ -610,7 +797,7 @@ public class ReferrerCreateAccountService extends ReferrerAccountService {
     	emailService.sendWithFileMap(new String[] {ReferrerMailService.SUPPORT_ADDRESS}, 
 					"I-MED Online 2.0 New Referrer and Providers Csv files", "Please find attached csv files", fileMap);
 		} else {
-			emailService.sendWithFileMap(new String[] {"Hidehiro.Uehara@i-med.com.au", "kieren.andrews@i-med.com.au", "cameron.hawkins@i-med.com.au"}, 
+			emailService.sendWithFileMap(new String[] {"Hidehiro.Uehara@i-med.com.au"}, 
 					"I-MED Online 2.0 New Referrer and Providers Csv files", "Please find attached csv files", fileMap);
 		}
     
@@ -678,7 +865,12 @@ public class ReferrerCreateAccountService extends ReferrerAccountService {
 		for(List<String> column : records) {
 			try {
 				String uid = column.get(0);
-				logger.info("Retrieving uid from DB " + uid);
+				String [] splits = uid.split("row:");
+				if(splits.length >= 2) {
+					uid = splits[1].trim();
+					logger.info("error csv format extracted uid");
+				}
+				logger.info("Retrieving uid with valid status from DB " + uid);
 				ReferrerAutoValidationEntity entity = referrerAutoValidationRepository.findByUidAndValidationStatus(uid, VALIDATION_STATUS_VALID).get(0);
 				created.add(entity);
 			} catch (Exception ex) {
@@ -686,6 +878,7 @@ public class ReferrerCreateAccountService extends ReferrerAccountService {
 				ex.printStackTrace();
 			}
 		}
+		logger.info("csvToCreatedReferrers() size = " + created.size());
 		return created;
 	}
 	
@@ -740,8 +933,7 @@ public class ReferrerCreateAccountService extends ReferrerAccountService {
 			isValid = false; // Clear for next validation
 			if(provs.size() > 0) {
 				for(ReferrerProviderEntity provider : provs) {
-					if(compareIngoringSpaces(ahpraDetails.getPrincipalPlaceOfPractice().getPostcode(), provider.getPracticePostcode()) &&
-						 compareIngoringSpaces(ahpraDetails.getPrincipalPlaceOfPractice().getState(), provider.getPracticeState())) {
+					if(compareIngoringSpaces(ahpraDetails.getPrincipalPlaceOfPractice().getState(), provider.getPracticeState())) {
 						isValid = true;
 						logger.info("Found matching provider to AHPRA. Provider# is " + provider.getProviderNumber());
 						break;
@@ -760,19 +952,6 @@ public class ReferrerCreateAccountService extends ReferrerAccountService {
 		}
 		
 		return isValid;
-	}
-	
-	public List<ReferrerAutoValidationEntity> filterToVisageAccoutCreated(List<ReferrerAutoValidationEntity> list) {
-		logger.info("filterToVisageAccoutCreated() original valid list size " + list.size());
-		List<ReferrerAutoValidationEntity> visageList = new ArrayList<>();
-		for(ReferrerAutoValidationEntity entity : list) {
-			if(visageCheckerService.isUsernameTaken(entity.getUid())) {
-				logger.info("filterToVisageAccoutCreated() visage account has been create for " + entity.getUid());
-				visageList.add(entity);
-			}
-		}
-		logger.info("filterToVisageAccoutCreated() visageList size " + visageList.size());
-		return visageList;
 	}
 	
 	/**
