@@ -248,7 +248,7 @@ public class ElectronicReferralService {
 				
 				String[] toEmailIds = null;
 				if("prod".equals(ACTIVE_PROFILE)) {
-					toEmailIds = new String [] {"All-CustomerRelationshipManagers@i-med.com.au", "Susie.Morgan@i-med.com.au", "Rebecca.Button@i-med.com.au", "Mark.Burgess@i-med.com.au", "Melanie.Buttsworth@i-med.com.au", "Dominique.Gauci@i-med.com.au", "Sally.Douglas@i-med.com.au", "Heather.Hinchley@i-med.com.au", "Tanya.Beale@i-med.com.au", "Jessica.Eames@i-med.com.au"};
+					toEmailIds = new String [] {"All-CustomerRelationshipManagers@i-med.com.au", "Susie.Morgan@i-med.com.au", "Rebecca.ma@i-med.com.au", "Mark.Burgess@i-med.com.au", "Melanie.Buttsworth@i-med.com.au", "Dominique.Gauci@i-med.com.au", "Sally.Douglas@i-med.com.au", "Heather.Hinchley@i-med.com.au", "Tanya.Beale@i-med.com.au", "Jessica.Eames@i-med.com.au"};
 				} else {
 					toEmailIds = new String [] {"Hidehiro.Uehara@i-med.com.au", "Martin.Cox@i-med.com.au"};
 				}
