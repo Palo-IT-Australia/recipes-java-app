@@ -109,7 +109,7 @@ public class InteleViewerUtil {
   }
   
   private static final String IVEV_IMAGE_URL_FMT = GlobalVals.PACS_URL + "/enhancedviewer/viewer/%s/%s?sessionId=%s&toolmode=superstacking&seriesLayoutName=1x1";
-  private static final String IVEV_MOBILE_IMAGE_URL_FMT = GlobalVals.PACS_URL + "/m.enhancedviewer/viewer/%s/%s?sessionId=%s";
+  private static final String IVEV_MOBILE_IMAGE_URL_FMT = GlobalVals.PACS_URL + "/m.enhancedviewer/viewer/%s/%s?sessionId=%s&toolmode=superstacking&seriesLayoutName=1x1";
   private static final String IVEV_REST_IMAGE_URL_FMT = GlobalVals.PACS_URL + "/Portal/view/orders/%s?sessionId=%s";
   //private static final String IVEV_REST_IMAGE_URL_FMT = GlobalVals.PACS_URL + "/Portal/view/orders/%s?SID=%s&signature=%s";
   private static String buildIvEvUrl(final String userName, final String accessionNum, final String patientId, final String sessionId) {
