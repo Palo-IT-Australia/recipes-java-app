@@ -117,11 +117,14 @@ public class ViewImageService {
     }
     
     ResponseEntity<String[]> entity;
-    if (userName != null) {
+    if (userName != null && accessionNumber != null) {
       String [] urls = InteleViewerUtil.generateUrls(userName, accessionNumber, order.getPatient().getPatientId(), ivmode);
       entity = ResponseEntity.ok(urls);
     }    
-    else 
+    else if(accessionNumber == null) {
+    	entity = new ResponseEntity<String[]>(HttpStatus.BAD_REQUEST);
+    }
+    else
     {
       entity = new ResponseEntity<String[]>(HttpStatus.UNAUTHORIZED);
     }
