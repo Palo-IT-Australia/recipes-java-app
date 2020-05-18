@@ -1,5 +1,9 @@
 package au.com.imed.portal.referrer.referrerportal.email;
 
+import java.util.List;
+
+import com.itextpdf.html2pdf.jsoup.helper.StringUtil;
+
 import au.com.imed.portal.referrer.referrerportal.ahpra.AhpraDetails;
 import au.com.imed.portal.referrer.referrerportal.ahpra.AhpraDetails.RegistrationTypeSpecialist;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.entity.CrmProfileEntity;
@@ -128,7 +132,7 @@ public class UserMessageUtil {
   	return String.format("Dr %s %s not logged into IOL2 yet", acnt.getFirstName(), acnt.getLastName());
   }
   
-  public static String getNotLoginPromptBody(final ReferrerActivationEntity acnt, final CrmProfileEntity crm) {
+  public static String getNotLoginPromptBody(final ReferrerActivationEntity acnt, final CrmProfileEntity crm, final List<String> providerNumbers) {
   	StringBuffer sb = new StringBuffer();
   	sb.append(getCrmGreeting(crm));
   	sb.append("Doctor ");
@@ -149,6 +153,11 @@ public class UserMessageUtil {
   	sb.append(BR);
     sb.append("AHPRA: " + acnt.getAhpra());
   	sb.append(BR);
+  	if(providerNumbers != null && providerNumbers.size() > 0) {
+  		sb.append("Provider numbers: ");
+  		sb.append(StringUtil.join(providerNumbers, ", "));
+  		sb.append(BR);
+  	}
     sb.append("Mobile: " + acnt.getMobile());
     sb.append(BRS);
     sb.append("Regards,");
@@ -162,7 +171,7 @@ public class UserMessageUtil {
   	return String.format("Dr %s %s IOL2 account T&C's not accepted", details.getGivenName(), details.getSurname());
   }
   
-  public static String getTandcPromptBody(final LdapUserDetails details, final CrmProfileEntity crm) {
+  public static String getTandcPromptBody(final LdapUserDetails details, final CrmProfileEntity crm, final List<String> providerNumbers) {
   	StringBuffer sb = new StringBuffer();
   	sb.append(getCrmGreeting(crm));
   	sb.append("Doctor ");
@@ -183,6 +192,11 @@ public class UserMessageUtil {
   	sb.append(BR);
     sb.append("AHPRA: " + details.getAhpra());
   	sb.append(BR);
+  	if(providerNumbers != null && providerNumbers.size() > 0) {
+  		sb.append("Provider numbers: ");
+  		sb.append(StringUtil.join(providerNumbers, ", "));
+  		sb.append(BR);
+  	}
     sb.append("Mobile: " + details.getMobile());
     sb.append(BRS);
     sb.append("Regards,");
