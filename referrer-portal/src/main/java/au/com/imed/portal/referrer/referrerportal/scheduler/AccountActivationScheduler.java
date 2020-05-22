@@ -210,7 +210,7 @@ public class AccountActivationScheduler {
 		    				}
 		    				else
 		    				{
-		    					//String [] testEmails = new String [] {"Hidehiro.Uehara@i-med.com.au", "Martin.Cox@i-med.com.au", "Julie-Ann.Evans@i-med.com.au"};
+		    					//String [] testEmails = new String [] {"Hidehiro.Uehara@i-med.com.au", "Julie-Ann.Evans@i-med.com.au"};
 		    					try {
 										emailService.sendImoHtmlMail(new String [] {"Hidehiro.Uehara@i-med.com.au"}, new String [] {},
 												UserMessageUtil.TANDC_PROMPT_SUBJECT, 

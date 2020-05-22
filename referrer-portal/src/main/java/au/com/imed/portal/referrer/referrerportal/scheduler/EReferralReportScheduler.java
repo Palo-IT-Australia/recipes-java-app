@@ -22,18 +22,18 @@ public class EReferralReportScheduler {
 	@Value("${imed.scheduler.ereferral.server.name}")
 	private String SCHEDULER_SERVER_NAME;
 
-	@Scheduled(cron = "0 30 7 * * ?")
-	public void schedulEReferralAuditReport() {
-		try {
-			logger.info("Started to send ereferral audit report to Martin");
-			if (SCHEDULER_SERVER_NAME.equals(InetAddress.getLocalHost().getHostName())) {
-				electronicReferralService.sendDailyEReferralAuditReport();
-			}
-		} catch (Exception e) {
-			logger.info("Exception occured while trying to send ereferral audit report to Martin");
-			e.printStackTrace();
-		}
-	}
+//	@Scheduled(cron = "0 30 7 * * ?")
+//	public void schedulEReferralAuditReport() {
+//		try {
+//			logger.info("Started to send ereferral audit report to Martin");
+//			if (SCHEDULER_SERVER_NAME.equals(InetAddress.getLocalHost().getHostName())) {
+//				electronicReferralService.sendDailyEReferralAuditReport();
+//			}
+//		} catch (Exception e) {
+//			logger.info("Exception occured while trying to send ereferral audit report to Martin");
+//			e.printStackTrace();
+//		}
+//	}
 	
 	@Scheduled(cron = "0 0 8 * * MON-FRI")
 	public void schedulEReferralCrmReport() {

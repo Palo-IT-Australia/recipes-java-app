@@ -52,8 +52,7 @@ public class VisageRestEmailService {
 	}
 
 	// AUS Open special treatment
-	private static final String[] VH_EMAILS = new String[] { "Cristina.Lopez@i-med.com.au", "Ian.Peacock@i-med.com.au",
-			"Martin.Cox@i-med.com.au" };
+	private static final String[] VH_EMAILS = new String[] { "Cristina.Lopez@i-med.com.au", "Ian.Peacock@i-med.com.au"};
 	private static final String VH_SUBJECT = "Break Glass Notification for Victoria House";
 	private static final String VH_FACILITY = "Victoria House Medical Imaging";
 	private static final String NL = "<br/>";
