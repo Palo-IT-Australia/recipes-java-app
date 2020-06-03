@@ -1,9 +1,8 @@
 package au.com.imed.portal.referrer.referrerportal.rest.account.controller;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,16 +71,37 @@ private Logger logger = LoggerFactory.getLogger(CrmAdminAccountRestController.cl
 		HttpStatus sts = HttpStatus.OK;
 		if(!StringUtil.isBlank(provider) && !StringUtil.isBlank(name)) {
 			try {
-				Referrer referrer = getVisageReferrer(GetReferrerService.PARAM_PROVIDER_NUMBER, provider);
 				List<ReferrerProviderEntity> providers = referrerProviderJpaRepository.findByProviderNumber(provider);
 				if(providers.size() > 0) {
-					// Should be only one
-					String uid = providers.get(0).getUsername();
-					if(!StringUtil.isBlank(uid)) {
-						
+					for(int idx = 0; idx < providers.size(); idx++) {
+						String uid = providers.get(idx).getUsername();
+						logger.info("uid from DB provider : " + uid);
+						if(!StringUtil.isBlank(uid)) { // TODO check with name
+							AccountStatus accountStatus = new AccountStatus();
+							accountStatus.setUid(uid);
+							accountStatus.setProviders(Collections.singletonList(providers.get(idx)));
+							accountStatus.setVisage(getVisageReferrer(GetReferrerService.PARAM_CURRENT_USER_NAME, uid) != null);
+							accountStatus.setPacs(referrerAccountService.GetPacsDnListByAttr("cn", uid).size() > 0);
+							accountStatus.setImedpacs(referrerAccountService.GetImedPacsDnListByAttr("cn", uid).size() > 0);
+							accountStatus.setPortal(referrerAccountService.GetReferrerDnListByAttr("uid", uid).size() > 0);				
+							list.add(accountStatus);
+						}
 					}
-				} else {
-					
+				} else {					
+					Referrer referrer = getVisageReferrer(GetReferrerService.PARAM_PROVIDER_NUMBER, provider);
+					if(referrer != null) {
+						String visUid = referrer.getUri().replaceAll("/user/", "").trim();
+						logger.info("Visage user name " + visUid);
+						// TODO double check with name
+						AccountStatus accountStatus = new AccountStatus();
+						accountStatus.setUid(visUid);
+						accountStatus.setProviders(null); // TODO convert to provider entity format or just prov#?
+						accountStatus.setVisage(true);
+						accountStatus.setPacs(visUid.length() > 0 ? referrerAccountService.GetPacsDnListByAttr("cn", visUid).size() > 0 : false);
+						accountStatus.setImedpacs(visUid.length() > 0 ? referrerAccountService.GetImedPacsDnListByAttr("cn", visUid).size() > 0 : false);
+						accountStatus.setPortal(visUid.length() > 0 ? referrerAccountService.GetReferrerDnListByAttr("uid", visUid).size() > 0 : false);				
+						list.add(accountStatus);
+					}
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -96,9 +116,8 @@ private Logger logger = LoggerFactory.getLogger(CrmAdminAccountRestController.cl
 	
 	private Referrer getVisageReferrer(final String key, final String value) {
 		Referrer referrer = null;
-		Map<String, String> paramMap = new HashMap<>(1);
-		paramMap.put(key, value);
-		ResponseEntity<Referrer> ve = visageReferrerService.doRestGet(PortalConstant.REP_VISAGE_USER, paramMap, Referrer.class);
+		ResponseEntity<Referrer> ve = visageReferrerService.doRestGet(PortalConstant.REP_VISAGE_USER, Collections.singletonMap(key, value), Referrer.class);
+		logger.info("Referrer response {} {}", ve.getStatusCode(), ve.getBody());
 		if(HttpStatus.OK.equals(ve.getStatusCode())) {
 			Referrer ref = ve.getBody();
 			if(ref.getName().length() > 0) {
