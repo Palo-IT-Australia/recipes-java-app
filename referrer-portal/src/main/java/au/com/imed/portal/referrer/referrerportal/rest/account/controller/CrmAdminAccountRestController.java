@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,6 +24,7 @@ import au.com.imed.portal.referrer.referrerportal.jpa.audit.repository.ReferrerP
 import au.com.imed.portal.referrer.referrerportal.ldap.ReferrerAccountService;
 import au.com.imed.portal.referrer.referrerportal.ldap.ReferrerCreateAccountService;
 import au.com.imed.portal.referrer.referrerportal.model.AccountStatus;
+import au.com.imed.portal.referrer.referrerportal.model.ExternalUser;
 import au.com.imed.portal.referrer.referrerportal.model.LdapUserDetails;
 import au.com.imed.portal.referrer.referrerportal.model.StageUser;
 import au.com.imed.portal.referrer.referrerportal.model.StagingValidatingUserList;
@@ -44,6 +47,13 @@ private Logger logger = LoggerFactory.getLogger(CrmAdminAccountRestController.cl
 	
 	@Autowired
 	private ReferrerProviderJpaRepository referrerProviderJpaRepository;
+	
+	@PostMapping("/create")
+	public ResponseEntity<String> postCreate(@RequestBody ExternalUser imedExternalUser) {
+		logger.info("/create " + imedExternalUser);
+		// TODO reply some json object for angular 
+		return new ResponseEntity<String>("Applied account successfully", HttpStatus.OK);
+	}
 
 	@GetMapping("/find")
 	public ResponseEntity<List<LdapUserDetails>> getFind(@RequestParam("word") String word) {
