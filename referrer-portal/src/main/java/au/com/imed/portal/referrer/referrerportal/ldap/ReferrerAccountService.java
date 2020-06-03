@@ -365,7 +365,36 @@ public class ReferrerAccountService extends ABasicAccountService {
 		}
 		return list;
 	}
-
+	
+	public List<StageUser> getStageNewUserList() {
+		List<StageUser> list;
+		LdapQuery query = query()
+				.attributes("pager", "ibm-pwdAccountLocked", "cn", "uid", "givenName", "sn", "mail", "ahpra", "createTimeStamp", "BusinessUnit", "employeeType", "homePhone", "mobile", "physicalDeliveryOfficeName")
+				.where("uid").like("*")
+				.and(PortalConstant.PARAM_ATTR_FINALIZING_PAGER).not().is(PortalConstant.PARAM_ATTR_VALUE_VALIDATING_PAGER);
+		try {
+			list = getReferrerStagingLdapTemplate().search(query, new StageUserAttributeMapper());
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			list = new ArrayList<>(0);
+		}
+		return list;
+	}
+	
+	public List<StageUser> getStageValidatingUserList() {
+		List<StageUser> list;
+		LdapQuery query = query()
+				.attributes("pager", "ibm-pwdAccountLocked", "cn", "uid", "givenName", "sn", "mail", "ahpra", "createTimeStamp", "BusinessUnit", "employeeType", "homePhone", "mobile", "physicalDeliveryOfficeName")
+				.where("uid").like("*").and(PortalConstant.PARAM_ATTR_FINALIZING_PAGER).is(PortalConstant.PARAM_ATTR_VALUE_VALIDATING_PAGER);
+		try {
+			list = getReferrerStagingLdapTemplate().search(query, new StageUserAttributeMapper());
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			list = new ArrayList<>(0);
+		}
+		return list;
+	}
+	
 	public List<StageUser> getFinalisingUserList() {
 		List<StageUser> list;
 		LdapQuery query = query().where(PortalConstant.PARAM_ATTR_FINALIZING_PAGER)

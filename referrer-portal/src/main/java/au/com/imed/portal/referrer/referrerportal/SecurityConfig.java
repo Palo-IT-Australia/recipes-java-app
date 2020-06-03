@@ -43,11 +43,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter  {
 	@Value("${imed.portal.pages.urls.admin}")
 	private String [] adminUrls;
 
+	@Value("${imed.portal.pages.urls.crmadmin}")
+	private String [] crmAdminUrls;
+
 	@Value("${imed.portal.pages.urls.editor}")
 	private String [] editorUrls;
 
 	@Value("${imed.portal.auth.groups.admin}")
 	private String [] adminGroups;
+
+	@Value("${imed.portal.auth.groups.crmadmin}")
+	private String [] crmAdminGroups;
 
 	@Value("${imed.portal.auth.groups.editor}")
 	private String [] editorGroups;
@@ -67,6 +73,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter  {
 	private static final String AUTH_ADMIN = "ROLE_ADMIN";
 	private static final String AUTH_EDITOR = "ROLE_EDITOR";
 	private static final String AUTH_HOSPITAL = "ROLE_HOSPITAL";
+	private static final String AUTH_CRM_ADMIN = "ROLE_CRM_ADMIN";
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
@@ -74,6 +81,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter  {
 		.authorizeRequests()
 		.antMatchers(anonUrls).permitAll()
 		.antMatchers(adminUrls).hasAuthority(AUTH_ADMIN)
+		.antMatchers(crmAdminUrls).hasAuthority(AUTH_CRM_ADMIN)
 		.antMatchers("/hospital").hasAnyAuthority(AUTH_HOSPITAL)
 		.anyRequest().fullyAuthenticated()
 		.and()
@@ -140,6 +148,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter  {
 					}).count() > 0) {
 						auths.add(new SimpleGrantedAuthority(AUTH_EDITOR));
 					}
+					if(Arrays.stream(groups).map(o -> o.toString()).filter(s -> {
+						return Arrays.stream(crmAdminGroups).filter(g -> s.startsWith(CN + g)).count() > 0;
+					}).count() > 0) {
+						auths.add(new SimpleGrantedAuthority(AUTH_CRM_ADMIN));
+					}
+
 				}
 				
 				// Hospital access both AD and LDAP groups

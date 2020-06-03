@@ -8,4 +8,5 @@ import au.com.imed.portal.referrer.referrerportal.jpa.audit.entity.ReferrerProvi
 
 public interface ReferrerProviderJpaRepository extends JpaRepository<ReferrerProviderEntity, Integer> {
   public List<ReferrerProviderEntity> findByUsername(String username);
+  public List<ReferrerProviderEntity> findByProviderNumber(String providerNumber);
 }

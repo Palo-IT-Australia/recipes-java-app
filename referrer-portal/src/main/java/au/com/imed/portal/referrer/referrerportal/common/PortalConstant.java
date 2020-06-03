@@ -35,6 +35,7 @@ public final class PortalConstant {
 	public static final String PARAM_ATTR_ACC_LOCKED = "ibm-pwdAccountLocked";
 	public static final String PARAM_ATTR_FINALIZING_PAGER = "pager";
 	public static final String PARAM_ATTR_VALUE_FINALIZING_PAGER = "Finalizing";
+	public static final String PARAM_ATTR_VALUE_VALIDATING_PAGER = "Validating";
 
 	// ldap references
 	public final static String DOMAIN_REFERRER = "ou=Referrers,ou=Portal,ou=Applications,dc=mia,dc=net,dc=au";

@@ -164,6 +164,11 @@ public class ReferrerPortalMvcController {
 		return "hospital";
 	}
 
+	@GetMapping("/crmadmin")
+	public String getCrmAdmin() {
+		return "crmadmin";
+	}
+
 	@GetMapping("/admin")
 	public String getAdmin() {
 		return "admin";
