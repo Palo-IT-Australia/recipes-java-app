@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.jose4j.json.internal.json_simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,11 +49,22 @@ private Logger logger = LoggerFactory.getLogger(CrmAdminAccountRestController.cl
 	@Autowired
 	private ReferrerProviderJpaRepository referrerProviderJpaRepository;
 	
+	@SuppressWarnings("unchecked")
 	@PostMapping("/create")
-	public ResponseEntity<String> postCreate(@RequestBody ExternalUser imedExternalUser) {
+	public ResponseEntity<JSONObject> postCreate(@RequestBody ExternalUser imedExternalUser) {
 		logger.info("/create " + imedExternalUser);
-		// TODO reply some json object for angular 
-		return new ResponseEntity<String>("Applied account successfully", HttpStatus.OK);
+		JSONObject reps = new JSONObject();
+		reps.put("msg", "Account applied successfully");
+		return new ResponseEntity<>(reps, HttpStatus.OK);
+	}
+	
+	@SuppressWarnings("unchecked")
+	@PostMapping("/reset")
+	public ResponseEntity<JSONObject> postReset(@RequestBody JSONObject resetUid) {
+		logger.info("/reset for uid : " + resetUid.get("uid"));
+		JSONObject reps = new JSONObject();
+		reps.put("msg", "Password reset successfully");
+		return new ResponseEntity<>(reps, HttpStatus.OK);
 	}
 
 	@GetMapping("/find")
