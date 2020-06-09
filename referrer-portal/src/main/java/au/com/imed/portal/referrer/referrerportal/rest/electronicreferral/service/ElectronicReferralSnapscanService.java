@@ -42,8 +42,9 @@ public class ElectronicReferralSnapscanService {
 		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 		
 		HttpEntity<SnapscanBooking> request = new HttpEntity<>(toSnapscanBooking(electronicReferralForm), headers);
-		ResponseEntity<JSONObject> entity = restTemplate.postForEntity(SNAPSCAN_API_ROOT_URL + "/booking_links?apiReferrer=imed&apiKey=" + SNAPSCAN_API_TOKEN, request, JSONObject.class);
+		ResponseEntity<String> entity = restTemplate.postForEntity(SNAPSCAN_API_ROOT_URL + "/booking_links?apiReferrer=imed&apiKey=" + SNAPSCAN_API_TOKEN, request, String.class);
 		logger.info("postEreferral() api response {} {}", entity.getStatusCode(), entity.getBody());
+		//JSONObject booked = new JSONObject(entity.getBody());
 		if(HttpStatus.OK.equals(entity.getStatusCode())) {
 			logger.info("Snapscan ereferral api succeeded.");
 		} else {
