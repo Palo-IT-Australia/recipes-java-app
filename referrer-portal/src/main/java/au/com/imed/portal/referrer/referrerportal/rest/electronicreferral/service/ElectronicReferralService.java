@@ -58,6 +58,9 @@ public class ElectronicReferralService {
 	@Autowired
 	private ElectronicReferralDownloadService electronicReferralDownloadService;
 	
+	@Autowired
+	private ElectronicReferralSnapscanService snapscanService;
+	
 	@Value("${spring.profiles.active}")
 	private String ACTIVE_PROFILE;
 
@@ -88,6 +91,8 @@ public class ElectronicReferralService {
 		boolean isDrJonesBu = isDrJonesBu(electronicReferralForm.getPatientPostcode());
 				
 		sendEmailToCrm(electronicReferralForm, isReferrerLogged);
+		// TODO replace to crm
+		snapscanService.postEreferral(electronicReferralForm);
 				
 		if(electronicReferralForm.isCopyToMe() && StringUtils.isNotEmpty(electronicReferralForm.getDoctorEmail()) && !isDrJonesBu) {
 			sendEmailToReferrer(electronicReferralForm);
