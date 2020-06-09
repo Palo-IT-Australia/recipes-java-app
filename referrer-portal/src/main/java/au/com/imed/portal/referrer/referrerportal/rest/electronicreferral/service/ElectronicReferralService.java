@@ -90,8 +90,7 @@ public class ElectronicReferralService {
 		
 		boolean isDrJonesBu = isDrJonesBu(electronicReferralForm.getPatientPostcode());
 				
-		sendEmailToCrm(electronicReferralForm, isReferrerLogged);
-		// TODO replace to crm
+		//Replaced by snapscan API : sendEmailToCrm(electronicReferralForm, isReferrerLogged);
 		snapscanService.postEreferral(electronicReferralForm);
 				
 		if(electronicReferralForm.isCopyToMe() && StringUtils.isNotEmpty(electronicReferralForm.getDoctorEmail()) && !isDrJonesBu) {
