@@ -17,7 +17,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import org.thymeleaf.engine.ISSEThrottledTemplateWriterControl;
 
 import au.com.imed.portal.referrer.referrerportal.common.util.IgnoreCertFactoryUtil;
 import au.com.imed.portal.referrer.referrerportal.rest.electronicreferral.model.ElectronicReferralForm;
