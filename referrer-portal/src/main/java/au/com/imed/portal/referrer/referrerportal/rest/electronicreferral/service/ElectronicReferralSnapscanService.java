@@ -4,6 +4,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 
+import org.jsoup.helper.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.thymeleaf.engine.ISSEThrottledTemplateWriterControl;
 
 import au.com.imed.portal.referrer.referrerportal.common.util.IgnoreCertFactoryUtil;
 import au.com.imed.portal.referrer.referrerportal.rest.electronicreferral.model.ElectronicReferralForm;
@@ -56,6 +58,7 @@ public class ElectronicReferralSnapscanService {
 		String firstName = form.getPatientName().split(" ")[0];		
 		book.setFirstName(firstName);
 		book.setLastName(form.getPatientName().replace(firstName, "").trim());
+		book.setEmail(nonNull(form.getPatientEmail()));
 		book.setDateOfBirth(toOriginalDateFormat(form.getPatientDob()));
 		book.setContactNumber(form.getPatientPhone());
 		book.setAddress(form.getPatientStreet() + " " + form.getPatientSuburb() + " " + form.getPatientPostcode() + " " + form.getPatientState());
@@ -68,8 +71,14 @@ public class ElectronicReferralSnapscanService {
 		book.setReferringPracticeName(nonNull(form.getDoctorPracticeName()));
 		book.setReferringDoctorNumber(nonNull(form.getDoctorProviderNumber()));
 		book.setCopyTo(nonNull(form.getCcDoctorName()));
+		book.setSendEmail(isSendEmail(form));
 		logger.info("snapscan booking " + book);
 		return book;
+	}
+	
+	private boolean isSendEmail(ElectronicReferralForm form) {
+		return !StringUtil.isBlank(form.getPatientEmail()) || 
+				(!StringUtil.isBlank(form.getPatientPhone()) && form.getPatientPhone().startsWith("04"));
 	}
 	
 	private String nonNull(String ori) {

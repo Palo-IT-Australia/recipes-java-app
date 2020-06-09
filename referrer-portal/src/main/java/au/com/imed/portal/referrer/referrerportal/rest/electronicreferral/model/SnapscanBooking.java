@@ -10,6 +10,7 @@ public class SnapscanBooking {
 	private String lastName;
 	private String dateOfBirth;
 	private String contactNumber;
+	private String email;
 	private String address;
 	private String examNotes;
 	private String notes;
@@ -162,15 +163,23 @@ public class SnapscanBooking {
 		this.copyTo = copyTo;
 	}
 
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
 	@Override
 	public String toString() {
 		return "SnapscanBooking [title=" + title + ", gender=" + gender + ", firstName=" + firstName + ", lastName="
-				+ lastName + ", dateOfBirth=" + dateOfBirth + ", contactNumber=" + contactNumber + ", address=" + address
-				+ ", examNotes=" + examNotes + ", notes=" + notes + ", referringDoctorName=" + referringDoctorName
-				+ ", referringDoctorNumber=" + referringDoctorNumber + ", referringDoctorPhone=" + referringDoctorPhone
-				+ ", referringDoctorEmail=" + referringDoctorEmail + ", referringPracticeName=" + referringPracticeName
-				+ ", referringDoctorAddress=" + referringDoctorAddress + ", copyTo=" + copyTo + ", sendEmail=" + sendEmail
-				+ "]";
+				+ lastName + ", dateOfBirth=" + dateOfBirth + ", contactNumber=" + contactNumber + ", email=" + email
+				+ ", address=" + address + ", examNotes=" + examNotes + ", notes=" + notes + ", referringDoctorName="
+				+ referringDoctorName + ", referringDoctorNumber=" + referringDoctorNumber + ", referringDoctorPhone="
+				+ referringDoctorPhone + ", referringDoctorEmail=" + referringDoctorEmail + ", referringPracticeName="
+				+ referringPracticeName + ", referringDoctorAddress=" + referringDoctorAddress + ", copyTo=" + copyTo
+				+ ", sendEmail=" + sendEmail + "]";
 	}
 
 }
