@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.jsoup.helper.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -18,6 +19,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.ldap.userdetails.LdapUserDetails;
 import org.springframework.security.ldap.userdetails.LdapUserDetailsMapper;
 import org.springframework.security.ldap.userdetails.UserDetailsContextMapper;
@@ -133,6 +135,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter  {
 		return new LdapUserDetailsMapper() {
 			@Override
 			public UserDetails mapUserFromContext(DirContextOperations ctx, String username, Collection<? extends GrantedAuthority> authorities) {
+				// Check user id cases as ldap is insensitive and visage is sensitive
+				String uid = ctx.getStringAttribute("uid");
+				String acnt = ctx.getStringAttribute("sAMAccountName");
+				if(!StringUtil.isBlank(uid) && !username.equals(uid)) {
+					throw new UsernameNotFoundException("uid case mismatch LDAP");
+				} else if(!StringUtil.isBlank(acnt) && !username.equals(acnt)) {
+					throw new UsernameNotFoundException("sAMAccountName case mismatch AD");
+				}
+				
 				Set<SimpleGrantedAuthority> auths = new HashSet<>(1);
 				
 				final String CN = "CN=";				
