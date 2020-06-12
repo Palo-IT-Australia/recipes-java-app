@@ -16,7 +16,12 @@ public class GlobalVals {
 	public static String PACS_AUTH_TOKEN;
 	public static String [] PACS_AUTH_SERVERS;
 	public static String PACS_FALLBACK;
+	public static String PACS_SIGNATURE_KEY;
 	
+	@Value("${imed.pacs.signaturekey}")
+	public void setPacsSignatureKey(String key) {
+		PACS_SIGNATURE_KEY = key;
+	}
 	
 	@Value("${imed.pacs.fallback}")
 	public void setPacsFallback(String user) {

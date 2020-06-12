@@ -113,19 +113,19 @@ public class InteleViewerUtil {
   private static final String IVEV_REST_IMAGE_URL_FMT = GlobalVals.PACS_URL + "/Portal/view/orders/%s?sessionId=%s";
   //private static final String IVEV_REST_IMAGE_URL_FMT = GlobalVals.PACS_URL + "/Portal/view/orders/%s?SID=%s&signature=%s";
   private static String buildIvEvUrl(final String userName, final String accessionNum, final String patientId, final String sessionId) {
-    return String.format(IVEV_IMAGE_URL_FMT, patientId, accessionNum, sessionId);
+    return String.format(IVEV_IMAGE_URL_FMT, patientId, accessionNum, sessionId) + getSignatureParamString(accessionNum, sessionId);
   }
   private static String buildIvEvMobileUrl(final String userName, final String accessionNum, final String patientId, final String sessionId) {
-    return String.format(IVEV_MOBILE_IMAGE_URL_FMT, patientId, accessionNum, sessionId);
+    return String.format(IVEV_MOBILE_IMAGE_URL_FMT, patientId, accessionNum, sessionId) + getSignatureParamString(accessionNum, sessionId);
   }
   private static String buildIvEvRestrictedUrl(final String accessionNum, final String sessionId) {
     return String.format(IVEV_REST_IMAGE_URL_FMT, accessionNum, sessionId);
     //return String.format(IVEV_REST_IMAGE_URL_FMT, accessionNum, sessionId, getHash(accessionNum, sessionId));
   }
   
-  private static final String SIGNKEY = "tobedecided";
-  private static String getHash(final String accessionNumber, final String sessionId) {
-    return DigestUtils.sha1Hex(sessionId + "|" + accessionNumber + "|" + SIGNKEY).substring(0, 20);
+  private static String getSignatureParamString(final String accnumorpatientid, final String sessionId) {
+  	String str = DigestUtils.sha1Hex(sessionId + "|" + accnumorpatientid + "|" + GlobalVals.PACS_SIGNATURE_KEY);
+  	return "&signature=" + str.substring(0, 20);  // half = Raw lenght always 40
   }
 
 }
