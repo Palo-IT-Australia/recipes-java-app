@@ -149,6 +149,15 @@ private Logger logger = LoggerFactory.getLogger(CrmAdminAccountRestController.cl
 		return referrer;
 	}
 	
+	@SuppressWarnings("unchecked")
+	@PostMapping("/approve")
+	public ResponseEntity<JSONObject> postApprove(@RequestBody JSONObject resetUid) {
+		logger.info("/approve for uid : " + resetUid.get("uid"));
+		JSONObject reps = new JSONObject();
+		reps.put("msg", "Approved");
+		return new ResponseEntity<>(reps, HttpStatus.OK);
+	}
+	
 	@GetMapping("/getStageUsers")
 	public ResponseEntity<StagingValidatingUserList> getStagingUserList() {
 		return new ResponseEntity<StagingValidatingUserList>(getCurrentStagingUserList(), HttpStatus.OK);
