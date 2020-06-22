@@ -1,13 +1,16 @@
 package au.com.imed.portal.referrer.referrerportal.rest.account.controller;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.jose4j.json.internal.json_simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,25 +23,31 @@ import org.springframework.web.bind.annotation.RestController;
 import com.itextpdf.html2pdf.jsoup.helper.StringUtil;
 
 import au.com.imed.portal.referrer.referrerportal.common.PortalConstant;
+import au.com.imed.portal.referrer.referrerportal.common.util.ForceResetPasswordAes128Util;
+import au.com.imed.portal.referrer.referrerportal.email.ReferrerMailService;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.entity.ReferrerProviderEntity;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.repository.ReferrerProviderJpaRepository;
 import au.com.imed.portal.referrer.referrerportal.ldap.ReferrerAccountService;
-import au.com.imed.portal.referrer.referrerportal.ldap.ReferrerCreateAccountService;
+import au.com.imed.portal.referrer.referrerportal.model.AccountDetail;
 import au.com.imed.portal.referrer.referrerportal.model.AccountStatus;
 import au.com.imed.portal.referrer.referrerportal.model.ExternalUser;
 import au.com.imed.portal.referrer.referrerportal.model.LdapUserDetails;
 import au.com.imed.portal.referrer.referrerportal.model.StageUser;
 import au.com.imed.portal.referrer.referrerportal.model.StagingValidatingUserList;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.model.Referrer;
+import au.com.imed.portal.referrer.referrerportal.rest.visage.model.Referrer.Practice;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.service.GetReferrerService;
 
 @RestController
 @RequestMapping("/crmadminrest/account")
 public class CrmAdminAccountRestController {
-private Logger logger = LoggerFactory.getLogger(CrmAdminAccountRestController.class);
+	private Logger logger = LoggerFactory.getLogger(CrmAdminAccountRestController.class);
 	
-	@Autowired
-	private ReferrerCreateAccountService referrerCreateAccountService;
+	@Value("${spring.profiles.active}")
+	private String ACTIVE_PROFILE;
+	
+	@Value("${imed.application.url}")
+	private String APPLICATION_URL;
 	
 	@Autowired
 	private ReferrerAccountService referrerAccountService;
@@ -48,6 +57,9 @@ private Logger logger = LoggerFactory.getLogger(CrmAdminAccountRestController.cl
 	
 	@Autowired
 	private ReferrerProviderJpaRepository referrerProviderJpaRepository;
+	
+	@Autowired
+	private ReferrerMailService emailService;
 	
 	@SuppressWarnings("unchecked")
 	@PostMapping("/create")
@@ -60,11 +72,62 @@ private Logger logger = LoggerFactory.getLogger(CrmAdminAccountRestController.cl
 	
 	@SuppressWarnings("unchecked")
 	@PostMapping("/reset")
-	public ResponseEntity<JSONObject> postReset(@RequestBody JSONObject resetUid) {
-		logger.info("/reset for uid : " + resetUid.get("uid"));
+	public ResponseEntity<JSONObject> postReset(@RequestBody JSONObject resetUid) 
+	{
+		boolean isSuccess = false;
 		JSONObject reps = new JSONObject();
-		reps.put("msg", "Password reset successfully");
-		return new ResponseEntity<>(reps, HttpStatus.OK);
+
+		String uid = (String) resetUid.get("uid");
+		logger.info("/reset for uid : " + uid);
+		
+		try
+		{
+			if(StringUtil.isBlank(uid)) {
+				throw new IllegalArgumentException("Empty uid");
+			}
+			
+			AccountDetail userDetails = referrerAccountService.getReferrerAccountDetail(uid);
+			if(userDetails == null) {
+				throw new IllegalArgumentException("Not referrer");
+			}
+				
+			final String email = userDetails.getEmail();
+			if(StringUtil.isBlank(email)) {
+				throw new IllegalArgumentException("Email not registered");
+			}
+			
+			final String mobile = userDetails.getMobile();
+			if(StringUtil.isBlank(mobile) || !mobile.startsWith("04")) {
+				throw new IllegalArgumentException("Email unregistered or non australian number.");
+			}
+			logger.info("/reset email {} mobile {} ", email, mobile);
+			
+			// Temporal password
+			final String temppswd = ForceResetPasswordAes128Util.randomString(16);
+			final String secret = ForceResetPasswordAes128Util.getSecretParameterValue(uid, temppswd);
+			logger.info("/reset secret = " + secret);
+			// TODO save to crm audit DB
+			// Mobile number without spaces is confirm passcode
+			//ReferrerPasswordResetEntity saved = confirmProcessDataService.savePasswordReset(userDetails.getUid(), mobile.replaceAll(" ", ""));
+			//final String confirmParam = URLEncoder.encode(UrlCodeAes128Util.encrypt(saved.getUrlCode()), "UTF-8");
+			referrerAccountService.resetReferrerPassword(uid, temppswd);
+			referrerAccountService.updateReferrerCrmAction(uid, PortalConstant.PARAM_ATTR_VALUE_CRM_ACTION_RESET);
+			logger.info("/reset updated password and action");
+			if("prod".equals(ACTIVE_PROFILE)) {
+				emailService.sendPasswordResetByCrmHtml(new String[] {email}, temppswd);
+			} else {
+				emailService.sendPasswordResetByCrmHtml(new String[] {"Hidehiro.Uehara@i-med.com.au"}, temppswd);
+			}
+			reps.put("msg", "Password reset successfully");		
+			isSuccess = true;
+		}
+		catch(Exception ex)
+		{
+			ex.printStackTrace();
+			reps.put("msg", "Failed to reset password - " + ex.getMessage());
+		}
+		
+		return new ResponseEntity<>(reps, isSuccess ? HttpStatus.OK : HttpStatus.BAD_REQUEST);
 	}
 
 	@GetMapping("/find")
@@ -73,7 +136,7 @@ private Logger logger = LoggerFactory.getLogger(CrmAdminAccountRestController.cl
 		HttpStatus sts = HttpStatus.OK;
 		if(word != null && word.length() >= 3) {
 			try {
-				list = referrerCreateAccountService.findFuzzyReferrerAccounts(word);
+				list = referrerAccountService.findFuzzyReferrerAccounts(word);
 			} catch (Exception e) {
 				e.printStackTrace();
 				list = new ArrayList<>(0);
@@ -98,7 +161,7 @@ private Logger logger = LoggerFactory.getLogger(CrmAdminAccountRestController.cl
 					for(int idx = 0; idx < providers.size(); idx++) {
 						String uid = providers.get(idx).getUsername();
 						logger.info("uid from DB provider : " + uid);
-						if(!StringUtil.isBlank(uid)) { // TODO check with name
+						if(!StringUtil.isBlank(uid)) { // TODO check with practice or referrer name
 							AccountStatus accountStatus = new AccountStatus();
 							accountStatus.setUid(uid);
 							accountStatus.setProviders(Collections.singletonList(providers.get(idx)));
@@ -112,9 +175,14 @@ private Logger logger = LoggerFactory.getLogger(CrmAdminAccountRestController.cl
 				} else {					
 					Referrer referrer = getVisageReferrer(GetReferrerService.PARAM_PROVIDER_NUMBER, provider);
 					if(referrer != null) {
+						// TODO double check with practice or referrer name
+						String visName = referrer.getName();
+						logger.info("Visage referrer name : " + visName + " vs " + name);
+						boolean isReferrerNameMatch = visName.toLowerCase().contains(name.toLowerCase());
+						List<Practice> visPracs = Arrays.asList(referrer.getPractices()).stream().filter(p -> p.getPracticeName().toLowerCase().contains(name.toLowerCase())).collect(Collectors.toList());
+						
 						String visUid = referrer.getUri().replaceAll("/user/", "").trim();
 						logger.info("Visage user name " + visUid);
-						// TODO double check with name
 						AccountStatus accountStatus = new AccountStatus();
 						accountStatus.setUid(visUid);
 						accountStatus.setProviders(null); // TODO convert to provider entity format or just prov#?

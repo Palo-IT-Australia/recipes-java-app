@@ -484,4 +484,32 @@ public class ReferrerAccountService extends ABasicAccountService {
 		logger.info("declineUser() {} ", dn);
 		ldapTemplate.unbind(dn);
 	}
+	
+	//
+	// CRM Admin
+	//
+	public void updateReferrerCrmAction(final String uid, final String value) throws Exception {
+		LdapTemplate ldapTemplate = getReferrerLdapTemplate();
+		Name dn = getAccountDnList(ldapTemplate, "uid", uid).get(0);
+
+		Attribute newAttr = new BasicAttribute(PortalConstant.PARAM_ATTR_CRM_ACTION, value);
+		ModificationItem modifyItem = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, newAttr);
+
+		logger.info("updateCrmAction() updating {} {}", dn, value);
+		ldapTemplate.modifyAttributes(dn, new ModificationItem[] { modifyItem });
+	}
+	
+	public String getReferrerCrmAction(final String uid) throws Exception {
+		LdapQuery query = query()
+				.attributes(PortalConstant.PARAM_ATTR_CRM_ACTION, "uid")
+				.where("uid").is(uid);
+		List<String> list = getReferrerLdapTemplate().search(query, new AttributesMapper<String>() {
+			@Override
+			public String mapFromAttributes(Attributes attributes) throws NamingException {
+				String val = attributes.get(PortalConstant.PARAM_ATTR_CRM_ACTION) != null ? 
+						attributes.get(PortalConstant.PARAM_ATTR_CRM_ACTION).get(0).toString() : null;
+				return val;
+			}});
+		return list.size() > 0 ? list.get(0) : null; 
+	}
 }

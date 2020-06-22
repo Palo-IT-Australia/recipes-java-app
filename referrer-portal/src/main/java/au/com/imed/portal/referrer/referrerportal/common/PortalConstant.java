@@ -67,4 +67,10 @@ public final class PortalConstant {
 	public static final String VALIDATION_MSG_ACCOUNT_CREATED = "Account created, ready to notify";
 
 	public static final String REP_VISAGE_USER = "myimed";
+	
+	// Force reset password
+	public static final String PARAM_ATTR_CRM_ACTION = "preferredDeliveryMethod";
+	public static final String PARAM_ATTR_VALUE_CRM_ACTION_RESET = "CRMReset";
+	public static final String PARAM_ATTR_VALUE_CRM_ACTION_CREATE = "CRMCreate";
+	public static final String PARAM_ATTR_VALUE_CRM_ACTION_APPROVE = "CRMApprove";
 }

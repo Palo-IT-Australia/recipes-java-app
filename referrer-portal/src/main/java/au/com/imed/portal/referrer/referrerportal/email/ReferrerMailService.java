@@ -106,6 +106,13 @@ public class ReferrerMailService {
 	public void sendPasswordResetHtml(final String[] toEmails, final String url) throws Exception {
 		sendHtmlMail(toEmails, RESET_SUBJECT, String.format(RESET_CONTENT_FMT, url));
 	}
+	
+	private static final String RESET_BY_CRM_SUBJECT = "I-MED Radiology Network : Your password has been reset by CRM";
+	private static final String RESET_BY_CRM_CONTENT_FMT = "Hello,<br/><br/>Your My I-MED account password is reset by your CRM. Your temporal password is %s.<br/><br/>Thank you<br/>I-MED Radiology";
+
+	public void sendPasswordResetByCrmHtml(final String[] toEmails, final String temppswd) throws Exception {
+		sendHtmlMail(toEmails, RESET_BY_CRM_SUBJECT, String.format(RESET_BY_CRM_CONTENT_FMT, temppswd));
+	}
 
 	private static final String SHARE_REPORT_SUBJECT = "I-MED Radiology Network : Results Share";
 	private static final String SHARE_REPORT_HTML_BODY_FMT = "Hello,<br/><br/>I have chosen to share my I-MED Radiology results with you.<br/><br/>To view these, please click <a href=\"%s\">here</a>. <br/><br/>Regards<br/></br><i>I-MED Radiology strongly recommends that all results should be discussed with the referring practitioner.</i>";
