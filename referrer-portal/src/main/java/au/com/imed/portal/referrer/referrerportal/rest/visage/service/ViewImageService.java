@@ -112,7 +112,7 @@ public class ViewImageService {
 	}
 
 	public ResponseEntity<String[]> generateIvEvImageUrls(final String userName, final Map<String, String> paramMap, final OrderDetails order) {
-    String accessionNumber = paramMap.get("accessionNumber"); // Not used until multi modality support
+    String accessionNumber = paramMap.get("accessionNumber"); // Not used on desktop mode until multi modality support
     final String mode = paramMap.get("mode");
 
     String ivmode = InteleViewerUtil.URL_EV;
@@ -122,7 +122,7 @@ public class ViewImageService {
       ivmode = InteleViewerUtil.URL_EV_REST;
     }
     
-    String securedAccessionNumber = getAccessionNumberForSecuredIvEvUrl(order);
+    String securedAccessionNumber = InteleViewerUtil.URL_EV_MOBILE.equals(ivmode) ? accessionNumber : getAccessionNumberForSecuredIvEvUrl(order);
     logger.info("accessionNumber {}, securedAccessionNumber {}", accessionNumber, securedAccessionNumber);
     ResponseEntity<String[]> entity;
     if (userName != null && securedAccessionNumber != null) {

@@ -746,14 +746,7 @@ public class VisageController {
 		ResponseEntity<String[]> viewEntity;
 		if (HttpStatus.OK.equals(entity.getStatusCode())) {
 			OrderDetails orderDetails = entity.getBody();
-			if("test".equals(ACTIVE_PROFILE)) {
-      	logger.info("IVEV Test server only, making DICOM dummy information...");
-      	if(orderDetails.getDicom().length == 0) {
-      		DicomPacs dp = new DicomPacs();
-      		dp.setAccessionNumber(orderDetails.getAccessionNumber());
-      		orderDetails.setDicom(new DicomPacs [] {dp});
-      	}
-      }
+      orderDetails.setDicom(dicomService.findDicomList(orderDetails));
 			viewEntity = viewImageService.generateIvEvImageUrls(userName, paramMap, orderDetails);
 		} else {
 			viewEntity = new ResponseEntity<String[]>(PortalConstant.EMPTY_STRING_ARRAY, entity.getHeaders(),
