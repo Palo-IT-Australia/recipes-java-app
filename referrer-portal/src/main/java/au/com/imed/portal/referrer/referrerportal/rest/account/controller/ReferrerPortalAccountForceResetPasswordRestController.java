@@ -43,6 +43,7 @@ public class ReferrerPortalAccountForceResetPasswordRestController {
 					LdapUserDetails referrer = acnts.get(0); // should be only one
 					if(mobile.equals(referrer.getMobile())) {
 						accountService.resetReferrerPassword(frp.getUid(), newPassword);
+						accountService.updateReferrerCrmAction(frp.getUid(), ""); // Clear action
 						JSONObject respo = new JSONObject();
 						respo.put("uid", frp.getUid());
 						entity = ResponseEntity.ok(respo);
