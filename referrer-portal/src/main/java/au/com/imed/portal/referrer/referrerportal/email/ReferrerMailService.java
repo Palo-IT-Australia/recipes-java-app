@@ -101,14 +101,14 @@ public class ReferrerMailService {
 	}
 
 	private static final String RESET_SUBJECT = "I-MED Radiology Network : Reset your password";
-	private static final String RESET_CONTENT_FMT = "Hello,<br/><br/>As requested, your My I-MED account password is being reset. To complete the process, please click <a href=\"%s\">here</a> to open the password reset confirmation page and complete the process with your sms code.<br/>This link will expire in 24 hours.<br/><br/>Thank you<br/>I-MED Radiology";
+	private static final String RESET_CONTENT_FMT = "Hello,<br/><br/>As requested, your I-MED Online 2.0 account password is being reset. To complete the process, please click <a href=\"%s\">here</a> to open the password reset confirmation page and complete the process with your sms code.<br/>This link will expire in 24 hours.<br/><br/>Thank you<br/>I-MED Radiology";
 
 	public void sendPasswordResetHtml(final String[] toEmails, final String url) throws Exception {
 		sendHtmlMail(toEmails, RESET_SUBJECT, String.format(RESET_CONTENT_FMT, url));
 	}
 	
 	private static final String RESET_BY_CRM_SUBJECT = "I-MED Radiology Network : Your password has been reset by CRM";
-	private static final String RESET_BY_CRM_CONTENT_FMT = "Hello,<br/><br/>Your My I-MED account password is reset by your CRM. Your temporal password is %s.<br/><br/>Thank you<br/>I-MED Radiology";
+	private static final String RESET_BY_CRM_CONTENT_FMT = "Hello,<br/><br/>Your I-MED Online 2.0 account password is reset by your CRM. Your temporal password is %s.<br/><br/>Thank you<br/>I-MED Radiology";
 
 	public void sendPasswordResetByCrmHtml(final String[] toEmails, final String temppswd) throws Exception {
 		sendHtmlMail(toEmails, RESET_BY_CRM_SUBJECT, String.format(RESET_BY_CRM_CONTENT_FMT, temppswd));
