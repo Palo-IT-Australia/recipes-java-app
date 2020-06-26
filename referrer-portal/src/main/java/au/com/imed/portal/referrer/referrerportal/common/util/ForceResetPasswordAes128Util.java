@@ -46,7 +46,7 @@ private static Logger logger = LoggerFactory.getLogger(ForceResetPasswordAes128U
     {
       Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");  // = 7Padding
       cipher.init(Cipher.ENCRYPT_MODE, SECRET_KEY, new IvParameterSpec(IV));
-      str = Base64.encodeBase64String(cipher.doFinal(strToEncrypt.getBytes("UTF-8")));
+      str = Base64.encodeBase64URLSafeString(cipher.doFinal(strToEncrypt.getBytes("UTF-8")));
     }
     catch (Exception e)
     {

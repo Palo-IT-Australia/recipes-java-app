@@ -54,7 +54,7 @@
 			          <div>Log In</div>
 			        </a>
 			        
-			        <form style="background-image:none;padding-left:20px;" class="tab-clinic w-inline-block w-tab-link" sec:authorize="isAuthenticated()" th:action="@{/logout}" method="post">
+			        <form name="logout" style="background-image:none;padding-left:20px;" class="tab-clinic w-inline-block w-tab-link" sec:authorize="isAuthenticated()" th:action="@{/logout}" method="post">
 								<button type="submit" style="background-color: transparent;">Log Out</button>
 							</form>
 			      </div>
@@ -130,7 +130,7 @@
 	            <a sec:authorize="isAuthenticated()" th:href="@{/profile}" class="nav-link-mobile no-expand w-hidden-main">
 	                <span lang="en" dir="ltr">My Account</span>
 	            </a>
-	            <form class="nav-link-mobile no-expand w-hidden-main" sec:authorize="isAuthenticated()" th:action="@{/logout}" method="post">
+	            <form name="logout" class="nav-link-mobile no-expand w-hidden-main" sec:authorize="isAuthenticated()" th:action="@{/logout}" method="post">
 								<button type="submit" style="background-color: transparent;">Log Out</button>
 							</form>
         	</nav>

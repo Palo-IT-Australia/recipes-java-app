@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.jose4j.json.internal.json_simple.JSONObject;
@@ -27,7 +28,7 @@ import au.com.imed.portal.referrer.referrerportal.common.util.ForceResetPassword
 import au.com.imed.portal.referrer.referrerportal.email.ReferrerMailService;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.entity.ReferrerProviderEntity;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.repository.ReferrerProviderJpaRepository;
-import au.com.imed.portal.referrer.referrerportal.ldap.ReferrerAccountService;
+import au.com.imed.portal.referrer.referrerportal.ldap.ReferrerCreateAccountService;
 import au.com.imed.portal.referrer.referrerportal.model.AccountDetail;
 import au.com.imed.portal.referrer.referrerportal.model.AccountStatus;
 import au.com.imed.portal.referrer.referrerportal.model.ExternalUser;
@@ -50,7 +51,7 @@ public class CrmAdminAccountRestController {
 	private String APPLICATION_URL;
 	
 	@Autowired
-	private ReferrerAccountService referrerAccountService;
+	private ReferrerCreateAccountService referrerAccountService;
 	
 	@Autowired
 	private GetReferrerService visageReferrerService;
@@ -65,6 +66,14 @@ public class CrmAdminAccountRestController {
 	@PostMapping("/create")
 	public ResponseEntity<JSONObject> postCreate(@RequestBody ExternalUser imedExternalUser) {
 		logger.info("/create " + imedExternalUser);
+		// Temporal password
+		final String temppswd = ForceResetPasswordAes128Util.randomString(16);
+		imedExternalUser.setPassword(temppswd);
+		imedExternalUser.setConfirmPassword(temppswd);
+		Map<String, String> resultsMap = referrerAccountService.createAccount(imedExternalUser);
+		//final String secret = ForceResetPasswordAes128Util.getSecretParameterValue(resultMap.uid, temppswd);
+		//referrerAccountService.updateReferrerCrmAction(uid, PortalConstant.PARAM_ATTR_VALUE_CRM_ACTION_CREATE);
+		//logger.info("/reset secret = " + secret);
 		JSONObject reps = new JSONObject();
 		reps.put("msg", "Account applied successfully");
 		return new ResponseEntity<>(reps, HttpStatus.OK);
@@ -219,11 +228,21 @@ public class CrmAdminAccountRestController {
 	
 	@SuppressWarnings("unchecked")
 	@PostMapping("/approve")
-	public ResponseEntity<JSONObject> postApprove(@RequestBody JSONObject resetUid) {
-		logger.info("/approve for uid : " + resetUid.get("uid"));
-		JSONObject reps = new JSONObject();
-		reps.put("msg", "Approved");
-		return new ResponseEntity<>(reps, HttpStatus.OK);
+	public ResponseEntity<StagingValidatingUserList> postApprove(@RequestBody JSONObject reqObj) {
+		ResponseEntity<StagingValidatingUserList> entity = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		try {
+			String uid = (String) reqObj.get("uid");
+			String bu = (String) reqObj.get("bu");
+			logger.info("/approve for uid {}, bu {}", uid, bu);
+			// TODO validate ahpra, prov# etc. then DB or LDAP
+			referrerAccountService.updateCrmValidating(uid, bu, true);
+			JSONObject reps = new JSONObject();
+			reps.put("msg", "Approved");
+			entity = ResponseEntity.ok(getCurrentStagingUserList());
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		return entity;
 	}
 	
 	@GetMapping("/getStageUsers")
@@ -238,9 +257,9 @@ public class CrmAdminAccountRestController {
 		putProviders(stagings);
 		sul.setStagings(stagings);
 		// Finalizing with providers
-		List<StageUser> finalisings = referrerAccountService.getStageValidatingUserList();
-		putProviders(finalisings);
-		sul.setValidatings(finalisings);
+		List<StageUser> validatings = referrerAccountService.getStageValidatingUserList();
+		putProviders(validatings);
+		sul.setValidatings(validatings);
 		return sul;
 	}
 	

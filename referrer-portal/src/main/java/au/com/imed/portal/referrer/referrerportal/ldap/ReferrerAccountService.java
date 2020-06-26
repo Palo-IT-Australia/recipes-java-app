@@ -499,7 +499,9 @@ public class ReferrerAccountService extends ABasicAccountService {
 		ldapTemplate.modifyAttributes(dn, new ModificationItem[] { modifyItem });
 	}
 	
-	public String getReferrerCrmAction(final String uid) throws Exception {
+	public String getReferrerCrmAction(final String uid) {
+		String action = "";
+		try {
 		LdapQuery query = query()
 				.attributes(PortalConstant.PARAM_ATTR_CRM_ACTION, "uid")
 				.where("uid").is(uid);
@@ -510,6 +512,30 @@ public class ReferrerAccountService extends ABasicAccountService {
 						attributes.get(PortalConstant.PARAM_ATTR_CRM_ACTION).get(0).toString() : null;
 				return val;
 			}});
-		return list.size() > 0 ? list.get(0) : null; 
+			action = list.size() > 0 ? list.get(0) : "";
+		} catch(Exception ex) {
+			ex.printStackTrace();
+		}
+		logger.info("CRM Action " + action);
+		return action; 
+	}
+	
+	public void updateCrmValidating(final String uid, final String bu, boolean onOrOff) throws Exception {
+		LdapTemplate stageTemplate = getReferrerStagingLdapTemplate();
+		Name currentDn = getAccountDnList(stageTemplate, "uid", uid).get(0);
+
+		List<ModificationItem> moditemList = new ArrayList<>(2);
+
+		if (bu != null && !bu.isBlank()) {
+			Attribute buAttr = new BasicAttribute("BusinessUnit", bu);
+			ModificationItem buItem = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, buAttr);
+			moditemList.add(buItem);
+		}
+
+		Attribute finAttr = new BasicAttribute(PortalConstant.PARAM_ATTR_FINALIZING_PAGER, onOrOff? PortalConstant.PARAM_ATTR_VALUE_VALIDATING_PAGER : "");
+		ModificationItem finItem = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, finAttr);
+		moditemList.add(finItem);
+
+		stageTemplate.modifyAttributes(currentDn, moditemList.toArray(new ModificationItem[moditemList.size()]));
 	}
 }

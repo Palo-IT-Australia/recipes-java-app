@@ -72,5 +72,5 @@ public final class PortalConstant {
 	public static final String PARAM_ATTR_CRM_ACTION = "preferredDeliveryMethod";
 	public static final String PARAM_ATTR_VALUE_CRM_ACTION_RESET = "CRMReset";
 	public static final String PARAM_ATTR_VALUE_CRM_ACTION_CREATE = "CRMCreate";
-	public static final String PARAM_ATTR_VALUE_CRM_ACTION_APPROVE = "CRMApprove";
+	//public static final String PARAM_ATTR_VALUE_CRM_ACTION_APPROVE = "CRMApprove";
 }
