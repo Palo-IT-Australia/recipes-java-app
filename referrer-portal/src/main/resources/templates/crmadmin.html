@@ -1,0 +1,22 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragments/layout/head :: head">
+    <title id="pageTitle">CRM Admin</title>
+</head>
+<body>
+	<div th:replace="fragments/layout/header :: header"></div>
+	
+	<div class="section">
+		<div class="wrapper">
+			<link rel="stylesheet" th:href="@{/js/auth/crmadmin/dist/styles.css}">
+			<crmadmin-root></crmadmin-root>
+			<script type="text/javascript" th:src="@{/js/auth/crmadmin/dist/runtime.js}"></script>
+			<script type="text/javascript" th:src="@{/js/auth/crmadmin/dist/es2015-polyfills.js}" nomodule></script>
+			<script type="text/javascript" th:src="@{/js/auth/crmadmin/dist/polyfills.js}"></script>
+			<script type="text/javascript" th:src="@{/js/auth/crmadmin/dist/main.js}"></script>
+		</div>
+	</div>
+	 
+	<div th:replace="fragments/layout/footer :: footer"></div>
+</body>
+</html>

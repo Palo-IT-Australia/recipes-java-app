@@ -114,7 +114,7 @@ public class AccountActivationScheduler {
 								try {
 									emailService.sendImoHtmlMail(new String [] {crm.getEmail()}, new String [] {"Julie-Ann.Evans@i-med.com.au"},
 											UserMessageUtil.getLoginPromptCrmSubject(acnt),
-											UserMessageUtil.getNotLoginPromptBody(acnt, crm));
+											UserMessageUtil.getNotLoginPromptBody(acnt, crm, getReferrerProviderNumbers(uid)));
 								} catch (Exception e) {
 									e.printStackTrace();
 								}
@@ -134,7 +134,7 @@ public class AccountActivationScheduler {
 	    					try {
 									emailService.sendImoHtmlMail(testEmails, new String [] {"Hidehiro.Uehara@i-med.com.au"},
 										UserMessageUtil.getLoginPromptCrmSubject(acnt),
-										UserMessageUtil.getNotLoginPromptBody(acnt, crm));
+										UserMessageUtil.getNotLoginPromptBody(acnt, crm, getReferrerProviderNumbers(uid)));
 								} catch (Exception e) {
 									e.printStackTrace();
 								}
@@ -202,7 +202,7 @@ public class AccountActivationScheduler {
 										try {
 											emailService.sendImoHtmlMail(new String [] {crm.getEmail()}, new String [] {"Julie-Ann.Evans@i-med.com.au"}, 
 													UserMessageUtil.getTandcPromptCrmSubject(doctorDetails),
-													UserMessageUtil.getTandcPromptBody(doctorDetails, crm));
+													UserMessageUtil.getTandcPromptBody(doctorDetails, crm, getReferrerProviderNumbers(uid)));
 										} catch (Exception e) {
 											e.printStackTrace();
 										}
@@ -210,7 +210,7 @@ public class AccountActivationScheduler {
 		    				}
 		    				else
 		    				{
-		    					//String [] testEmails = new String [] {"Hidehiro.Uehara@i-med.com.au", "Martin.Cox@i-med.com.au", "Julie-Ann.Evans@i-med.com.au"};
+		    					//String [] testEmails = new String [] {"Hidehiro.Uehara@i-med.com.au", "Julie-Ann.Evans@i-med.com.au"};
 		    					try {
 										emailService.sendImoHtmlMail(new String [] {"Hidehiro.Uehara@i-med.com.au"}, new String [] {},
 												UserMessageUtil.TANDC_PROMPT_SUBJECT, 
@@ -222,7 +222,7 @@ public class AccountActivationScheduler {
 	    							try {
 											emailService.sendImoHtmlMail(new String [] {"Hidehiro.Uehara@i-med.com.au"}, new String [] {}, 
 												UserMessageUtil.getTandcPromptCrmSubject(doctorDetails),
-												UserMessageUtil.getTandcPromptBody(doctorDetails, crm));
+												UserMessageUtil.getTandcPromptBody(doctorDetails, crm, getReferrerProviderNumbers(uid)));
 										} catch (Exception e) {
 											e.printStackTrace();
 										}
@@ -251,6 +251,23 @@ public class AccountActivationScheduler {
 		}
 		logger.info("getReferrerPostcode() postcode = " + postcode); 
 		return postcode;
+	}
+	
+	private List<String> getReferrerProviderNumbers(final String uid) {
+		List<String> provs = new ArrayList<>(2);
+		Map<String, String> internalParams = new HashMap<String, String>(1);
+		internalParams.put(GetReferrerService.PARAM_CURRENT_USER_NAME, uid);
+		ResponseEntity<Referrer> entity = getReferrerService.doRestGet(uid, internalParams, Referrer.class);
+		if(HttpStatus.OK.equals(entity.getStatusCode())) {
+			Practice [] practices = entity.getBody().getPractices();
+			if(practices != null) {
+				for(Practice pra : practices) {
+					provs.add(pra.getProviderNumber());
+				}
+			}
+		}
+		logger.info("getReferrerProviderNumbers() prov#s = " + provs); 
+		return provs;
 	}
 
 	private CrmProfileEntity getCrm(final String postcode) {

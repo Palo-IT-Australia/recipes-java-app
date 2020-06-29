@@ -129,7 +129,7 @@ public class Aes128Util {
         // urls are perpetual
         sr.setAccessionNumber(params.get(PARAM_ACC_NUM));
         String itemstr = params.get(PARAM_ITEM);
-        sr.setItem(itemstr);
+        sr.setItem(StringUtils.isNotEmpty(itemstr) ? itemstr : "image"); // Special treatment for old format
         sr.setPatientId(params.get(PARAM_PATIENT_ID));
       }
       catch(Exception ex) {

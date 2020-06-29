@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,6 +38,7 @@ import au.com.imed.portal.referrer.referrerportal.jpa.history.repository.ReportF
 import au.com.imed.portal.referrer.referrerportal.jpa.history.repository.ReportNotificationJPARepository;
 import au.com.imed.portal.referrer.referrerportal.ldap.ReferrerAccountService;
 import au.com.imed.portal.referrer.referrerportal.rest.consts.OrderStatusConst;
+import au.com.imed.portal.referrer.referrerportal.rest.visage.model.DicomPacs;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.model.HospitalOrderSummary;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.model.HospitalUserPreferences;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.model.Order;
@@ -80,6 +82,9 @@ import au.com.imed.portal.referrer.referrerportal.service.ReferrerPortalRestApiS
 @RequestMapping("/imedvisage/v1")
 public class VisageController {
 	private Logger logger = LoggerFactory.getLogger(VisageController.class);
+	
+	@Value("${spring.profiles.active}")
+	private String ACTIVE_PROFILE;
 
 	@Autowired
 	private AuditService auditService;
@@ -177,6 +182,14 @@ public class VisageController {
           OrderDetails orderDetails = obtainOrderDetails(PortalConstant.REP_VISAGE_USER, dmap);
           if(orderDetails != null) {
             orderDetails.setDicom(dicomService.findDicomList(orderDetails));
+            if("test".equals(ACTIVE_PROFILE)) {
+            	logger.info("Test server only, making DICOM dummy information...");
+            	if(orderDetails.getDicom().length == 0) {
+            		DicomPacs dp = new DicomPacs();
+            		dp.setAccessionNumber(orderDetails.getAccessionNumber());
+            		orderDetails.setDicom(new DicomPacs [] {dp});
+            	}
+            }
           }
           quickReport.setOrder(orderDetails);
           
@@ -223,13 +236,26 @@ public class VisageController {
             
             // Image
             if(sharedReport.getItem().contains("image")) {
-              Map<String, String> vmap = new HashMap<>(2);
-              vmap.put("orderUri", order.getUri());
-              vmap.put("viewer", "3");
-              ResponseEntity<String> ventity = viewImageService.generateUrl(PortalConstant.REP_VISAGE_USER, vmap, orderDetails);  
-              if(HttpStatus.OK.equals(ventity.getStatusCode())) {
-                quickReport.setViewUrl(ventity.getBody());
-              }
+            	logger.info("item image has been specified.");
+            	if("test".equals(ACTIVE_PROFILE)) {
+            		logger.info("Test server Using EV...");
+            		Map<String, String> vmap = new HashMap<>(2);
+            		vmap.put("orderUri", order.getUri());
+            		vmap.put("accessionNumber", orderDetails.getAccessionNumber());
+            		ResponseEntity<String[]> event = viewImageService.generateIvEvImageUrls(PortalConstant.REP_VISAGE_USER, vmap, orderDetails);  
+            		if(HttpStatus.OK.equals(event.getStatusCode()) && event.getBody().length > 0){
+            			quickReport.setViewUrl(event.getBody()[0]);
+            		}
+            	} else {
+            		logger.info("Prod server Using VM...");
+            		Map<String, String> vmap = new HashMap<>(2);
+            		vmap.put("orderUri", order.getUri());
+            		vmap.put("viewer", "3");
+            		ResponseEntity<String> ventity = viewImageService.generateUrl(PortalConstant.REP_VISAGE_USER, vmap, orderDetails);  
+            		if(HttpStatus.OK.equals(ventity.getStatusCode())) {
+            			quickReport.setViewUrl(ventity.getBody());
+            		}            		
+            	}
             }
           }
         }
@@ -719,7 +745,9 @@ public class VisageController {
 		ResponseEntity<OrderDetails> entity = getOrderService.doRestGet(userName, paramMap, OrderDetails.class);
 		ResponseEntity<String[]> viewEntity;
 		if (HttpStatus.OK.equals(entity.getStatusCode())) {
-			viewEntity = viewImageService.generateIvEvImageUrls(userName, paramMap, entity.getBody());
+			OrderDetails orderDetails = entity.getBody();
+      orderDetails.setDicom(dicomService.findDicomList(orderDetails));
+			viewEntity = viewImageService.generateIvEvImageUrls(userName, paramMap, orderDetails);
 		} else {
 			viewEntity = new ResponseEntity<String[]>(PortalConstant.EMPTY_STRING_ARRAY, entity.getHeaders(),
 					entity.getStatusCode());

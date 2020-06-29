@@ -365,7 +365,36 @@ public class ReferrerAccountService extends ABasicAccountService {
 		}
 		return list;
 	}
-
+	
+	public List<StageUser> getStageNewUserList() {
+		List<StageUser> list;
+		LdapQuery query = query()
+				.attributes("pager", "ibm-pwdAccountLocked", "cn", "uid", "givenName", "sn", "mail", "ahpra", "createTimeStamp", "BusinessUnit", "employeeType", "homePhone", "mobile", "physicalDeliveryOfficeName")
+				.where("uid").like("*")
+				.and(PortalConstant.PARAM_ATTR_FINALIZING_PAGER).not().is(PortalConstant.PARAM_ATTR_VALUE_VALIDATING_PAGER);
+		try {
+			list = getReferrerStagingLdapTemplate().search(query, new StageUserAttributeMapper());
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			list = new ArrayList<>(0);
+		}
+		return list;
+	}
+	
+	public List<StageUser> getStageValidatingUserList() {
+		List<StageUser> list;
+		LdapQuery query = query()
+				.attributes("pager", "ibm-pwdAccountLocked", "cn", "uid", "givenName", "sn", "mail", "ahpra", "createTimeStamp", "BusinessUnit", "employeeType", "homePhone", "mobile", "physicalDeliveryOfficeName")
+				.where("uid").like("*").and(PortalConstant.PARAM_ATTR_FINALIZING_PAGER).is(PortalConstant.PARAM_ATTR_VALUE_VALIDATING_PAGER);
+		try {
+			list = getReferrerStagingLdapTemplate().search(query, new StageUserAttributeMapper());
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			list = new ArrayList<>(0);
+		}
+		return list;
+	}
+	
 	public List<StageUser> getFinalisingUserList() {
 		List<StageUser> list;
 		LdapQuery query = query().where(PortalConstant.PARAM_ATTR_FINALIZING_PAGER)
@@ -454,5 +483,59 @@ public class ReferrerAccountService extends ABasicAccountService {
 		Name dn = getAccountDnList(ldapTemplate, "uid", uid).get(0);
 		logger.info("declineUser() {} ", dn);
 		ldapTemplate.unbind(dn);
+	}
+	
+	//
+	// CRM Admin
+	//
+	public void updateReferrerCrmAction(final String uid, final String value) throws Exception {
+		LdapTemplate ldapTemplate = getReferrerLdapTemplate();
+		Name dn = getAccountDnList(ldapTemplate, "uid", uid).get(0);
+
+		Attribute newAttr = new BasicAttribute(PortalConstant.PARAM_ATTR_CRM_ACTION, value);
+		ModificationItem modifyItem = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, newAttr);
+
+		logger.info("updateCrmAction() updating {} {}", dn, value);
+		ldapTemplate.modifyAttributes(dn, new ModificationItem[] { modifyItem });
+	}
+	
+	public String getReferrerCrmAction(final String uid) {
+		String action = "";
+		try {
+		LdapQuery query = query()
+				.attributes(PortalConstant.PARAM_ATTR_CRM_ACTION, "uid")
+				.where("uid").is(uid);
+		List<String> list = getReferrerLdapTemplate().search(query, new AttributesMapper<String>() {
+			@Override
+			public String mapFromAttributes(Attributes attributes) throws NamingException {
+				String val = attributes.get(PortalConstant.PARAM_ATTR_CRM_ACTION) != null ? 
+						attributes.get(PortalConstant.PARAM_ATTR_CRM_ACTION).get(0).toString() : null;
+				return val;
+			}});
+			action = list.size() > 0 ? list.get(0) : "";
+		} catch(Exception ex) {
+			ex.printStackTrace();
+		}
+		logger.info("CRM Action " + action);
+		return action; 
+	}
+	
+	public void updateCrmValidating(final String uid, final String bu, boolean onOrOff) throws Exception {
+		LdapTemplate stageTemplate = getReferrerStagingLdapTemplate();
+		Name currentDn = getAccountDnList(stageTemplate, "uid", uid).get(0);
+
+		List<ModificationItem> moditemList = new ArrayList<>(2);
+
+		if (bu != null && !bu.isBlank()) {
+			Attribute buAttr = new BasicAttribute("BusinessUnit", bu);
+			ModificationItem buItem = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, buAttr);
+			moditemList.add(buItem);
+		}
+
+		Attribute finAttr = new BasicAttribute(PortalConstant.PARAM_ATTR_FINALIZING_PAGER, onOrOff? PortalConstant.PARAM_ATTR_VALUE_VALIDATING_PAGER : "");
+		ModificationItem finItem = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, finAttr);
+		moditemList.add(finItem);
+
+		stageTemplate.modifyAttributes(currentDn, moditemList.toArray(new ModificationItem[moditemList.size()]));
 	}
 }

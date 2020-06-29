@@ -79,7 +79,6 @@ public class ClinicContentEntity {
   @Column(name = "imgurl")
   private String imgurl;
   
-  @JsonIgnore
   @Column(name = "appointment_emails")
   private String appointmentEmails;
   

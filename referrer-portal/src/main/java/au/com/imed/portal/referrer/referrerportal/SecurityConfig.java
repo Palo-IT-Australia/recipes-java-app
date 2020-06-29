@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.jsoup.helper.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -18,6 +19,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.ldap.userdetails.LdapUserDetails;
 import org.springframework.security.ldap.userdetails.LdapUserDetailsMapper;
 import org.springframework.security.ldap.userdetails.UserDetailsContextMapper;
@@ -43,11 +45,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter  {
 	@Value("${imed.portal.pages.urls.admin}")
 	private String [] adminUrls;
 
+	@Value("${imed.portal.pages.urls.crmadmin}")
+	private String [] crmAdminUrls;
+
 	@Value("${imed.portal.pages.urls.editor}")
 	private String [] editorUrls;
 
 	@Value("${imed.portal.auth.groups.admin}")
 	private String [] adminGroups;
+
+	@Value("${imed.portal.auth.groups.crmadmin}")
+	private String [] crmAdminGroups;
 
 	@Value("${imed.portal.auth.groups.editor}")
 	private String [] editorGroups;
@@ -67,6 +75,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter  {
 	private static final String AUTH_ADMIN = "ROLE_ADMIN";
 	private static final String AUTH_EDITOR = "ROLE_EDITOR";
 	private static final String AUTH_HOSPITAL = "ROLE_HOSPITAL";
+	private static final String AUTH_CRM_ADMIN = "ROLE_CRM_ADMIN";
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
@@ -74,6 +83,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter  {
 		.authorizeRequests()
 		.antMatchers(anonUrls).permitAll()
 		.antMatchers(adminUrls).hasAuthority(AUTH_ADMIN)
+		.antMatchers(crmAdminUrls).hasAuthority(AUTH_CRM_ADMIN)
 		.antMatchers("/hospital").hasAnyAuthority(AUTH_HOSPITAL)
 		.anyRequest().fullyAuthenticated()
 		.and()
@@ -125,6 +135,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter  {
 		return new LdapUserDetailsMapper() {
 			@Override
 			public UserDetails mapUserFromContext(DirContextOperations ctx, String username, Collection<? extends GrantedAuthority> authorities) {
+				// Check user id cases as ldap is insensitive and visage is sensitive
+				String uid = ctx.getStringAttribute("uid");
+				String acnt = ctx.getStringAttribute("sAMAccountName");
+				if(!StringUtil.isBlank(uid) && !username.equals(uid)) {
+					throw new UsernameNotFoundException("uid case mismatch LDAP");
+				} else if(!StringUtil.isBlank(acnt) && !username.equals(acnt)) {
+					throw new UsernameNotFoundException("sAMAccountName case mismatch AD");
+				}
+				
 				Set<SimpleGrantedAuthority> auths = new HashSet<>(1);
 				
 				final String CN = "CN=";				
@@ -140,6 +159,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter  {
 					}).count() > 0) {
 						auths.add(new SimpleGrantedAuthority(AUTH_EDITOR));
 					}
+					if(Arrays.stream(groups).map(o -> o.toString()).filter(s -> {
+						return Arrays.stream(crmAdminGroups).filter(g -> s.startsWith(CN + g)).count() > 0;
+					}).count() > 0) {
+						auths.add(new SimpleGrantedAuthority(AUTH_CRM_ADMIN));
+					}
+
 				}
 				
 				// Hospital access both AD and LDAP groups

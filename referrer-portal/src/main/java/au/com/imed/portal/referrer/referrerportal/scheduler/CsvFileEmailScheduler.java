@@ -98,7 +98,7 @@ public class CsvFileEmailScheduler {
 				logger.info("fileMap : " + fileMap);
 				
 				if("prod".equals(ACTIVE_PROFILE)) {
-					mailService.sendWithFileMap(new String [] {"Martin.Cox@i-med.com.au", "Alexandra.Arter@i-med.com.au", "Giles.Cox@i-med.com.au", "Julie-Ann.Evans@i-med.com.au"}, 
+					mailService.sendWithFileMap(new String [] {"Alexandra.Arter@i-med.com.au", "Giles.Cox@i-med.com.au", "Julie-Ann.Evans@i-med.com.au", "tania.armstrong@i-med.com.au"}, 
 							"IMED Online 2.0 Audit", "Please find attached csv files", fileMap);
 				} else {
 					mailService.sendWithFileMap(new String[] {"Hidehiro.Uehara@i-med.com.au"}, 

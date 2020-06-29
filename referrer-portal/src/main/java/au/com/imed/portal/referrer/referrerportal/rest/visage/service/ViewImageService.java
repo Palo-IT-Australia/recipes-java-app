@@ -1,7 +1,12 @@
 package au.com.imed.portal.referrer.referrerportal.rest.visage.service;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +19,8 @@ import au.com.imed.portal.referrer.referrerportal.rest.visage.model.OrderDetails
 
 @Service
 public class ViewImageService {
+	private Logger logger = LoggerFactory.getLogger(ViewImageService.class);
+	
 	private static final int INVALID_VIEWER = -1;
 	private static final String EMPTY_STRING = "";
 
@@ -47,19 +54,18 @@ public class ViewImageService {
 			if (viewerCode == VIEWER_CARESTREAM && order != null) {
 				// Carestream has defect on mobile multi modality mode, use suid for mobile app
 				if (studyInstanceUid != null && studyInstanceUid.length() > 0) {
-					System.out.println("Carestream /view per resutl mode using studyInstanceUid = " + studyInstanceUid);
+					logger.info("Carestream /view per resutl mode using studyInstanceUid = " + studyInstanceUid);
 					url = CarestreamImageViewerUtil.generateUrlByStudyInstanceUid(urlAvailService.getUrl(false),
 							userName, studyInstanceUid, order.getPatient().getPatientId());
 				} else {
-					System.out
-							.println("Carestream /view multi modality mode using acc# = " + order.getAccessionNumber());
+					logger.info("Carestream /view multi modality mode using acc# = " + order.getAccessionNumber());
 					url = CarestreamImageViewerUtil.generateUrl(urlAvailService.getUrl(false), userName,
 							buildAccessionNumberString(order), order.getPatient().getPatientId());
 				}
 				entity = (url != null && url.length() > 0) ? ResponseEntity.ok(url)
 						: new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
 			} else {
-				System.out.println("generateUrl() viewer code incorrect or order could not be found.");
+				logger.info("generateUrl() viewer code incorrect or order could not be found.");
 				entity = new ResponseEntity<String>(HttpStatus.BAD_REQUEST);
 			}
 		} else {
@@ -87,7 +93,7 @@ public class ViewImageService {
 				}
 			}
 		}
-		System.out.println("buildAccessionNumberString() " + accstr);
+		logger.info("buildAccessionNumberString() " + accstr);
 		return accstr;
 	}
 
@@ -106,7 +112,7 @@ public class ViewImageService {
 	}
 
 	public ResponseEntity<String[]> generateIvEvImageUrls(final String userName, final Map<String, String> paramMap, final OrderDetails order) {
-    String accessionNumber = paramMap.get("accessionNumber");
+    String accessionNumber = paramMap.get("accessionNumber"); // Not used on desktop mode until multi modality support
     final String mode = paramMap.get("mode");
 
     String ivmode = InteleViewerUtil.URL_EV;
@@ -116,17 +122,46 @@ public class ViewImageService {
       ivmode = InteleViewerUtil.URL_EV_REST;
     }
     
+    String securedAccessionNumber = InteleViewerUtil.URL_EV_MOBILE.equals(ivmode) ? accessionNumber : getAccessionNumberForSecuredIvEvUrl(order);
+    logger.info("accessionNumber {}, securedAccessionNumber {}", accessionNumber, securedAccessionNumber);
     ResponseEntity<String[]> entity;
-    if (userName != null) {
-      String [] urls = InteleViewerUtil.generateUrls(userName, accessionNumber, order.getPatient().getPatientId(), ivmode);
+    if (userName != null && securedAccessionNumber != null) {
+      String [] urls = InteleViewerUtil.generateUrls(userName, securedAccessionNumber, order.getPatient().getPatientId(), ivmode);
       entity = ResponseEntity.ok(urls);
     }    
-    else 
+    else if(accessionNumber == null) {
+    	entity = new ResponseEntity<String[]>(HttpStatus.BAD_REQUEST);
+    }
+    else
     {
       entity = new ResponseEntity<String[]>(HttpStatus.UNAUTHORIZED);
     }
     return entity;
   }
+	
+	/**
+	 * Currently IVEV cannot handle multi modality order separeted by more than one _1, _2... accession numbers.
+	 * In this case, move up to patient level url
+	 * @param orderDetails
+	 * @return
+	 */
+	private String getAccessionNumberForSecuredIvEvUrl(final OrderDetails orderDetails) {
+		final DicomPacs[] dicoms = orderDetails.getDicom();
+		String accstr = null;
+		if(dicoms != null) {
+			logger.info("Dicom original length " + dicoms.length);
+			List<String> distinctList = Arrays.asList(dicoms).stream().map(d -> d.getAccessionNumber()).distinct().collect(Collectors.toList());
+			logger.info("Acc# distinct size " + distinctList.size());
+			if(distinctList.size() > 0) {
+				// If multiple accession# in DICOM, using patient level ("" as acc#)
+				accstr = distinctList.size() == 1 ? distinctList.get(0) : "";
+			}
+		} else {
+			logger.info("No DICOM");
+		}
+		logger.info("getAccessionNumberForSecuredIvEvUrl() returning " + accstr);
+		return accstr;
+	}
 
 	private String[] getViewerAccessionNumbers(OrderDetails order) {
 		String[] accessionNumbers;
@@ -158,7 +193,7 @@ public class ViewImageService {
 				accessionNumbers += order.getProcedures()[i].getAccessionNumber();
 			}
 		}
-		System.out.println("getViewerAccessionNumberString() returning " + accessionNumbers);
+		logger.info("getViewerAccessionNumberString() returning " + accessionNumbers);
 		return accessionNumbers;
 	}
 }

@@ -164,6 +164,11 @@ public class ReferrerPortalMvcController {
 		return "hospital";
 	}
 
+	@GetMapping("/crmadmin")
+	public String getCrmAdmin() {
+		return "crmadmin";
+	}
+
 	@GetMapping("/admin")
 	public String getAdmin() {
 		return "admin";
@@ -495,6 +500,22 @@ public class ReferrerPortalMvcController {
 		confirm.setSecret(confirmModel.getSecret());
 		model.addAttribute(MODEL_KEY_FORM_MODEL, confirm); 
 		return "resetconfirm";
+	}
+	
+	@GetMapping("/forceresetpassword")
+	public String getForceResetPassword(ModelMap modelMap, HttpServletRequest request) {
+		String secret = request.getParameter("secret");
+		logger.info("secret " + secret);
+		if(secret != null && secret.length() > 0) {
+			modelMap.put("secret", secret);
+			modelMap.put(MODEL_KEY_ACTION_STATUS, "normal");			
+		}
+		else
+		{
+			modelMap.put(MODEL_KEY_FORM_MODEL, new ResetConfirmModel());
+			modelMap.put(MODEL_KEY_ACTION_STATUS, "invalid");			
+		}
+		return "forceresetpassword";
 	}
 
 	@GetMapping("/quick-report")
