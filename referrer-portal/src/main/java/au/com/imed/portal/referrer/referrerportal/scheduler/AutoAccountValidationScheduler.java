@@ -1,5 +1,6 @@
 package au.com.imed.portal.referrer.referrerportal.scheduler;
 
+import static au.com.imed.portal.referrer.referrerportal.common.PortalConstant.VALIDATION_MSG_ACCOUNT_CREATED;
 import static au.com.imed.portal.referrer.referrerportal.common.PortalConstant.VALIDATION_STATUS_PASSED;
 import static au.com.imed.portal.referrer.referrerportal.common.PortalConstant.VALIDATION_STATUS_VALID;
 
@@ -115,43 +116,40 @@ public class AutoAccountValidationScheduler {
 
 			logger.info("Getting entries from Db from {} to {}", from, now);
 			List<ReferrerAutoValidationEntity> list = referrerAutoValidationRepository.findByValidationStatusAndApplyAtBetween(VALIDATION_STATUS_PASSED, from, now);
-			createAccountService.validateOnDb(filterByServerNumber(list));
+			List<ReferrerAutoValidationEntity> createdList = createAccountService.validateOnDb(filterByServerNumber(list));
+			logger.info("Created account list size = " + createdList.size());
+			if(createdList.size() > 0) {
+				createAccountService.makeAndSendCsvEmails(createdList);
+			}
 			logger.info("Finished short period validation scheduler task...");
 		}catch(Exception ex) {
 			ex.printStackTrace();
 		}
 	}
-
+	
 	/**
-	 * 2) csv files exchange with visage
+	 * Notify by welcome and CRM email
 	 */
-	@Scheduled(cron="0 0 " + HOUR_CSV_FROM + "-" + HOUR_CSV_TO + " * * Mon-Fri") // Business hours
-	public void scheduleProducingVisageCsvTask() {
-		try
-		{
-			if(SCHEDULER_SERVER_NAME.equals(InetAddress.getLocalHost().getHostName())) { 
-				logger.info("Starting hourly visage csv scheduler task...");
-				// To
-				Date now = new Date();
-				logger.info("scheduleBusinessHoursCsvTask() now is " + now);
-				Date from = calculateCsvFromDate(now);
-				logger.info("Getting entries from Db from {} to {}", from, now);
-				if(from != null) {
-					// created at last hours and valid means portal account was created ready for Visage account creation
-					List<ReferrerAutoValidationEntity> list = referrerAutoValidationRepository.findByValidationStatusAndAccountAtBetween(VALIDATION_STATUS_VALID, from, now);
-					createAccountService.makeAndShareVisageCsvFile(list);
-				}
-				
-				// From
-				createAccountService.notifyNewAccountByVisageCsvFiles();
-				logger.info("Finished hourly visage csv scheduler task...");
+	@Scheduled(cron="0 10/15 * ? * *")  // every 15 mins starting 10 mins past hours
+	public void schedulePeriodicNotifyTask() {
+		try {
+			if(SCHEDULER_SERVER_NAME.equals(InetAddress.getLocalHost().getHostName())) {
+				logger.info("Starting periodic notification task...");
+				// Obtain all waiting notification valid entries
+				List<ReferrerAutoValidationEntity> list = referrerAutoValidationRepository.findByValidationStatusAndValidationMsg(VALIDATION_STATUS_VALID, VALIDATION_MSG_ACCOUNT_CREATED);
+				// Check if visage accounts created
+				List<ReferrerAutoValidationEntity> createdList = createAccountService.filterToVisageAccoutCreated(list);
+				createAccountService.notifyNewAccounts(createdList);
+				logger.info("Finishing periodic notification task...");
 			}
-		} catch(Exception ex) {
-			ex.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
-	
-	// 2) csv nightly
+
+	/**
+	 * 2) csv
+	 */
 //	@Scheduled(cron="1 0 0 * * *") // 0 AM 1 second
 //	public void scheduleDailyCsvEmailTask() {
 //		try
@@ -176,7 +174,7 @@ public class AutoAccountValidationScheduler {
 //	}
 	
 	/**
-	 * 3) Notify to crm and referrers supposing visage intelerad accounts created in last day
+	 * Notify to crm and referrers supposing visage intelerad accounts created in last day
 	 */
 //	@Scheduled(cron="0 0 6 * * *")  // 6 AM
 //	public void scheduleDailyNotifyTask() {
@@ -198,46 +196,5 @@ public class AutoAccountValidationScheduler {
 //			e.printStackTrace();
 //		}
 //	}
-	
-	private final static int HOUR_CSV_FROM = 8;
-	private final static int HOUR_CSV_TO = 18;	
-	/**
-	 * 
-	 * @param now current date
-	 * @return from date
-	 */
-	private Date calculateCsvFromDate(final Date now) {
-		logger.info("calculateCsvFromDate() now given = " + now);
-		Date from = null;
-    
-		Calendar cal = Calendar.getInstance();
-    cal.setTime(now);
-    final int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
-    final int hourOfDay = cal.get(Calendar.HOUR_OF_DAY);
-    
-    if(dayOfWeek != Calendar.SATURDAY && dayOfWeek != Calendar.SUNDAY)
-    {
-    	int hoursFrom = -1; // default one hour ago
-
-    	if(hourOfDay == HOUR_CSV_FROM) 
-    	{
-    		hoursFrom = (HOUR_CSV_TO - HOUR_CSV_FROM) - 24; // yesterday TO date	
-	    	if(dayOfWeek == Calendar.MONDAY) {
-	    		hoursFrom = hoursFrom - (24 * 2); // weekend
-	    	}
-    	}
-    	
-	    cal.setTime(now);
-	    cal.add(Calendar.HOUR, hoursFrom);
-	    from = cal.getTime();
-    }
-    else
-    {
-    	logger.info("Skip weekend....");  
-    }
-    
-    logger.info("calculateCsvFromDate() From date (null for weekend) = " + from);
-    return from;
-	}
 	
 }
