@@ -88,18 +88,26 @@ public class ElectronicReferralService {
 	public ElectronicReferralForm save(ElectronicReferralForm electronicReferralForm, boolean isReferrerLogged) throws Exception {
 		electronicReferralForm = electronicReferralJPARepository.save(electronicReferralForm);
 		
-		boolean isDrJonesBu = isDrJonesBu(electronicReferralForm.getPatientPostcode());
-				
-		sendEmailToCrm(electronicReferralForm, isReferrerLogged);
-				
-		if(electronicReferralForm.isCopyToMe() && StringUtils.isNotEmpty(electronicReferralForm.getDoctorEmail()) && !isDrJonesBu) {
-			sendEmailToReferrer(electronicReferralForm);
-		}
-		
-		if(StringUtils.isNotEmpty(electronicReferralForm.getPatientEmail()) && !isDrJonesBu) {
-			sendEmailToPatient(electronicReferralForm);
-		} else if(StringUtils.isNotEmpty(electronicReferralForm.getPatientPhone()) && validMobileNumber(electronicReferralForm.getPatientPhone())  && !isDrJonesBu){
-			sendSmsToPatient(electronicReferralForm.getPatientPhone());	
+		if(isReferrerLogged) {
+			logger.info("Authenticated submission, using snapscan API");
+			// All emails are repleced by snapscan api
+			snapscanService.postEreferral(electronicReferralForm);
+		} else {
+			logger.info("Anonymous submission, using emails");
+			
+			boolean isDrJonesBu = isDrJonesBu(electronicReferralForm.getPatientPostcode());
+
+			sendEmailToCrm(electronicReferralForm, isReferrerLogged);
+
+			if(electronicReferralForm.isCopyToMe() && StringUtils.isNotEmpty(electronicReferralForm.getDoctorEmail()) && !isDrJonesBu) {
+				sendEmailToReferrer(electronicReferralForm);
+			}
+
+			if(StringUtils.isNotEmpty(electronicReferralForm.getPatientEmail()) && !isDrJonesBu) {
+				sendEmailToPatient(electronicReferralForm);
+			} else if(StringUtils.isNotEmpty(electronicReferralForm.getPatientPhone()) && validMobileNumber(electronicReferralForm.getPatientPhone())  && !isDrJonesBu){
+				sendSmsToPatient(electronicReferralForm.getPatientPhone());	
+			}
 		}
 		
 		return electronicReferralForm;

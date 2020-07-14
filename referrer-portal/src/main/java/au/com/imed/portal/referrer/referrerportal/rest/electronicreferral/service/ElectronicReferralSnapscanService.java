@@ -62,12 +62,14 @@ public class ElectronicReferralSnapscanService {
 		book.setDateOfBirth(toOriginalDateFormat(form.getPatientDob()));
 		book.setContactNumber(form.getPatientPhone());
 		book.setAddress(form.getPatientStreet() + " " + form.getPatientSuburb() + " " + form.getPatientPostcode() + " " + form.getPatientState());
+		book.setPostalCode(form.getPatientPostcode());
 		book.setExamNotes(nonNull(form.getExamDetails()));
 		book.setNotes(nonNull(form.getClinicalDetails()));
 		book.setReferringDoctorName(form.getDoctorName());
 		book.setReferringDoctorPhone(nonNull(form.getDoctorPhone()));
 		book.setReferringDoctorEmail(nonNull(form.getDoctorEmail()));
 		book.setReferringDoctorAddress(form.getDoctorStreet() + " " + form.getDoctorSuburb() + " " + form.getDoctorPostcode() + " " + form.getDoctorState());
+		book.setReferringDoctorPostalCode(form.getDoctorPostcode());
 		book.setReferringPracticeName(nonNull(form.getDoctorPracticeName()));
 		book.setReferringDoctorNumber(nonNull(form.getDoctorProviderNumber()));
 		book.setCopyTo(nonNull(form.getCcDoctorName()));

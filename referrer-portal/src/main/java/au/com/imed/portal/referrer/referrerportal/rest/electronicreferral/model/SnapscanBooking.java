@@ -12,6 +12,7 @@ public class SnapscanBooking {
 	private String contactNumber;
 	private String email;
 	private String address;
+	private String postalCode;
 	private String examNotes;
 	private String notes;
 	private String referringDoctorName;
@@ -20,6 +21,7 @@ public class SnapscanBooking {
 	private String referringDoctorEmail;
 	private String referringPracticeName;
 	private String referringDoctorAddress;
+	private String referringDoctorPostalCode;
 	private String copyTo;
 	private boolean sendEmail;
 
@@ -171,15 +173,32 @@ public class SnapscanBooking {
 		this.email = email;
 	}
 
+	public String getPostalCode() {
+		return postalCode;
+	}
+
+	public void setPostalCode(String postalCode) {
+		this.postalCode = postalCode;
+	}
+
+	public String getReferringDoctorPostalCode() {
+		return referringDoctorPostalCode;
+	}
+
+	public void setReferringDoctorPostalCode(String referringDoctorPostalCode) {
+		this.referringDoctorPostalCode = referringDoctorPostalCode;
+	}
+
 	@Override
 	public String toString() {
 		return "SnapscanBooking [title=" + title + ", gender=" + gender + ", firstName=" + firstName + ", lastName="
 				+ lastName + ", dateOfBirth=" + dateOfBirth + ", contactNumber=" + contactNumber + ", email=" + email
-				+ ", address=" + address + ", examNotes=" + examNotes + ", notes=" + notes + ", referringDoctorName="
-				+ referringDoctorName + ", referringDoctorNumber=" + referringDoctorNumber + ", referringDoctorPhone="
-				+ referringDoctorPhone + ", referringDoctorEmail=" + referringDoctorEmail + ", referringPracticeName="
-				+ referringPracticeName + ", referringDoctorAddress=" + referringDoctorAddress + ", copyTo=" + copyTo
-				+ ", sendEmail=" + sendEmail + "]";
+				+ ", address=" + address + ", postalCode=" + postalCode + ", examNotes=" + examNotes + ", notes=" + notes
+				+ ", referringDoctorName=" + referringDoctorName + ", referringDoctorNumber=" + referringDoctorNumber
+				+ ", referringDoctorPhone=" + referringDoctorPhone + ", referringDoctorEmail=" + referringDoctorEmail
+				+ ", referringPracticeName=" + referringPracticeName + ", referringDoctorAddress=" + referringDoctorAddress
+				+ ", referringDoctorPostalCode=" + referringDoctorPostalCode + ", copyTo=" + copyTo + ", sendEmail=" + sendEmail
+				+ "]";
 	}
 
 }
