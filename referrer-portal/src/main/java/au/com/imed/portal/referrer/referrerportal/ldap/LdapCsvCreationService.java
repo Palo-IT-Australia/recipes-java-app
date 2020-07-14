@@ -3,20 +3,30 @@ package au.com.imed.portal.referrer.referrerportal.ldap;
 import java.io.File;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
 
+import org.jsoup.helper.StringUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ldap.core.AttributesMapper;
 import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.filter.AndFilter;
 import org.springframework.ldap.filter.EqualsFilter;
 import org.springframework.stereotype.Service;
 
+import au.com.imed.portal.referrer.referrerportal.jpa.audit.entity.VisageRequestAuditEntity;
+import au.com.imed.portal.referrer.referrerportal.jpa.audit.repository.VisageRequestAuditJPARepository;
+
 @Service
 public class LdapCsvCreationService extends ABasicAccountService {
+	
+	@Autowired
+	private VisageRequestAuditJPARepository auditRepository;
+	
 	public File createCsv(final boolean isAudit) throws Exception {
 		LdapTemplate ldapTemplate = getReferrerLdapTemplate();
 
@@ -39,8 +49,23 @@ public class LdapCsvCreationService extends ABasicAccountService {
         }catch(Exception ex){
           ex.printStackTrace();
         }
+        String lastAccess = "";
         if(isAudit) {
-          return String.format("\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n",
+	        try {
+	        	String username = attrs.get("uid") != null && attrs.get("uid").get(0) != null ? attrs.get("uid").get(0).toString() : "";
+	        	if(!StringUtil.isBlank(username)) {
+	        		VisageRequestAuditEntity audit = auditRepository.findFirstByUsernameOrderByAuditAtDesc(username);
+	        		if(audit != null) {
+	        			Date accori = audit.getAuditAt();
+	        			lastAccess = accori != null ? new SimpleDateFormat("dd/MM/yyyy HH:mm").format(accori) : "";
+	        		}
+	        	}
+	        } catch (Exception ex) {
+	        	ex.printStackTrace();
+	        }
+        }
+        if(isAudit) {
+          return String.format("\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n",
               attrs.get("uid") != null && attrs.get("uid").get(0) != null ? attrs.get("uid").get(0).toString() : "",
               attrs.get("givenName") != null && attrs.get("givenName").get(0) != null ? attrs.get("givenName").get(0).toString() : "",
               attrs.get("sn") != null && attrs.get("sn").get(0) != null ? attrs.get("sn").get(0).toString() : "",
@@ -51,7 +76,7 @@ public class LdapCsvCreationService extends ABasicAccountService {
               attrs.get("homePhone") != null && attrs.get("homePhone").get(0) != null ? attrs.get("homePhone").get(0).toString() : "",
               attrs.get("mobile") != null && attrs.get("mobile").get(0) != null ? attrs.get("mobile").get(0).toString() : "",
               attrs.get("physicalDeliveryOfficeName") != null && attrs.get("physicalDeliveryOfficeName").get(0) != null ? attrs.get("physicalDeliveryOfficeName").get(0).toString() : "",
-              dtstr);
+              dtstr, lastAccess);
         }else{
           return String.format("\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n",
               attrs.get("uid") != null && attrs.get("uid").get(0) != null ? attrs.get("uid").get(0).toString() : "",
@@ -66,12 +91,12 @@ public class LdapCsvCreationService extends ABasicAccountService {
     File tempFile = File.createTempFile("ldap-", "-csv");
     PrintWriter printWriter = new PrintWriter(tempFile);
     if(isAudit) {
-      printWriter.println("username,firstname,lastname,email,AHPRA#,BusinessUnit,AccountType,phone,mobile,address,creation time");
+      printWriter.println("username,firstname,lastname,email,AHPRA#,BusinessUnit,AccountType,phone,mobile,address,creation time,Last Access");
     }else{
       printWriter.println("username,firstname,lastname,email,AHPRA#,creation time");      
     }
     for(String l : list) {
-      printWriter.print(l);
+    	printWriter.print(l);
     }
     printWriter.close();
     return tempFile;
