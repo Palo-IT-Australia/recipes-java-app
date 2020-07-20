@@ -82,7 +82,7 @@ public class CsvFileEmailScheduler {
 	/**
 	 * Weekly csv files
 	 */
-	@Scheduled(cron = "0 40 22 ? * MON")
+	@Scheduled(cron = "0 50 22 ? * MON")
 	public void scheduleWeeklyCsvFileEmail() {
 		Map<String, File> fileMap = new HashMap<>(3);
 		try {
