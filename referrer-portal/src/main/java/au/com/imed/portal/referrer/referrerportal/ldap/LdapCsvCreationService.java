@@ -49,23 +49,8 @@ public class LdapCsvCreationService extends ABasicAccountService {
         }catch(Exception ex){
           ex.printStackTrace();
         }
-        String lastAccess = "";
         if(isAudit) {
-	        try {
-	        	String username = attrs.get("uid") != null && attrs.get("uid").get(0) != null ? attrs.get("uid").get(0).toString() : "";
-	        	if(!StringUtil.isBlank(username)) {
-	        		VisageRequestAuditEntity audit = auditRepository.findFirstByUsernameOrderByAuditAtDesc(username);
-	        		if(audit != null) {
-	        			Date accori = audit.getAuditAt();
-	        			lastAccess = accori != null ? new SimpleDateFormat("dd/MM/yyyy HH:mm").format(accori) : "";
-	        		}
-	        	}
-	        } catch (Exception ex) {
-	        	ex.printStackTrace();
-	        }
-        }
-        if(isAudit) {
-          return String.format("\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n",
+          return String.format("\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n",
               attrs.get("uid") != null && attrs.get("uid").get(0) != null ? attrs.get("uid").get(0).toString() : "",
               attrs.get("givenName") != null && attrs.get("givenName").get(0) != null ? attrs.get("givenName").get(0).toString() : "",
               attrs.get("sn") != null && attrs.get("sn").get(0) != null ? attrs.get("sn").get(0).toString() : "",
@@ -76,7 +61,7 @@ public class LdapCsvCreationService extends ABasicAccountService {
               attrs.get("homePhone") != null && attrs.get("homePhone").get(0) != null ? attrs.get("homePhone").get(0).toString() : "",
               attrs.get("mobile") != null && attrs.get("mobile").get(0) != null ? attrs.get("mobile").get(0).toString() : "",
               attrs.get("physicalDeliveryOfficeName") != null && attrs.get("physicalDeliveryOfficeName").get(0) != null ? attrs.get("physicalDeliveryOfficeName").get(0).toString() : "",
-              dtstr, lastAccess);
+              dtstr);
         }else{
           return String.format("\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n",
               attrs.get("uid") != null && attrs.get("uid").get(0) != null ? attrs.get("uid").get(0).toString() : "",
@@ -96,9 +81,30 @@ public class LdapCsvCreationService extends ABasicAccountService {
       printWriter.println("username,firstname,lastname,email,AHPRA#,creation time");      
     }
     for(String l : list) {
-    	printWriter.print(l);
+    	if(isAudit) {
+    		printWriter.print(l + "," + getLastAccess(l));
+    	} else {
+    		printWriter.print(l);    		
+    	}
     }
     printWriter.close();
     return tempFile;
+	}
+	
+	private String getLastAccess(final String csvLine) {
+		String lastAccess = "";
+		try {
+			String username = csvLine.split(",")[0];
+			if(!StringUtil.isBlank(username)) {
+				VisageRequestAuditEntity audit = auditRepository.findFirstByUsernameOrderByAuditAtDesc(username);
+				if(audit != null) {
+					Date accori = audit.getAuditAt();
+					lastAccess = accori != null ? new SimpleDateFormat("dd/MM/yyyy HH:mm").format(accori) : "";
+				}
+			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		return lastAccess;
 	}
 }
