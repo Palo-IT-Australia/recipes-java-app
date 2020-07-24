@@ -90,8 +90,13 @@ public class ElectronicReferralService {
 		
 		if(isReferrerLogged) {
 			logger.info("Authenticated submission, using snapscan API");
-			// All emails are repleced by snapscan api
+			// All but Copy To Me referrer email are replaced by Snapscan API
 			snapscanService.postEreferral(electronicReferralForm);
+			
+			boolean isDrJonesBu = isDrJonesBu(electronicReferralForm.getPatientPostcode());
+			if(electronicReferralForm.isCopyToMe() && StringUtils.isNotEmpty(electronicReferralForm.getDoctorEmail()) && !isDrJonesBu) {
+				sendEmailToReferrer(electronicReferralForm);
+			}
 		} else {
 			logger.info("Anonymous submission, using emails");
 			
