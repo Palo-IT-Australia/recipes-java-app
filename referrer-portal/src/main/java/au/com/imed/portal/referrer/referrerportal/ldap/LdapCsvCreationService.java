@@ -50,7 +50,8 @@ public class LdapCsvCreationService extends ABasicAccountService {
           ex.printStackTrace();
         }
         if(isAudit) {
-          return String.format("\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n",
+        	// New line below after last access
+          return String.format("\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"",
               attrs.get("uid") != null && attrs.get("uid").get(0) != null ? attrs.get("uid").get(0).toString() : "",
               attrs.get("givenName") != null && attrs.get("givenName").get(0) != null ? attrs.get("givenName").get(0).toString() : "",
               attrs.get("sn") != null && attrs.get("sn").get(0) != null ? attrs.get("sn").get(0).toString() : "",
@@ -82,7 +83,7 @@ public class LdapCsvCreationService extends ABasicAccountService {
     }
     for(String l : list) {
     	if(isAudit) {
-    		printWriter.print(l + "," + getLastAccess(l));
+    		printWriter.print(l + "," + getLastAccess(l) + "\n");
     	} else {
     		printWriter.print(l);    		
     	}
@@ -94,9 +95,12 @@ public class LdapCsvCreationService extends ABasicAccountService {
 	private String getLastAccess(final String csvLine) {
 		String lastAccess = "";
 		try {
-			String username = csvLine.split(",")[0];
+			String username = csvLine.split(",")[0].replaceAll("\"", "");
+			System.out.println("username " + username);
+			
 			if(!StringUtil.isBlank(username)) {
 				VisageRequestAuditEntity audit = auditRepository.findFirstByUsernameOrderByAuditAtDesc(username);
+				System.out.println(audit);
 				if(audit != null) {
 					Date accori = audit.getAuditAt();
 					lastAccess = accori != null ? new SimpleDateFormat("dd/MM/yyyy HH:mm").format(accori) : "";
