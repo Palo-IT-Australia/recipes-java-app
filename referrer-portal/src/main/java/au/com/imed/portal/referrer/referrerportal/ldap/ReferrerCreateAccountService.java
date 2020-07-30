@@ -3,11 +3,11 @@ package au.com.imed.portal.referrer.referrerportal.ldap;
 import static au.com.imed.portal.referrer.referrerportal.common.PortalConstant.IMED_TEMPORAL_PASSWORD;
 import static au.com.imed.portal.referrer.referrerportal.common.PortalConstant.MODEL_KEY_ERROR_MSG;
 import static au.com.imed.portal.referrer.referrerportal.common.PortalConstant.MODEL_KEY_SUCCESS_MSG;
+import static au.com.imed.portal.referrer.referrerportal.common.PortalConstant.VALIDATION_MSG_ACCOUNT_CREATED;
 import static au.com.imed.portal.referrer.referrerportal.common.PortalConstant.VALIDATION_STATUS_INVALID;
 import static au.com.imed.portal.referrer.referrerportal.common.PortalConstant.VALIDATION_STATUS_NOTIFIED;
 import static au.com.imed.portal.referrer.referrerportal.common.PortalConstant.VALIDATION_STATUS_PASSED;
 import static au.com.imed.portal.referrer.referrerportal.common.PortalConstant.VALIDATION_STATUS_VALID;
-import static au.com.imed.portal.referrer.referrerportal.common.PortalConstant.VALIDATION_MSG_ACCOUNT_CREATED;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -383,7 +383,7 @@ public class ReferrerCreateAccountService extends ReferrerAccountService {
 			entity.setAccountType(imedExternalUser.getAccountType());
 			entity.setAhpra(imedExternalUser.getAhpraNumber());
 			entity.setApplyAt(new Date());
-			entity.setBusinessUnit("QLD");  // TODO may depends provider state
+			entity.setBusinessUnit("MIAV"); 
 			entity.setContactAdvanced(imedExternalUser.getContactAdvanced());
 			entity.setEmail(imedExternalUser.getEmail());
 			entity.setFilmless(imedExternalUser.getFilmless());
@@ -582,7 +582,9 @@ public class ReferrerCreateAccountService extends ReferrerAccountService {
     PrintWriter providerWriter = new PrintWriter(providerFile);
     referrerWriter.println("uid,firstname,lastname,email,AHPRA#,BusinessUnit,phone,mobile,Contact,Filmless");
     providerWriter.println("uid,provider#,practiceName,practiceType,phone,fax,street,suburb,state,postcode");
+    List<String> postfix = new ArrayList<>();
     for(ReferrerAutoValidationEntity entity : created) {
+    	postfix.add(entity.getUid());
       referrerWriter.println(String.format("\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"",
       		entity.getUid(), nonQuote(entity.getFirstName()), nonQuote(entity.getLastName()), nonQuote(entity.getEmail()),
       		nonQuote(entity.getAhpra()), entity.getBusinessUnit(), nonQuote(entity.getPhone()), nonQuote(entity.getMobile()),
@@ -601,12 +603,13 @@ public class ReferrerCreateAccountService extends ReferrerAccountService {
 		fileMap.put("providers.csv", providerFile);
 		fileMap.put("referrers.csv", referrerFile);
 		
+		String subject = "I-MED Online 2.0 New Referrer and Providers Csv files - " + postfix.stream().collect(Collectors.joining(", "));		
     if("prod".equals(ACTIVE_PROFILE)) {
     	emailService.sendWithFileMap(new String[] {ReferrerMailService.SUPPORT_ADDRESS}, 
-					"I-MED Online 2.0 New Referrer and Providers Csv files", "Please find attached csv files", fileMap);
+					subject, "Please find attached csv files", fileMap);
 		} else {
 			emailService.sendWithFileMap(new String[] {"Hidehiro.Uehara@i-med.com.au", "julie-ann.evans@i-med.com.au", "erick.doust@i-med.com.au", "georgia.wood@i-med.com.au"}, 
-					"I-MED Online 2.0 New Referrer and Providers Csv files", "Please find attached csv files", fileMap);
+					subject, "Please find attached csv files", fileMap);
 		}
     
     referrerFile.delete();
