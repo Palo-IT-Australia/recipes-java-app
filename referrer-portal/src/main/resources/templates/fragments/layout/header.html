@@ -24,7 +24,7 @@
 						<a class="home nav-link w-hidden-medium w-hidden-small w-hidden-tiny w-nav-link wpthemeLeft" th:href="@{/}">Home</a>
 						<a class="home nav-link w-hidden-medium w-hidden-small w-hidden-tiny w-nav-link wpthemeLeft" sec:authorize="!isAuthenticated()" th:href="@{/login}">Results</a>
 						<a class="home nav-link w-hidden-medium w-hidden-small w-hidden-tiny w-nav-link wpthemeLeft" sec:authorize="isAuthenticated()" th:href="@{/results}">Results</a>
-						<a class="home nav-link w-hidden-medium w-hidden-small w-hidden-tiny w-nav-link wpthemeLeft" th:href="@{/electronicreferral}">E-Referral</a>
+						<a class="home nav-link w-hidden-medium w-hidden-small w-hidden-tiny w-nav-link wpthemeLeft" sec:authorize="isAuthenticated()" th:href="@{/electronicreferral}">E-Referral</a>
 						<a class="home nav-link w-hidden-medium w-hidden-small w-hidden-tiny w-nav-link wpthemeLeft" sec:authorize="hasAuthority('ROLE_HOSPITAL')" th:href="@{/hospital}">Hospital</a>
 						<a class="home nav-link w-hidden-medium w-hidden-small w-hidden-tiny w-nav-link wpthemeLeft" sec:authorize="hasAuthority('ROLE_ADMIN')" th:href="@{/admin}">Admin</a>
 						<a class="home nav-link w-hidden-medium w-hidden-small w-hidden-tiny w-nav-link wpthemeLeft" sec:authorize="hasAuthority('ROLE_EDITOR')" th:href="@{/editor}">Editor</a>
