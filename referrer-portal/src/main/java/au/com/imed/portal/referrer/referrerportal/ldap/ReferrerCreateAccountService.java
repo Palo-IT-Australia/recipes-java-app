@@ -341,12 +341,7 @@ public class ReferrerCreateAccountService extends ReferrerAccountService {
 	private boolean isAutoValidationTarget(final ExternalUser imedExternalUser) {
 		boolean isAuto = false;
 		if("NEW".equalsIgnoreCase(imedExternalUser.getAccountType())) {  
-			for(ExternalPractice practice : imedExternalUser.getPractices()) {
-				if("QLD".equalsIgnoreCase(practice.getPracticeState())) {
-					isAuto = true;
-					break;
-				}
-			}
+			isAuto = true;
 		}
 		return isAuto;
 	}
@@ -610,7 +605,7 @@ public class ReferrerCreateAccountService extends ReferrerAccountService {
     	emailService.sendWithFileMap(new String[] {ReferrerMailService.SUPPORT_ADDRESS}, 
 					"I-MED Online 2.0 New Referrer and Providers Csv files", "Please find attached csv files", fileMap);
 		} else {
-			emailService.sendWithFileMap(new String[] {"Hidehiro.Uehara@i-med.com.au", "kieren.andrews@i-med.com.au", "cameron.hawkins@i-med.com.au"}, 
+			emailService.sendWithFileMap(new String[] {"Hidehiro.Uehara@i-med.com.au", "julie-ann.evans@i-med.com.au", "erick.doust@i-med.com.au", "georgia.wood@i-med.com.au"}, 
 					"I-MED Online 2.0 New Referrer and Providers Csv files", "Please find attached csv files", fileMap);
 		}
     
