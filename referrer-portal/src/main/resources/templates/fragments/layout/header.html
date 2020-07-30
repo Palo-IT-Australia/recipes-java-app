@@ -106,7 +106,7 @@
 	            <a th:href="@{/results}" class="nav-link-mobile no-expand w-hidden-main">
 	                <span lang="en" dir="ltr">Results</span>
 	            </a>
-	            <a th:href="@{/electronicreferral}" class="nav-link-mobile no-expand w-hidden-main">
+	            <a sec:authorize="isAuthenticated()" th:href="@{/electronicreferral}" class="nav-link-mobile no-expand w-hidden-main">
 	                <span lang="en" dir="ltr">E-Referral</span>
 	            </a>
 	            <a sec:authorize="!isAuthenticated()" th:href="@{/apply}" class="nav-link-mobile no-expand w-hidden-main">
