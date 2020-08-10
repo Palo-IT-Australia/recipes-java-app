@@ -51,7 +51,7 @@ public class LdapCsvCreationService extends ABasicAccountService {
         }
         if(isAudit) {
         	// New line below after last access
-          return String.format("\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"",
+          return String.format("\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"",
               attrs.get("uid") != null && attrs.get("uid").get(0) != null ? attrs.get("uid").get(0).toString() : "",
               attrs.get("givenName") != null && attrs.get("givenName").get(0) != null ? attrs.get("givenName").get(0).toString() : "",
               attrs.get("sn") != null && attrs.get("sn").get(0) != null ? attrs.get("sn").get(0).toString() : "",
@@ -62,6 +62,7 @@ public class LdapCsvCreationService extends ABasicAccountService {
               attrs.get("homePhone") != null && attrs.get("homePhone").get(0) != null ? attrs.get("homePhone").get(0).toString() : "",
               attrs.get("mobile") != null && attrs.get("mobile").get(0) != null ? attrs.get("mobile").get(0).toString() : "",
               attrs.get("physicalDeliveryOfficeName") != null && attrs.get("physicalDeliveryOfficeName").get(0) != null ? attrs.get("physicalDeliveryOfficeName").get(0).toString() : "",
+              attrs.get("physicalDeliveryOfficeName") != null && attrs.get("physicalDeliveryOfficeName").get(0) != null ? getPostcode(attrs.get("physicalDeliveryOfficeName").get(0).toString()) : "",
               dtstr);
         }else{
           return String.format("\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n",
@@ -77,7 +78,7 @@ public class LdapCsvCreationService extends ABasicAccountService {
     File tempFile = File.createTempFile("ldap-", "-csv");
     PrintWriter printWriter = new PrintWriter(tempFile);
     if(isAudit) {
-      printWriter.println("username,firstname,lastname,email,AHPRA#,BusinessUnit,AccountType,phone,mobile,address,creation time,Last Access");
+      printWriter.println("username,firstname,lastname,email,AHPRA#,BusinessUnit,AccountType,phone,mobile,address,postcode,creation time,Last Access");
     }else{
       printWriter.println("username,firstname,lastname,email,AHPRA#,creation time");      
     }
@@ -90,6 +91,25 @@ public class LdapCsvCreationService extends ABasicAccountService {
     }
     printWriter.close();
     return tempFile;
+	}
+	
+	private String getPostcode(String adr) {
+		String pcode = "";
+		try {
+			if(!StringUtil.isBlank(adr)) {
+				String [] cmpnts = adr.replaceAll("\"", "").trim().split("\\s+");
+				if(cmpnts.length < 2) {
+					// Not full address
+				} else if(cmpnts[cmpnts.length - 1].matches("[0-9]{4}")) {
+					pcode = cmpnts[cmpnts.length - 1];
+				} else if(cmpnts[cmpnts.length - 2].matches("[0-9]{4}")) {
+					pcode = cmpnts[cmpnts.length - 2];
+				}		
+			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		return pcode;
 	}
 	
 	private String getLastAccess(final String csvLine) {
