@@ -159,6 +159,11 @@ public class ReferrerPortalMvcController {
 		return "electronicreferral";
 	}
 	
+	@GetMapping("/installsupport")
+	public String getInstallSupport() {
+		return "installsupport";
+	}
+	
 	@GetMapping("/hospital")
 	public String getHospital() {
 		return "hospital";
