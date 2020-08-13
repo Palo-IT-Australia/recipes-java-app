@@ -53,7 +53,7 @@ public class InstallSupportFormService {
 
     sb.append("Dear CRM,");
     sb.append(NL);
-    sb.append("Please contact the person below who requires installation support.");
+    sb.append("Please contact the person below who requires installation support for Best Practice/Healthlink e-Referral.");
     sb.append(NL);
     sb.append(NL);
     sb.append(NL);
