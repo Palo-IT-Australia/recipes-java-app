@@ -36,7 +36,7 @@ public class UserPreferencesService {
 			UserPreferencesEntity entity = getPreferenceEntity(userName);
 			UserPreferences pref = new UserPreferences();
 			pref.setHelp(entity == null ? HELP_SHOW : entity.getHelp());
-			pref.setAutoimg(entity == null || entity.getAutoimg() == null ? AUTOIMG_OFF : entity.getAutoimg());
+			pref.setAutoimg(entity == null || entity.getAutoimg() == null ? AUTOIMG_VUE_MOTION : entity.getAutoimg());
 			pref.setNotify(entity == null || entity.getNotify() == null ? NOTIFY_NO : entity.getNotify());
 			return new ResponseEntity<UserPreferences>(pref, HttpStatus.OK);
 		} else {
