@@ -49,24 +49,30 @@ public class AhpraBotService {
 	public AhpraDetails [] findByNumberRetry(final String ahpra) {
 		logger.info("findByNumberRetry() finding AHPRA : " + ahpra);
 		AhpraDetails [] ahpras;
-		ResponseEntity<AhpraDetails []> entity = this.findByNumberImmediate(ahpra);
-		if(HttpStatus.OK.equals(entity.getStatusCode())) {
-			// No bot blocker
-			ahpras = entity.getBody();
-		} else {
-			// Retry with latency mode taking 1 min or so
-			logger.info("findByNumberRetry() AHPRA scrapper retry with latency...");
-			ahpras = this.findByNumber(ahpra);
-			if(ahpras == null || ahpras.length == 0) {
-				logger.info("findByNumberRetry() 1st retly returned [], doing 2nd retry with delay...");
+		try {
+			ResponseEntity<AhpraDetails []> entity = this.findByNumberImmediate(ahpra);
+			if(HttpStatus.OK.equals(entity.getStatusCode())) {
+				// No bot blocker
+				ahpras = entity.getBody();
+			} else {
+				// Retry with latency mode taking 1 min or so
+				logger.info("findByNumberRetry() AHPRA scrapper retry with latency...");
 				ahpras = this.findByNumber(ahpra);
+				if(ahpras == null || ahpras.length == 0) {
+					logger.info("findByNumberRetry() 1st retly returned [], doing 2nd retry with delay...");
+					ahpras = this.findByNumber(ahpra);
+				}
 			}
-		}
-		logger.info("findByNumberRetry() trials finished " + ahpra + " : " + ahpras);
-		if(ahpras != null && ahpras.length > 0) {
-			logger.info("findByNumberRetry() result : length = " + ahpras.length + ", name = " + ahpras[0].getName());
-		} else {
-			logger.info("findByNumberRetry() result : AHPRA not found in ahpra.gov.au for " + ahpra);
+			logger.info("findByNumberRetry() trials finished " + ahpra + " : " + ahpras);
+			if(ahpras != null && ahpras.length > 0) {
+				logger.info("findByNumberRetry() result : length = " + ahpras.length + ", name = " + ahpras[0].getName());
+			} else {
+				logger.info("findByNumberRetry() result : AHPRA not found in ahpra.gov.au for " + ahpra);
+			}
+		} catch (Exception ex) {
+			logger.info("findByNumberRetry() Terminating due to Exception...");
+			ahpras = new AhpraDetails[0];
+			ex.printStackTrace();
 		}
 		return ahpras;
 	}
