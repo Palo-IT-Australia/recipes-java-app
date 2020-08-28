@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import au.com.imed.portal.referrer.referrerportal.audit.CrmAdminAuditService;
+import au.com.imed.portal.referrer.referrerportal.common.PortalConstant;
 import au.com.imed.portal.referrer.referrerportal.common.util.ForceResetPasswordAes128Util;
 import au.com.imed.portal.referrer.referrerportal.ldap.ReferrerAccountService;
 import au.com.imed.portal.referrer.referrerportal.model.ForceResetPassword;
@@ -29,6 +31,9 @@ public class ReferrerPortalAccountForceResetPasswordRestController {
 	@Autowired
 	private ReferrerAccountService accountService;
 	
+	@Autowired
+	private CrmAdminAuditService auditService;
+	
 	@GetMapping("/ping")
 	public String getPing() {
 		return "Alive";
@@ -37,13 +42,31 @@ public class ReferrerPortalAccountForceResetPasswordRestController {
 	@SuppressWarnings("unchecked")
 	@GetMapping("/crmaction")
 	public ResponseEntity<JSONObject> getCrmAction(Authentication authentication) {
-		if(authentication != null && !StringUtil.isBlank(authentication.getName())) {
-			String action = accountService.getReferrerCrmAction(authentication.getName());
+		// This method requires login user to hide uid
+		String referrer = authentication.getName();
+		if(authentication != null && !StringUtil.isBlank(referrer)) {
+			String action = accountService.getReferrerCrmAction(referrer);
 			String secret = "";
 			if(!StringUtil.isBlank(action) && action.startsWith("CRM")) {
-			// TODO from audit DB row
-				logger.info("TEST ONLY fixed secret");
-				secret = "wBiGZKwIOmCu7AxQ8Quq6BUhN8e5eqAaEmfbFXIX7_Mnja_3fs3lg8aFB6BlxiiX";
+				if(PortalConstant.PARAM_ATTR_VALUE_CRM_ACTION_CREATE.equals(action)) {
+					try {
+						secret = ForceResetPasswordAes128Util.getSecretParameterValue(referrer, auditService.getRawPasswordForCrmCreate(referrer));
+					} catch (Exception e) {
+						e.printStackTrace();
+						secret = "";
+					}
+				} else if(PortalConstant.PARAM_ATTR_VALUE_CRM_ACTION_RESET.equals(action)) {
+					try {
+						secret = ForceResetPasswordAes128Util.getSecretParameterValue(referrer, auditService.getRawPasswordForCrmReset(referrer));
+					} catch (Exception e) {
+						e.printStackTrace();
+						secret = "";
+					}					
+				} else {
+					logger.info("Invalid action " + action);
+					action = "";
+					secret = "";
+				}				
 			} else {
 				action = "";
 			}
@@ -60,7 +83,7 @@ public class ReferrerPortalAccountForceResetPasswordRestController {
 	@SuppressWarnings("unchecked")
 	@PostMapping("/updateresetcrm")
 	public ResponseEntity<JSONObject> postUpdateResetCrm(@RequestBody JSONObject obj) {
-		logger.info("postUpdateResetCrm() request = ", obj); 
+		logger.info("postUpdateResetCrm() request = " + obj); 
 		ResponseEntity<JSONObject> entity = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		
 		try {
@@ -96,7 +119,7 @@ public class ReferrerPortalAccountForceResetPasswordRestController {
 	@SuppressWarnings("unchecked")
 	@PostMapping("/updatecreatecrm")
 	public ResponseEntity<JSONObject> postUpdateCreateCrm(@RequestBody JSONObject obj) {
-		logger.info("postUpdateResetCrm() request = ", obj); 
+		logger.info("postUpdateCreateCrm() request = " + obj); 
 		ResponseEntity<JSONObject> entity = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		
 		try {
@@ -109,7 +132,7 @@ public class ReferrerPortalAccountForceResetPasswordRestController {
 				List<LdapUserDetails> acnts = accountService.findReferrerAccountsByUid(frp.getUid());
 				if(acnts.size() > 0) {
 					LdapUserDetails referrer = acnts.get(0); // should be only one
-					if(mobile.equals(referrer.getMobile()) && email.equalsIgnoreCase(email)) {
+					if(mobile.equals(referrer.getMobile()) && email.equalsIgnoreCase(referrer.getEmail())) {
 						accountService.resetReferrerPassword(frp.getUid(), newPassword);
 						accountService.updateReferrerCrmAction(frp.getUid(), ""); // Clear action
 						JSONObject respo = new JSONObject();

@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.jose4j.json.internal.json_simple.JSONObject;
+import org.jsoup.helper.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 import au.com.imed.common.active.directory.manager.ImedActiveDirectoryLdapManager;
 import au.com.imed.portal.referrer.referrerportal.ahpra.AhpraBotService;
 import au.com.imed.portal.referrer.referrerportal.ahpra.AhpraDetails;
+import au.com.imed.portal.referrer.referrerportal.audit.CrmAdminAuditService;
 import au.com.imed.portal.referrer.referrerportal.common.PortalConstant;
 import au.com.imed.portal.referrer.referrerportal.email.ReferrerMailService;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.entity.MedicareProviderEntity;
@@ -74,6 +76,9 @@ public class AdminAccountApproverRestController {
 	
 	@Autowired
 	private ReferrerAutoValidationRepository referrerAutoValidationRepository;
+	
+	@Autowired
+	private CrmAdminAuditService auditService;
 	
 	@GetMapping("/getStageUsers")
 	public ResponseEntity<StagingUserList> getStagingUserList() {
@@ -127,6 +132,10 @@ public class AdminAccountApproverRestController {
     HttpStatus sts = HttpStatus.BAD_REQUEST;
     if(uid != null && !uid.isBlank()) {
     	try {
+    		// This check should be before approveUser()
+    		if(!StringUtil.isBlank(newuid) && PortalConstant.PARAM_ATTR_VALUE_CRM_ACTION_CREATE.equals(referrerAccountService.getReferrerCrmAction(uid))) {
+    			auditService.switchReferrerUid(uid, newuid);
+    		}
 				referrerAccountService.approveUser(uid, newuid, bu);
 				switchProviderUid(uid, newuid);
 				sts = HttpStatus.OK;
@@ -152,7 +161,14 @@ public class AdminAccountApproverRestController {
   			if(!"prod".equals(ACTIVE_PROFILE)) {
   				user.setEmail("Hidehiro.Uehara@i-med.com.au");
   			}
-  			emailService.emailAccountApproved(user);
+  			// Check if account is created by crm with temporal password
+  			String action = referrerAccountService.getReferrerCrmAction(uid);
+  			if(PortalConstant.PARAM_ATTR_VALUE_CRM_ACTION_CREATE.equals(action)) {
+  				String temppswd = auditService.getRawPasswordForCrmCreate(uid);
+  				emailService.emailAccountApproved(user, temppswd);
+  			} else {
+  				emailService.emailAccountApproved(user);
+  			}
   			List<LdapUserDetails> details = referrerAccountService.findReferrerAccountsByUid(uid);
   			if(details.size() > 0) {
   				LdapUserDetails userDetail = details.get(0);

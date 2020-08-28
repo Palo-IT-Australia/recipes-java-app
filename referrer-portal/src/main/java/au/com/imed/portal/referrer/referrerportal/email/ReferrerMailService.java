@@ -21,6 +21,7 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
+import org.jsoup.helper.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -519,11 +520,20 @@ public class ReferrerMailService {
     emailAccountApproved(user.getGivenName(), user.getSurname(), user.getUid(), user.getEmail());
   }
   
+  public void emailAccountApproved(StageUser user, String temporalPassword) {
+    emailAccountApproved(user.getGivenName(), user.getSurname(), user.getUid(), user.getEmail(), temporalPassword);
+  }
+  
   public void emailAccountApproved(String firstName, String lastName, String uid, String email) {
+  	emailAccountApproved(firstName, lastName, uid, email, "");
+  }
+  
+  public void emailAccountApproved(String firstName, String lastName, String uid, String email, String temporalPassword) {
     String template = this.readMailTemplate(TEMPLATE_APPROVED);
     String tempmiddle = this.readMailTemplate(TEMPLATE_MIDDLE_APPROVED);
     String tempend = this.readMailTemplate(TEMPLATE_END_APPROVED);
-    final String htmlBody = template + " " + firstName + " " + lastName + tempmiddle + uid + tempend;
+    String tpstr = StringUtil.isBlank(temporalPassword) ? "" : " (your temporal password is " + temporalPassword + ")";
+    final String htmlBody = template + " " + firstName + " " + lastName + tempmiddle + uid + tpstr + tempend;
     logger.info("emailAccountApproved() body = " + htmlBody); 
     String em = email;
     if(em != null && em.length() > 3) {

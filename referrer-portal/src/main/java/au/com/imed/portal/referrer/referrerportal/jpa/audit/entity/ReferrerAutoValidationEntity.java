@@ -59,6 +59,9 @@ public class ReferrerAutoValidationEntity {
   @Column(name = "validation_status")
   private String validationStatus;
   
+  @Column(name = "origin")
+  private String origin;
+  
   @Column(name = "apply_at")
   private Date applyAt;
   
@@ -178,14 +181,20 @@ public class ReferrerAutoValidationEntity {
 		this.accountType = accountType;
 	}
 	
-	@Override
-	public String toString() {
-		return "ReferrerAutoValidationEntity [id=" + id + ", uid=" + uid + ", firstName=" + firstName + ", lastName="
-				+ lastName + ", mobile=" + mobile + ", phone=" + phone + ", email=" + email + ", ahpra=" + ahpra
-				+ ", accountType=" + accountType + ", contactAdvanced=" + contactAdvanced + ", filmless=" + filmless
-				+ ", businessUnit=" + businessUnit + ", validationMsg=" + validationMsg + ", validationStatus="
-				+ validationStatus + ", applyAt=" + applyAt + ", accountAt=" + accountAt + ", notifyAt=" + notifyAt + "]";
+	public String getOrigin() {
+		return origin;
+	}
+	public void setOrigin(String origin) {
+		this.origin = origin;
 	}
 	
-
+	@Override
+	public String toString() {
+		return "ReferrerAutoValidationEntity [id=" + id + ", uid=" + uid + ", passwordEncoded=" + passwordEncoded
+				+ ", firstName=" + firstName + ", lastName=" + lastName + ", mobile=" + mobile + ", phone=" + phone + ", email="
+				+ email + ", ahpra=" + ahpra + ", accountType=" + accountType + ", contactAdvanced=" + contactAdvanced
+				+ ", filmless=" + filmless + ", businessUnit=" + businessUnit + ", validationMsg=" + validationMsg
+				+ ", validationStatus=" + validationStatus + ", origin=" + origin + ", applyAt=" + applyAt + ", accountAt="
+				+ accountAt + ", notifyAt=" + notifyAt + "]";
+	}
 }
