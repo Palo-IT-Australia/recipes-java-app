@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.itextpdf.html2pdf.jsoup.helper.StringUtil;
 
+import au.com.imed.portal.referrer.referrerportal.audit.CrmAdminAuditService;
 import au.com.imed.portal.referrer.referrerportal.common.PortalConstant;
 import au.com.imed.portal.referrer.referrerportal.common.util.ForceResetPasswordAes128Util;
 import au.com.imed.portal.referrer.referrerportal.email.ReferrerMailService;
@@ -31,6 +33,7 @@ import au.com.imed.portal.referrer.referrerportal.jpa.audit.repository.ReferrerP
 import au.com.imed.portal.referrer.referrerportal.ldap.ReferrerCreateAccountService;
 import au.com.imed.portal.referrer.referrerportal.model.AccountDetail;
 import au.com.imed.portal.referrer.referrerportal.model.AccountStatus;
+import au.com.imed.portal.referrer.referrerportal.model.AutoValidationResult;
 import au.com.imed.portal.referrer.referrerportal.model.ExternalUser;
 import au.com.imed.portal.referrer.referrerportal.model.LdapUserDetails;
 import au.com.imed.portal.referrer.referrerportal.model.StageUser;
@@ -60,34 +63,69 @@ public class CrmAdminAccountRestController {
 	private ReferrerProviderJpaRepository referrerProviderJpaRepository;
 	
 	@Autowired
+	private CrmAdminAuditService auditService;
+	
+	@Autowired
 	private ReferrerMailService emailService;
 	
 	@SuppressWarnings("unchecked")
 	@PostMapping("/create")
-	public ResponseEntity<JSONObject> postCreate(@RequestBody ExternalUser imedExternalUser) {
+	public ResponseEntity<JSONObject> postCreate(@RequestBody ExternalUser imedExternalUser, Authentication authentication) {
 		logger.info("/create " + imedExternalUser);
 		// Temporal password
 		final String temppswd = ForceResetPasswordAes128Util.randomString(16);
 		imedExternalUser.setPassword(temppswd);
 		imedExternalUser.setConfirmPassword(temppswd);
 		Map<String, String> resultsMap = referrerAccountService.createAccount(imedExternalUser);
-		//final String secret = ForceResetPasswordAes128Util.getSecretParameterValue(resultMap.uid, temppswd);
-		//referrerAccountService.updateReferrerCrmAction(uid, PortalConstant.PARAM_ATTR_VALUE_CRM_ACTION_CREATE);
-		//logger.info("/reset secret = " + secret);
 		JSONObject reps = new JSONObject();
-		reps.put("msg", "Account applied successfully");
-		return new ResponseEntity<>(reps, HttpStatus.OK);
+		if(resultsMap.containsKey(PortalConstant.MODEL_KEY_SUCCESS_MSG)) {
+			try {
+				final String referrerUid = imedExternalUser.getUserid();
+				logger.info("/create temporal pswd = " + temppswd);
+				logger.info("/create with uid = " + referrerUid);
+				int validationId = referrerAccountService.markCrmCreate(referrerUid);
+				auditService.auditCreate(authentication.getName(), imedExternalUser, validationId);
+				reps.put("msg", "Account applied successfully");
+				return new ResponseEntity<>(reps, HttpStatus.OK);
+			} catch (Exception ex) {
+				ex.printStackTrace();
+				reps.put("msg", "Failed to create account.");
+				return new ResponseEntity<>(reps, HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+		} else {
+			reps.put("msg", resultsMap.get(PortalConstant.MODEL_KEY_ERROR_MSG));
+			return new ResponseEntity<>(reps, HttpStatus.BAD_REQUEST);			
+		}
 	}
+	
+//	private int markCrmCreate(final String referrerUid) {
+//		int validationId = 0;
+//		boolean isSet = referrerAccountService.updateReferrerCrmActionIfStating(referrerUid, PortalConstant.PARAM_ATTR_VALUE_CRM_ACTION_CREATE);
+//		if(!isSet) {
+//			List<ReferrerAutoValidationEntity> list = autoValidationRepository.findByUidAndValidationStatus(referrerUid, PortalConstant.VALIDATION_STATUS_PASSED);
+//			if(list.size() > 0) {
+//				// Should be only one
+//				ReferrerAutoValidationEntity entity = list.get(0);
+//				validationId = entity.getId();
+//				logger.info("Auto validation table id found " + validationId);
+//			} else {
+//				logger.info("referrer is not auto validation table as passed status.");
+//			}
+//		}
+//		return validationId;
+//	}
 	
 	@SuppressWarnings("unchecked")
 	@PostMapping("/reset")
-	public ResponseEntity<JSONObject> postReset(@RequestBody JSONObject resetUid) 
+	public ResponseEntity<JSONObject> postReset(@RequestBody JSONObject resetUid, Authentication authentication) 
 	{
+		String crm = authentication.getName();
+		
 		boolean isSuccess = false;
 		JSONObject reps = new JSONObject();
 
 		String uid = (String) resetUid.get("uid");
-		logger.info("/reset for uid : " + uid);
+		logger.info("/reset for uid : " + uid + " by crm " + crm);
 		
 		try
 		{
@@ -113,12 +151,6 @@ public class CrmAdminAccountRestController {
 			
 			// Temporal password
 			final String temppswd = ForceResetPasswordAes128Util.randomString(16);
-			final String secret = ForceResetPasswordAes128Util.getSecretParameterValue(uid, temppswd);
-			logger.info("/reset secret = " + secret);
-			// TODO save to crm audit DB
-			// Mobile number without spaces is confirm passcode
-			//ReferrerPasswordResetEntity saved = confirmProcessDataService.savePasswordReset(userDetails.getUid(), mobile.replaceAll(" ", ""));
-			//final String confirmParam = URLEncoder.encode(UrlCodeAes128Util.encrypt(saved.getUrlCode()), "UTF-8");
 			referrerAccountService.resetReferrerPassword(uid, temppswd);
 			referrerAccountService.updateReferrerCrmAction(uid, PortalConstant.PARAM_ATTR_VALUE_CRM_ACTION_RESET);
 			logger.info("/reset updated password and action");
@@ -127,6 +159,8 @@ public class CrmAdminAccountRestController {
 			} else {
 				emailService.sendPasswordResetByCrmHtml(new String[] {"Hidehiro.Uehara@i-med.com.au"}, temppswd);
 			}
+			// Save to DB
+			auditService.auditReset(crm, userDetails, temppswd);
 			reps.put("msg", "Password reset successfully");		
 			isSuccess = true;
 		}
@@ -160,48 +194,74 @@ public class CrmAdminAccountRestController {
 	}
 	
 	@GetMapping("/inquire")
-	public ResponseEntity<List<AccountStatus>> getInquire(@RequestParam("provider") String provider, @RequestParam("name") String name) {
+	public ResponseEntity<List<AccountStatus>> getInquire(@RequestParam("provider") String provider, @RequestParam("name") String name, Authentication authentication) {
+		logger.info("/inquire parameter provider: {}, name: {}", provider, name);
 		List<AccountStatus> list = new ArrayList<>(0);
 		HttpStatus sts = HttpStatus.OK;
 		if(!StringUtil.isBlank(provider) && !StringUtil.isBlank(name)) {
 			try {
 				List<ReferrerProviderEntity> providers = referrerProviderJpaRepository.findByProviderNumber(provider);
 				if(providers.size() > 0) {
+					logger.info("Provider# in DB.");
 					for(int idx = 0; idx < providers.size(); idx++) {
 						String uid = providers.get(idx).getUsername();
 						logger.info("uid from DB provider : " + uid);
-						if(!StringUtil.isBlank(uid)) { // TODO check with practice or referrer name
-							AccountStatus accountStatus = new AccountStatus();
-							accountStatus.setUid(uid);
-							accountStatus.setProviders(Collections.singletonList(providers.get(idx)));
-							accountStatus.setVisage(getVisageReferrer(GetReferrerService.PARAM_CURRENT_USER_NAME, uid) != null);
-							accountStatus.setPacs(referrerAccountService.GetPacsDnListByAttr("cn", uid).size() > 0);
-							accountStatus.setImedpacs(referrerAccountService.GetImedPacsDnListByAttr("cn", uid).size() > 0);
-							accountStatus.setPortal(referrerAccountService.GetReferrerDnListByAttr("uid", uid).size() > 0);				
-							list.add(accountStatus);
+						if(!StringUtil.isBlank(uid)) {
+							// Check name match
+							String trimmedUppderName = name.replaceAll(" ", "").toUpperCase();
+							boolean isMatch = providers.get(idx).getPracticeName().replaceAll(" ", "").toUpperCase().contains(trimmedUppderName);
+							if(!isMatch) {
+								List<LdapUserDetails> refs = referrerAccountService.findReferrerAccountsByUid(uid);
+								if(refs.size() > 0) {
+									LdapUserDetails ref = refs.get(0);
+									isMatch = trimmedUppderName.contains(ref.getGivenName().replaceAll(" ", "").toUpperCase()) ||
+											trimmedUppderName.contains(ref.getSurname().replaceAll(" ", "").toUpperCase());
+								}
+							} else {
+								logger.info("Practice name matched.");
+							}
+							logger.info("Name matched to practice name or referrer name? " + isMatch);
+							
+							if(isMatch) {
+								AccountStatus accountStatus = new AccountStatus();
+								accountStatus.setUid(uid);
+								accountStatus.setProviders(Collections.singletonList(providers.get(idx)));
+								accountStatus.setVisage(getVisageReferrer(GetReferrerService.PARAM_CURRENT_USER_NAME, uid) != null);
+								accountStatus.setPacs(referrerAccountService.GetPacsDnListByAttr("cn", uid).size() > 0);
+								accountStatus.setImedpacs(referrerAccountService.GetImedPacsDnListByAttr("cn", uid).size() > 0);
+								accountStatus.setPortal(referrerAccountService.GetReferrerDnListByAttr("uid", uid).size() > 0);				
+								list.add(accountStatus);
+							}
+						} else {
+							logger.info("uid is emply for provider#");
 						}
 					}
 				} else {					
-					Referrer referrer = getVisageReferrer(GetReferrerService.PARAM_PROVIDER_NUMBER, provider);
+					logger.info("Not in provider DB, finding visage");
+					Referrer referrer = getVisageReferrer(GetReferrerService.PARAM_PROVIDER_NUMBER, provider);   
 					if(referrer != null) {
-						// TODO double check with practice or referrer name
 						String visName = referrer.getName();
 						logger.info("Visage referrer name : " + visName + " vs " + name);
 						boolean isReferrerNameMatch = visName.toLowerCase().contains(name.toLowerCase());
 						List<Practice> visPracs = Arrays.asList(referrer.getPractices()).stream().filter(p -> p.getPracticeName().toLowerCase().contains(name.toLowerCase())).collect(Collectors.toList());
-						
-						String visUid = referrer.getUri().replaceAll("/user/", "").trim();
-						logger.info("Visage user name " + visUid);
-						AccountStatus accountStatus = new AccountStatus();
-						accountStatus.setUid(visUid);
-						accountStatus.setProviders(null); // TODO convert to provider entity format or just prov#?
-						accountStatus.setVisage(true);
-						accountStatus.setPacs(visUid.length() > 0 ? referrerAccountService.GetPacsDnListByAttr("cn", visUid).size() > 0 : false);
-						accountStatus.setImedpacs(visUid.length() > 0 ? referrerAccountService.GetImedPacsDnListByAttr("cn", visUid).size() > 0 : false);
-						accountStatus.setPortal(visUid.length() > 0 ? referrerAccountService.GetReferrerDnListByAttr("uid", visUid).size() > 0 : false);				
-						list.add(accountStatus);
+
+						if(isReferrerNameMatch || visPracs.size() > 0) {
+							String visUid = referrer.getUri().replaceAll("/user/", "").trim();
+							logger.info("Visage user name " + visUid);
+							AccountStatus accountStatus = new AccountStatus();
+							accountStatus.setUid(visUid);
+							accountStatus.setProviders(toProviderEntities(referrer.getPractices())); 
+							accountStatus.setVisage(true);
+							accountStatus.setPacs(visUid.length() > 0 ? referrerAccountService.GetPacsDnListByAttr("cn", visUid).size() > 0 : false);
+							accountStatus.setImedpacs(visUid.length() > 0 ? referrerAccountService.GetImedPacsDnListByAttr("cn", visUid).size() > 0 : false);
+							accountStatus.setPortal(visUid.length() > 0 ? referrerAccountService.GetReferrerDnListByAttr("uid", visUid).size() > 0 : false);				
+							list.add(accountStatus);
+						} else {
+							logger.info("Name does not match in visage");
+						}
 					}
 				}
+				auditService.auditInquire(authentication.getName(), provider, name);
 			} catch (Exception e) {
 				e.printStackTrace();
 				sts = HttpStatus.INTERNAL_SERVER_ERROR;
@@ -211,6 +271,25 @@ public class CrmAdminAccountRestController {
 		}
 		logger.info("Crm Admin /inquire provider:{} size:{}", provider, list.size());
 		return new ResponseEntity<List<AccountStatus>>(list, sts);
+	}
+	
+	private List<ReferrerProviderEntity> toProviderEntities(final Practice [] visPracs) {
+		List<ReferrerProviderEntity> list = new ArrayList<ReferrerProviderEntity>(1);
+		for(Practice vis : visPracs) {
+			ReferrerProviderEntity prov = new ReferrerProviderEntity();
+			prov.setProviderNumber(vis.getProviderNumber());
+			prov.setPracticeAddress(vis.getAddress().getLine1());
+			prov.setPracticeFax(vis.getFax());
+			prov.setPracticeName(vis.getPracticeName());
+			prov.setPracticePhone(vis.getPhone1());
+			prov.setPracticePostcode(vis.getAddress().getPostcode());
+			prov.setPracticeState(vis.getAddress().getState());
+			prov.setPracticeStreet(vis.getAddress().getLine1());
+			prov.setPracticeSuburb(vis.getAddress().getCity());
+			prov.setPracticeType(vis.getSpeciality());
+			list.add(prov);
+		}
+		return list;
 	}
 	
 	private Referrer getVisageReferrer(final String key, final String value) {
@@ -228,16 +307,17 @@ public class CrmAdminAccountRestController {
 	
 	@SuppressWarnings("unchecked")
 	@PostMapping("/approve")
-	public ResponseEntity<StagingValidatingUserList> postApprove(@RequestBody JSONObject reqObj) {
+	public ResponseEntity<StagingValidatingUserList> postApprove(@RequestBody JSONObject reqObj, Authentication authentication) {
 		ResponseEntity<StagingValidatingUserList> entity = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		try {
 			String uid = (String) reqObj.get("uid");
 			String bu = (String) reqObj.get("bu");
+			String newuid = ""; //(String)reqObj.get("newuid");
 			logger.info("/approve for uid {}, bu {}", uid, bu);
-			// TODO validate ahpra, prov# etc. then DB or LDAP
-			referrerAccountService.updateCrmValidating(uid, bu, true);
+			AutoValidationResult result = referrerAccountService.validateOnLdapStaging(uid, newuid, bu);
+			auditService.auditApprove(authentication.getName(), uid, newuid);
 			JSONObject reps = new JSONObject();
-			reps.put("msg", "Approved");
+			reps.put("msg", result.isValid() ? "Created" : "Validating");
 			entity = ResponseEntity.ok(getCurrentStagingUserList());
 		} catch (Exception ex) {
 			ex.printStackTrace();

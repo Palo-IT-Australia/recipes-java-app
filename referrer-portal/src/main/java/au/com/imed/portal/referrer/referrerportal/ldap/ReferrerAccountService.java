@@ -366,11 +366,15 @@ public class ReferrerAccountService extends ABasicAccountService {
 		return list;
 	}
 	
+	/**
+	 * Except for CRMCreate and Validating 
+	 */
 	public List<StageUser> getStageNewUserList() {
 		List<StageUser> list;
 		LdapQuery query = query()
-				.attributes("pager", "ibm-pwdAccountLocked", "cn", "uid", "givenName", "sn", "mail", "ahpra", "createTimeStamp", "BusinessUnit", "employeeType", "homePhone", "mobile", "physicalDeliveryOfficeName")
+				.attributes(PortalConstant.PARAM_ATTR_CRM_ACTION, "pager", "ibm-pwdAccountLocked", "cn", "uid", "givenName", "sn", "mail", "ahpra", "createTimeStamp", "BusinessUnit", "employeeType", "homePhone", "mobile", "physicalDeliveryOfficeName")
 				.where("uid").like("*")
+				.and(PortalConstant.PARAM_ATTR_CRM_ACTION).not().is(PortalConstant.PARAM_ATTR_VALUE_CRM_ACTION_CREATE)
 				.and(PortalConstant.PARAM_ATTR_FINALIZING_PAGER).not().is(PortalConstant.PARAM_ATTR_VALUE_VALIDATING_PAGER);
 		try {
 			list = getReferrerStagingLdapTemplate().search(query, new StageUserAttributeMapper());
@@ -497,6 +501,31 @@ public class ReferrerAccountService extends ABasicAccountService {
 
 		logger.info("updateCrmAction() updating {} {}", dn, value);
 		ldapTemplate.modifyAttributes(dn, new ModificationItem[] { modifyItem });
+	}
+	
+	public boolean updateReferrerCrmActionIfStating(final String uid, final String value) {
+		boolean isSet = false;
+		
+		try {
+			LdapTemplate ldapTemplate = getReferrerStagingLdapTemplate();
+			List<Name> lst = getAccountDnList(ldapTemplate, "uid", uid);
+
+			if(lst.size() > 0) {
+				Name dn = lst.get(0);
+				Attribute newAttr = new BasicAttribute(PortalConstant.PARAM_ATTR_CRM_ACTION, value);
+				ModificationItem modifyItem = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, newAttr);
+
+				logger.info("updateCrmAction() updating {} {}", dn, value);
+				ldapTemplate.modifyAttributes(dn, new ModificationItem[] { modifyItem });
+				isSet = true;
+				logger.info("User {} is marked as CRMCreate in LDAP", uid);
+			} else {
+				logger.info("User {} is not stating, but in auto validation DB", uid);
+			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		return isSet;
 	}
 	
 	public String getReferrerCrmAction(final String uid) {

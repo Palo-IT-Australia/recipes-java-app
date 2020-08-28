@@ -3,10 +3,8 @@ package au.com.imed.portal.referrer.referrerportal.ldap;
 import java.io.File;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
@@ -20,9 +18,7 @@ import org.springframework.ldap.filter.AndFilter;
 import org.springframework.ldap.filter.EqualsFilter;
 import org.springframework.stereotype.Service;
 
-import au.com.imed.portal.referrer.referrerportal.jpa.audit.entity.ReferrerProviderEntity;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.entity.VisageRequestAuditEntity;
-import au.com.imed.portal.referrer.referrerportal.jpa.audit.repository.ReferrerProviderJpaRepository;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.repository.VisageRequestAuditJPARepository;
 
 @Service
@@ -30,9 +26,6 @@ public class LdapCsvCreationService extends ABasicAccountService {
 	
 	@Autowired
 	private VisageRequestAuditJPARepository auditRepository;
-	
-	@Autowired
-	private ReferrerProviderJpaRepository providerRepository;
 	
 	public File createCsv(final boolean isAudit) throws Exception {
 		LdapTemplate ldapTemplate = getReferrerLdapTemplate();
@@ -58,7 +51,7 @@ public class LdapCsvCreationService extends ABasicAccountService {
         }
         if(isAudit) {
         	// New line below after last access
-          return String.format("\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"",
+          return String.format("\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"",
               attrs.get("uid") != null && attrs.get("uid").get(0) != null ? attrs.get("uid").get(0).toString() : "",
               attrs.get("givenName") != null && attrs.get("givenName").get(0) != null ? attrs.get("givenName").get(0).toString() : "",
               attrs.get("sn") != null && attrs.get("sn").get(0) != null ? attrs.get("sn").get(0).toString() : "",
@@ -69,7 +62,6 @@ public class LdapCsvCreationService extends ABasicAccountService {
               attrs.get("homePhone") != null && attrs.get("homePhone").get(0) != null ? attrs.get("homePhone").get(0).toString() : "",
               attrs.get("mobile") != null && attrs.get("mobile").get(0) != null ? attrs.get("mobile").get(0).toString() : "",
               attrs.get("physicalDeliveryOfficeName") != null && attrs.get("physicalDeliveryOfficeName").get(0) != null ? attrs.get("physicalDeliveryOfficeName").get(0).toString() : "",
-              attrs.get("physicalDeliveryOfficeName") != null && attrs.get("physicalDeliveryOfficeName").get(0) != null ? getPostcode(attrs.get("physicalDeliveryOfficeName").get(0).toString()) : "",
               dtstr);
         }else{
           return String.format("\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n",
@@ -85,14 +77,13 @@ public class LdapCsvCreationService extends ABasicAccountService {
     File tempFile = File.createTempFile("ldap-", "-csv");
     PrintWriter printWriter = new PrintWriter(tempFile);
     if(isAudit) {
-      printWriter.println("username,firstname,lastname,email,AHPRA#,BusinessUnit,AccountType,phone,mobile,address,postcode,creation time,Last Access,Practice Type");
+      printWriter.println("username,firstname,lastname,email,AHPRA#,BusinessUnit,AccountType,phone,mobile,address,creation time,Last Access");
     }else{
       printWriter.println("username,firstname,lastname,email,AHPRA#,creation time");      
     }
-    List<ReferrerProviderEntity> practiceList = isAudit ? providerRepository.findByPracticeTypeNotNull() : new ArrayList<>(0);
     for(String l : list) {
     	if(isAudit) {
-    		printWriter.print(l + "," + getLastAccess(l) + "," + getPracticeType(l, practiceList) + "\n");
+    		printWriter.print(l + "," + getLastAccess(l) + "\n");
     	} else {
     		printWriter.print(l);    		
     	}
@@ -101,48 +92,15 @@ public class LdapCsvCreationService extends ABasicAccountService {
     return tempFile;
 	}
 	
-	private String getPostcode(String adr) {
-		String pcode = "";
-		try {
-			if(!StringUtil.isBlank(adr)) {
-				String [] cmpnts = adr.replaceAll("\"", "").trim().split("\\s+");
-				if(cmpnts.length < 2) {
-					// Not full address
-				} else if(cmpnts[cmpnts.length - 1].matches("[0-9]{4}")) {
-					pcode = cmpnts[cmpnts.length - 1];
-				} else if(cmpnts[cmpnts.length - 2].matches("[0-9]{4}")) {
-					pcode = cmpnts[cmpnts.length - 2];
-				}		
-			}
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
-		return pcode;
-	}
-	
-	private String getPracticeType(final String csvLine, final List<ReferrerProviderEntity> practiceList) {
-		String type = "";
-		try {
-			String username = csvLine.split(",")[0].replaceAll("\"", "");
-			if(!StringUtil.isBlank(username)) {
-				List<ReferrerProviderEntity> matches = practiceList.stream().filter(p -> p.getUsername().equals(username)).collect(Collectors.toList());
-				if(matches.size() > 0) {
-					type = matches.get(0).getPracticeType();
-				}
-			}
-		} catch(Exception ex) {
-			ex.printStackTrace();
-		}
-		return type;
-	}
-	
 	private String getLastAccess(final String csvLine) {
 		String lastAccess = "";
 		try {
 			String username = csvLine.split(",")[0].replaceAll("\"", "");
+			System.out.println("username " + username);
 			
 			if(!StringUtil.isBlank(username)) {
 				VisageRequestAuditEntity audit = auditRepository.findFirstByUsernameOrderByAuditAtDesc(username);
+				System.out.println(audit);
 				if(audit != null) {
 					Date accori = audit.getAuditAt();
 					lastAccess = accori != null ? new SimpleDateFormat("dd/MM/yyyy HH:mm").format(accori) : "";
