@@ -687,12 +687,13 @@ public class ReferrerCreateAccountService extends ReferrerAccountService {
 		}
 	}
 	
+	private static final int MAX_ACCOUNTS_IN_POSTFIX = 5;
 	private String buildResultCsvEmailSubjectPostFix(final List<ReferrerAutoValidationEntity> listSuccess, final List<ReferrerAutoValidationEntity> listError) { 
 		String ps = " - ";
 		try {
-			ps += String.join(",", listSuccess.stream().map(e -> e.getUid()).collect(Collectors.toList()));
+			ps += listSuccess.size() > MAX_ACCOUNTS_IN_POSTFIX ? listSuccess.size() + " Accounts" : String.join(",", listSuccess.stream().map(e -> e.getUid()).collect(Collectors.toList()));
 			ps += " : ";
-			ps += String.join(",", listError.stream().map(e -> e.getUid()).collect(Collectors.toList()));
+			ps += listError.size() > MAX_ACCOUNTS_IN_POSTFIX ? listError.size() + " Accounts" : String.join(",", listError.stream().map(e -> e.getUid()).collect(Collectors.toList()));
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
