@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.jsoup.helper.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import au.com.imed.portal.referrer.referrerportal.common.GlobalVals;
 import au.com.imed.portal.referrer.referrerportal.common.util.CarestreamImageViewerUtil;
 import au.com.imed.portal.referrer.referrerportal.common.util.InteleViewerUtil;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.model.DicomPacs;
@@ -126,7 +128,9 @@ public class ViewImageService {
     logger.info("accessionNumber {}, securedAccessionNumber {}", accessionNumber, securedAccessionNumber);
     ResponseEntity<String[]> entity;
     if (userName != null && securedAccessionNumber != null) {
-      String [] urls = InteleViewerUtil.generateUrls(userName, securedAccessionNumber, order.getPatient().getPatientId(), ivmode);
+    	// Until signature url accept unrestricted access, using super fallback user
+    	logger.info("IVEV url - using fallback super user {}", GlobalVals.PACS_FALLBACK);
+      String [] urls = InteleViewerUtil.generateUrls(GlobalVals.PACS_FALLBACK, securedAccessionNumber, order.getPatient().getPatientId(), ivmode);
       entity = ResponseEntity.ok(urls);
     }    
     else if(accessionNumber == null) {
@@ -163,19 +167,20 @@ public class ViewImageService {
 		return accstr;
 	}
 
-	private String[] getViewerAccessionNumbers(OrderDetails order) {
-		String[] accessionNumbers;
-		final String accNum = order.getAccessionNumber();
-		if (accNum != null && accNum.length() > 0) {
-			accessionNumbers = new String[] { accNum };
+	/**
+	 * Extract only 1 dicom accession#. PACS super user can access all images, this or getAccessionNumberForSecuredIvEvUrl() depending on multi-modality support.
+	 * Limitation is multi modality _1, _2 can only display first image.
+	 */
+	private String getDicomAccessionNumber(OrderDetails orderDetails) {
+		String accessionNumber = null;
+		final DicomPacs[] dicoms = orderDetails.getDicom();
+		if(dicoms != null && dicoms.length > 0) {
+			accessionNumber = dicoms[0].getAccessionNumber();
 		} else {
-			int size = order.getProcedures().length;
-			accessionNumbers = new String[size];
-			for (int i = 0; i < size; i++) {
-				accessionNumbers[i] = order.getProcedures()[i].getProcedureId();
-			}
+			logger.info("getDicomAccessionNumber() No DICOM acc#");
 		}
-		return accessionNumbers;
+		logger.info("getDicomAccessionNumber() returning " + accessionNumber);
+		return accessionNumber;
 	}
 
 	private String getViewerAccessionNumberString(final OrderDetails order, final String delimiter) {
