@@ -13,6 +13,7 @@ public class GlobalVals {
 	public static String CARESTREAM_KEY;
 
 	public static String PACS_URL;
+	public static String PACS_VIEWER_URL;
 	public static String PACS_AUTH_TOKEN;
 	public static String [] PACS_AUTH_SERVERS;
 	public static String PACS_FALLBACK;
@@ -31,6 +32,11 @@ public class GlobalVals {
 	@Value("${imed.pacs.url}")
 	public void setPacsUrl(String url) {
 		PACS_URL = url;
+	}
+	
+	@Value("${imed.pacs.viewer.url}")
+	public void setPacsViewerUrl(String url) {
+		PACS_VIEWER_URL = url;
 	}
 	
 	@Value("${imed.pacs.token}")

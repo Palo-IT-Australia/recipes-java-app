@@ -128,26 +128,31 @@ public class AutoAccountValidationScheduler {
 	/**
 	 * 2) csv files exchange with visage
 	 */
-	@Scheduled(cron="0 0 " + HOUR_CSV_FROM + "-" + HOUR_CSV_TO + " * * Mon-Fri") // Business hours
+	@Scheduled(cron="0 0 * * * *") // every hours
 	public void scheduleProducingVisageCsvTask() {
 		try
 		{
 			if(SCHEDULER_SERVER_NAME.equals(InetAddress.getLocalHost().getHostName())) { 
-				logger.info("Starting hourly visage csv scheduler task...");
-				// To
+				logger.info("Starting 24/7 visage csv exchange scheduler task...");
+				
+				// To Visage
 				Date now = new Date();
-				logger.info("scheduleBusinessHoursCsvTask() now is " + now);
-				Date from = calculateCsvFromDate(now);
+				Calendar cal = Calendar.getInstance();
+
+				cal.setTime(now);
+				cal.add(Calendar.HOUR, -1); // Should match cron
+				final Date from = cal.getTime();
 				logger.info("Getting entries from Db from {} to {}", from, now);
+				
 				if(from != null) {
-					// created at last hours and valid means portal account was created ready for Visage account creation
+					// created at last hour and valid means portal account was created ready for Visage account creation
 					List<ReferrerAutoValidationEntity> list = referrerAutoValidationRepository.findByValidationStatusAndAccountAtBetween(VALIDATION_STATUS_VALID, from, now);
 					createAccountService.makeAndShareVisageCsvFile(list);
 				}
 				
-				// From
+				// From Visage
 				createAccountService.notifyNewAccountByVisageCsvFiles();
-				logger.info("Finished hourly visage csv scheduler task...");
+				logger.info("Finished 24/7 visage csv exchange scheduler task...");
 			}
 		} catch(Exception ex) {
 			ex.printStackTrace();

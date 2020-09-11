@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import au.com.imed.common.active.directory.manager.ImedActiveDirectoryLdapManager;
+import au.com.imed.portal.referrer.referrerportal.common.GlobalVals;
 import au.com.imed.portal.referrer.referrerportal.common.PortalConstant;
 import au.com.imed.portal.referrer.referrerportal.common.syslog.ReferrerEvent;
 import au.com.imed.portal.referrer.referrerportal.common.util.Aes128Util;
@@ -242,7 +243,7 @@ public class VisageController {
             		Map<String, String> vmap = new HashMap<>(2);
             		vmap.put("orderUri", order.getUri());
             		vmap.put("accessionNumber", orderDetails.getAccessionNumber());
-            		ResponseEntity<String[]> event = viewImageService.generateIvEvImageUrls(PortalConstant.REP_VISAGE_USER, vmap, orderDetails);  
+            		ResponseEntity<String[]> event = viewImageService.generateIvEvImageUrls(GlobalVals.PACS_FALLBACK, vmap, orderDetails);  
             		if(HttpStatus.OK.equals(event.getStatusCode()) && event.getBody().length > 0){
             			quickReport.setViewUrl(event.getBody()[0]);
             		}
