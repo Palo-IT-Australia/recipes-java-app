@@ -109,10 +109,10 @@ public class InteleViewerUtil {
     return sb.toString();
   }
   
-  private static final String IVEV_IMAGE_URL_FMT = GlobalVals.PACS_URL + "/enhancedviewer/viewer/%s?sessionId=%s&toolmode=superstacking&seriesLayoutName=1x1";
-  private static final String IVEV_MOBILE_IMAGE_URL_FMT = GlobalVals.PACS_URL + "/m.enhancedviewer/viewer/%s?sessionId=%s&toolmode=superstacking&seriesLayoutName=1x1";
-  private static final String IVEV_REST_IMAGE_URL_FMT = GlobalVals.PACS_URL + "/Portal/view/orders/%s?sessionId=%s";
-  //private static final String IVEV_REST_IMAGE_URL_FMT = GlobalVals.PACS_URL + "/Portal/view/orders/%s?SID=%s&signature=%s";
+  private static final String IVEV_IMAGE_URL_FMT = GlobalVals.PACS_VIEWER_URL + "/enhancedviewer/viewer/%s?sessionId=%s&toolmode=superstacking&seriesLayoutName=1x1";
+  private static final String IVEV_MOBILE_IMAGE_URL_FMT = GlobalVals.PACS_VIEWER_URL + "/m.enhancedviewer/viewer/%s?sessionId=%s&toolmode=superstacking&seriesLayoutName=1x1";
+  private static final String IVEV_REST_IMAGE_URL_FMT = GlobalVals.PACS_VIEWER_URL + "/Portal/view/orders/%s?sessionId=%s";
+  //private static final String IVEV_REST_IMAGE_URL_FMT = GlobalVals.PACS_VIEWER_URL + "/Portal/view/orders/%s?SID=%s&signature=%s";
   private static String buildIvEvUrl(final String userName, final String accessionNum, final String patientId, final String sessionId) {
     return String.format(IVEV_IMAGE_URL_FMT, getPatientAccessionUrlPart(patientId, accessionNum), sessionId) + getSignatureParamString(getPatientIdOrAccessionNumber(patientId, accessionNum), sessionId);
   }
