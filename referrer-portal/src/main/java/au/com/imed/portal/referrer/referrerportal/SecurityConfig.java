@@ -51,6 +51,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter  {
 	@Value("${imed.portal.pages.urls.editor}")
 	private String [] editorUrls;
 
+	@Value("${imed.portal.pages.urls.cleanup}")
+	private String [] cleanupUrls;
+
 	@Value("${imed.portal.auth.groups.admin}")
 	private String [] adminGroups;
 
@@ -59,6 +62,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter  {
 
 	@Value("${imed.portal.auth.groups.editor}")
 	private String [] editorGroups;
+
+	@Value("${imed.portal.auth.groups.cleanup}")
+	private String [] cleanupGroup;
 	
 	@Value("${imed.portal.auth.groups.hospital}")
 	private String [] hospitalGroups;
@@ -75,6 +81,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter  {
 	private static final String AUTH_ADMIN = "ROLE_ADMIN";
 	private static final String AUTH_EDITOR = "ROLE_EDITOR";
 	private static final String AUTH_HOSPITAL = "ROLE_HOSPITAL";
+	private static final String AUTH_CLEANUP = "ROLE_CLEANUP";
 	private static final String AUTH_CRM_ADMIN = "ROLE_CRM_ADMIN";
 
 	@Override
@@ -83,6 +90,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter  {
 		.authorizeRequests()
 		.antMatchers(anonUrls).permitAll()
 		.antMatchers(adminUrls).hasAuthority(AUTH_ADMIN)
+		.antMatchers(cleanupUrls).hasAuthority(AUTH_CLEANUP)
 		.antMatchers(crmAdminUrls).hasAuthority(AUTH_CRM_ADMIN)
 		.antMatchers("/hospital").hasAnyAuthority(AUTH_HOSPITAL)
 		.anyRequest().fullyAuthenticated()
@@ -158,6 +166,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter  {
 						return Arrays.stream(editorGroups).filter(g -> s.startsWith(CN + g)).count() > 0;
 					}).count() > 0) {
 						auths.add(new SimpleGrantedAuthority(AUTH_EDITOR));
+					}
+					if(Arrays.stream(groups).map(o -> o.toString()).filter(s -> {
+						return Arrays.stream(cleanupGroup).filter(g -> s.startsWith(CN + g)).count() > 0;
+					}).count() > 0) {
+						auths.add(new SimpleGrantedAuthority(AUTH_CLEANUP));
 					}
 					if(Arrays.stream(groups).map(o -> o.toString()).filter(s -> {
 						return Arrays.stream(crmAdminGroups).filter(g -> s.startsWith(CN + g)).count() > 0;
