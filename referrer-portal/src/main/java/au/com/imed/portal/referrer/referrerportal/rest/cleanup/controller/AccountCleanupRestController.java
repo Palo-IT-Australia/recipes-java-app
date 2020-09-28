@@ -49,6 +49,7 @@ public class AccountCleanupRestController {
 			for(GlobalLdapAccount acnt : removeList.getList()) {
 				if(acnt.isCanRemove()) {
 					removalService.removeGlobalAccount(acnt.getDn());
+					removalService.cleanupDb(acnt);
 				} else {
 					logger.info("Not removal account skipping..");
 				}

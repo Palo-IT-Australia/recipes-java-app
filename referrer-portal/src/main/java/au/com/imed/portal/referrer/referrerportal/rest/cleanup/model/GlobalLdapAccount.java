@@ -15,9 +15,18 @@ public class GlobalLdapAccount {
   private String givenName;
   private String sn;
   
+  private String stage;
   private boolean canRemove;
   private boolean selected;
   
+	public String getStage() {
+		return stage;
+	}
+
+	public void setStage(String stage) {
+		this.stage = stage;
+	}
+
 	public boolean isSelected() {
 		return selected;
 	}
