@@ -22,4 +22,6 @@ public interface VisageRequestAuditJPARepository extends JpaRepository<VisageReq
 	public List<String> getDistinctLoginUsernamesBetween(Date from, Date to);
 	
 	public VisageRequestAuditEntity findFirstByUsernameOrderByAuditAtDesc(String username);
+	
+	public List<VisageRequestAuditEntity> findByUsername(String username);
 }

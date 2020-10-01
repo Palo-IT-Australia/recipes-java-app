@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import au.com.imed.portal.referrer.referrerportal.ldap.AccountRemovalService;
+import au.com.imed.portal.referrer.referrerportal.ldap.AccountDeactivationService;
 import au.com.imed.portal.referrer.referrerportal.rest.cleanup.model.GlobalLdapAccount;
 import au.com.imed.portal.referrer.referrerportal.rest.cleanup.model.RemoveList;
 
@@ -26,13 +26,15 @@ public class AccountCleanupRestController {
 	private Logger logger = LoggerFactory.getLogger(AccountCleanupRestController.class);
 
 	@Autowired
-	private AccountRemovalService removalService;
+	private AccountDeactivationService deactivationService;
+//	@Autowired
+//	private AccountRemovalService removalService;
 
 	@GetMapping("/find")
 	public ResponseEntity<List<GlobalLdapAccount>> find(@RequestParam("word") String word) {
 		List<GlobalLdapAccount> list;
 		try {
-			list = removalService.findGlobalAccounts(word);
+			list = deactivationService.searchGlobalAccounts(word);
 		} catch (Exception ex) {
 			list = Collections.emptyList();
 			ex.printStackTrace();
@@ -46,18 +48,11 @@ public class AccountCleanupRestController {
 		JSONObject resultPayload = new JSONObject();
 		HttpStatus sts = HttpStatus.OK;
 		try {
-			for(GlobalLdapAccount acnt : removeList.getList()) {
-				if(acnt.isCanRemove()) {
-					removalService.removeGlobalAccount(acnt.getDn());
-					removalService.cleanupDb(acnt);
-				} else {
-					logger.info("Not removal account skipping..");
-				}
-			}
-			resultPayload.put("msg", "Removed accounts");
+			deactivationService.deactivate(removeList.getList());
+			resultPayload.put("msg", "Deactivated accounts. Please make sure to handle PACS and Visage account accordingly.");
 		} catch (Exception ex) {
 			sts = HttpStatus.BAD_REQUEST;
-			resultPayload.put("msg", "Failed to remove accounts");			
+			resultPayload.put("msg", "Failed to deactivated accounts");			
 			ex.printStackTrace();
 		}
 		return ResponseEntity.status(sts).body(resultPayload);

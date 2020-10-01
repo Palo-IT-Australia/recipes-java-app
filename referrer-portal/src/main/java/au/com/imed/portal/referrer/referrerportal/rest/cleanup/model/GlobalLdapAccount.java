@@ -15,10 +15,20 @@ public class GlobalLdapAccount {
   private String givenName;
   private String sn;
   
+  private String ahpra;
+  
   private String stage;
   private boolean canRemove;
   private boolean selected;
   
+	public String getAhpra() {
+		return ahpra;
+	}
+
+	public void setAhpra(String ahpra) {
+		this.ahpra = ahpra;
+	}
+
 	public String getStage() {
 		return stage;
 	}
