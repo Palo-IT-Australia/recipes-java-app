@@ -136,18 +136,18 @@ public class ReferrerPortalMvcController {
 		if("test".equals(ACTIVE_PROFILE)) {
 			return "evaluation";
 		} else {
-			return "results";
+			return "evaluation";
 		}
 	}
 	
-	@GetMapping("/evaluation")
-	public String getEvaluation() {
-		if("prod".equals(ACTIVE_PROFILE)) {
-			return "evaluation";
-		} else {
-			return "evaluation";
-		}
-	}
+//	@GetMapping("/evaluation")
+//	public String getEvaluation() {
+//		if("prod".equals(ACTIVE_PROFILE)) {
+//			return "evaluation";
+//		} else {
+//			return "evaluation";
+//		}
+//	}
 
 	@GetMapping("/ereferral")
 	public String getReferral() {

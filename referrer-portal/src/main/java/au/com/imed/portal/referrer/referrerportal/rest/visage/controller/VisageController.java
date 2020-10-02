@@ -238,24 +238,14 @@ public class VisageController {
             // Image
             if(sharedReport.getItem().contains("image")) {
             	logger.info("item image has been specified.");
-            	if("test".equals(ACTIVE_PROFILE)) {
-            		logger.info("Test server Using EV...");
-            		Map<String, String> vmap = new HashMap<>(2);
-            		vmap.put("orderUri", order.getUri());
-            		vmap.put("accessionNumber", orderDetails.getAccessionNumber());
-            		ResponseEntity<String[]> event = viewImageService.generateIvEvImageUrls(GlobalVals.PACS_FALLBACK, vmap, orderDetails);  
-            		if(HttpStatus.OK.equals(event.getStatusCode()) && event.getBody().length > 0){
-            			quickReport.setViewUrl(event.getBody()[0]);
-            		}
+            	Map<String, String> vmap = new HashMap<>(2);
+            	vmap.put("orderUri", order.getUri());
+            	vmap.put("accessionNumber", orderDetails.getAccessionNumber());
+            	ResponseEntity<String[]> event = viewImageService.generateIvEvImageUrls(GlobalVals.PACS_FALLBACK, vmap, orderDetails);  
+            	if(HttpStatus.OK.equals(event.getStatusCode()) && event.getBody().length > 0){
+            		quickReport.setViewUrl(event.getBody()[0]);
             	} else {
-            		logger.info("Prod server Using VM...");
-            		Map<String, String> vmap = new HashMap<>(2);
-            		vmap.put("orderUri", order.getUri());
-            		vmap.put("viewer", "3");
-            		ResponseEntity<String> ventity = viewImageService.generateUrl(PortalConstant.REP_VISAGE_USER, vmap, orderDetails);  
-            		if(HttpStatus.OK.equals(ventity.getStatusCode())) {
-            			quickReport.setViewUrl(ventity.getBody());
-            		}            		
+            		logger.info("Failed to generate IVEV Url for quick report.");
             	}
             }
           }
