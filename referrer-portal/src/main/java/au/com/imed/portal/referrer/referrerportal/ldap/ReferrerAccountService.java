@@ -482,11 +482,40 @@ public class ReferrerAccountService extends ABasicAccountService {
 	}
 
 	public void declineUser(final String uid, final String step) throws Exception {
-		LdapTemplate ldapTemplate = "finalising".equalsIgnoreCase(step) ? getReferrerLdapTemplate()
+		boolean isFinal = "finalising".equalsIgnoreCase(step);
+		LdapTemplate ldapTemplate = isFinal ? getReferrerLdapTemplate()
 				: getReferrerStagingLdapTemplate();
 		Name dn = getAccountDnList(ldapTemplate, "uid", uid).get(0);
 		logger.info("declineUser() {} ", dn);
 		ldapTemplate.unbind(dn);
+		
+		if(isFinal) {
+			cleanupPacsUsers(uid);
+		}
+	}
+	
+	protected void cleanupPacsUsers(final String uid) {
+		try {
+			LdapTemplate ldapTemplate = getPacsLdapTemplate();
+			Name dn = getAccountDnList(ldapTemplate, "uid", uid).get(0);
+			logger.info("cleanupPacsUsers() deleting pacs {} ", dn);
+			if(dn != null) {
+				ldapTemplate.unbind(dn);
+			}
+		} catch (Exception ex) {
+			logger.info("PACS user not yet synched, skipping" + uid);
+		}
+		
+		try {
+			LdapTemplate ldapTemplate = getImedPacsLdapTemplate();
+			Name dn = getAccountDnList(ldapTemplate, "uid", uid).get(0);
+			logger.info("cleanupPacsUsers() deleting imed pacs {} ", dn);
+			if(dn != null) {
+				ldapTemplate.unbind(dn);
+			}
+		} catch (Exception ex) {
+			logger.info("I-MED PACS user not yet synched, skipping" + uid);
+		}
 	}
 	
 	//

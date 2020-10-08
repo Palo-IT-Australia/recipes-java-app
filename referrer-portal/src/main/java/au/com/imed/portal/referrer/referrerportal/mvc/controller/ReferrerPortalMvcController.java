@@ -168,7 +168,12 @@ public class ReferrerPortalMvcController {
 	public String getHospital() {
 		return "hospital";
 	}
-
+	
+	@GetMapping("/cleanup")
+	public String getCreanup() {
+		return "cleanup";
+	}
+	
 	@GetMapping("/crmadmin")
 	public String getCrmAdmin() {
 		return "crmadmin";
