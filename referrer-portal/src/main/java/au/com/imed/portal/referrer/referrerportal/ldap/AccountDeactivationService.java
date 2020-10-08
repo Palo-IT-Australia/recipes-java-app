@@ -4,7 +4,6 @@ import static org.springframework.ldap.query.LdapQueryBuilder.query;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
@@ -25,13 +24,9 @@ import org.springframework.stereotype.Service;
 import au.com.imed.portal.referrer.referrerportal.common.PortalConstant;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.entity.ReferrerActivationEntity;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.entity.ReferrerAutoValidationEntity;
-import au.com.imed.portal.referrer.referrerportal.jpa.audit.entity.ReferrerProviderEntity;
-import au.com.imed.portal.referrer.referrerportal.jpa.audit.entity.VisageRequestAuditEntity;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.repository.ReferrerActivationJpaRepository;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.repository.ReferrerAutoValidationRepository;
-import au.com.imed.portal.referrer.referrerportal.jpa.audit.repository.ReferrerProviderJpaRepository;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.repository.UserPreferencesJPARepository;
-import au.com.imed.portal.referrer.referrerportal.jpa.audit.repository.VisageRequestAuditJPARepository;
 import au.com.imed.portal.referrer.referrerportal.jpa.history.model.PatientHistoryEntity;
 import au.com.imed.portal.referrer.referrerportal.jpa.history.model.UserPreferencesEntity;
 import au.com.imed.portal.referrer.referrerportal.jpa.history.repository.PatientHistoryJPARepository;
@@ -41,8 +36,8 @@ import au.com.imed.portal.referrer.referrerportal.rest.cleanup.model.GlobalLdapA
 public class AccountDeactivationService extends ABasicAccountService {
 	private Logger logger = LoggerFactory.getLogger(AccountDeactivationService.class);
 
-	@Autowired
-	private ReferrerProviderJpaRepository referrerProviderJpaRepository;
+//	@Autowired
+//	private ReferrerProviderJpaRepository referrerProviderJpaRepository;
 
 	@Autowired
 	private ReferrerAutoValidationRepository autoValidationRepository;
@@ -56,8 +51,8 @@ public class AccountDeactivationService extends ABasicAccountService {
 	@Autowired
 	private PatientHistoryJPARepository patientHistoryRepository;
 	
-	@Autowired
-	private VisageRequestAuditJPARepository auditRepository;
+//	@Autowired
+//	private VisageRequestAuditJPARepository auditRepository;
 	
 	public final static String INACTIVE_PREFIX = "inactive__";
 	public final static String DOMAIN_INACTIVE = "ou=Inactive,ou=Portal,ou=Applications,dc=mia,dc=net,dc=au";
@@ -113,33 +108,34 @@ public class AccountDeactivationService extends ABasicAccountService {
 			ldapTemplate.modifyAttributes(acnt.getDn(), moditemList.toArray(new ModificationItem[moditemList.size()]));
 			logger.info("deactivateReferrerAccount {}", acnt.getDn());
 			
-			final String newUid = "" + (new Random().nextInt((99999 - 10000) + 1) + 10000) + "_" + acnt.getUid();
-			logger.info("deactivateReferrerAccount() moving " + acnt.getDn() + " into inactive with uid: " + newUid);
-			ldapTemplate.rename(acnt.getDn(), "uid=" + newUid + "," + DOMAIN_INACTIVE.split(ROOT_DN_POSTFIX)[0]);
+			//final String newUid = "" + (new Random().nextInt((99999 - 10000) + 1) + 10000) + "_" + acnt.getUid();
+			//logger.info("deactivateReferrerAccount() moving " + acnt.getDn() + " into inactive with uid: " + newUid);
+			logger.info("deactivateReferrerAccount() moving into inactive dn");
+			ldapTemplate.rename(acnt.getDn(), "uid=" + acnt.getUid() + "," + DOMAIN_INACTIVE.split(ROOT_DN_POSTFIX)[0]);
 			
-			updateDb(acnt.getUid(), newUid);
+			updateDb(acnt.getUid());
 	}
 	
-	private void updateDb(final String uid, final String newUid) {
+	private void updateDb(final String uid) {
 		// On deactivating referrer account
-		List<VisageRequestAuditEntity> audits = auditRepository.findByUsername(uid);
-		logger.info("updateDb() updating audit uid");
-		for(VisageRequestAuditEntity entity : audits) {
-			entity.setUsername(newUid);
-			auditRepository.saveAndFlush(entity);
-		}
-		
-		List<ReferrerProviderEntity> provs = referrerProviderJpaRepository.findByUsername(uid);
-		logger.info("updateDb() updating providers");
-		for(ReferrerProviderEntity prov : provs) {
-			prov.setUsername(newUid);
-			referrerProviderJpaRepository.saveAndFlush(prov);
-		}
+//		List<VisageRequestAuditEntity> audits = auditRepository.findByUsername(uid);
+//		logger.info("updateDb() updating audit uid");
+//		for(VisageRequestAuditEntity entity : audits) {
+//			entity.setUsername(newUid);
+//			auditRepository.saveAndFlush(entity);
+//		}
+//		
+//		List<ReferrerProviderEntity> provs = referrerProviderJpaRepository.findByUsername(uid);
+//		logger.info("updateDb() updating providers");
+//		for(ReferrerProviderEntity prov : provs) {
+//			prov.setUsername(newUid);
+//			referrerProviderJpaRepository.saveAndFlush(prov);
+//		}
 
 		List<ReferrerAutoValidationEntity> autos = autoValidationRepository.findByUidAndValidationStatus(uid, PortalConstant.VALIDATION_STATUS_NOTIFIED);
 		logger.info("updateDb() updating auto validations");
 		for(ReferrerAutoValidationEntity auto : autos) {
-			auto.setUid(newUid);
+			//auto.setUid(newUid);
 			auto.setEmail(INACTIVE_PREFIX + auto.getEmail());
 			auto.setAhpra(INACTIVE_PREFIX + auto.getAhpra());
 			autoValidationRepository.saveAndFlush(auto);
