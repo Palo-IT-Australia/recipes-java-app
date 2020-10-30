@@ -3,6 +3,7 @@ package au.com.imed.portal.referrer.referrerportal.ldap;
 import static org.springframework.ldap.query.LdapQueryBuilder.query;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,8 +24,10 @@ import org.springframework.ldap.query.LdapQuery;
 import org.springframework.stereotype.Service;
 
 import au.com.imed.portal.referrer.referrerportal.common.PortalConstant;
+import au.com.imed.portal.referrer.referrerportal.jpa.audit.entity.ReferrerAccountDeactivationAuditEneity;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.entity.ReferrerActivationEntity;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.entity.ReferrerAutoValidationEntity;
+import au.com.imed.portal.referrer.referrerportal.jpa.audit.repository.ReferrerAccountDeactivationAuditJpaRepository;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.repository.ReferrerActivationJpaRepository;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.repository.ReferrerAutoValidationRepository;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.repository.UserPreferencesJPARepository;
@@ -51,6 +54,9 @@ public class AccountDeactivationService extends ABasicAccountService {
 	
 	@Autowired
 	private PatientHistoryJPARepository patientHistoryRepository;
+	
+	@Autowired
+	private ReferrerAccountDeactivationAuditJpaRepository auditRepository;
 	
 //	@Autowired
 //	private VisageRequestAuditJPARepository auditRepository;
@@ -263,5 +269,21 @@ public class AccountDeactivationService extends ABasicAccountService {
 			}
 		}
 		return type;
+	}
+	
+	public void doAudit(final List<GlobalLdapAccount> list, final String username) {
+		for(GlobalLdapAccount acnt : list) {
+			ReferrerAccountDeactivationAuditEneity entity = new ReferrerAccountDeactivationAuditEneity();
+			entity.setCommand("deactivate");
+			entity.setAuditAt(new Date());
+			entity.setUsername(username);
+			entity.setUid(acnt.getUid());
+			entity.setAhpra(acnt.getAhpra());
+			entity.setDn(acnt.getDn());
+			entity.setGivenName(acnt.getGivenName());
+			entity.setMail(acnt.getMail());
+			entity.setSn(acnt.getSn());
+			auditRepository.save(entity);
+		}
 	}
 }

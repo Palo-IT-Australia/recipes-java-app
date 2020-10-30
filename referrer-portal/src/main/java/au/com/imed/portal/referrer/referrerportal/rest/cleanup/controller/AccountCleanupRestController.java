@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -44,11 +45,12 @@ public class AccountCleanupRestController {
 
 	@SuppressWarnings("unchecked")
 	@PostMapping("/remove")
-	public ResponseEntity<JSONObject> remove(@RequestBody() RemoveList removeList) {
+	public ResponseEntity<JSONObject> remove(@RequestBody() RemoveList removeList, Authentication authentication) {
 		JSONObject resultPayload = new JSONObject();
 		HttpStatus sts = HttpStatus.OK;
 		try {
 			deactivationService.deactivate(removeList.getList());
+			deactivationService.doAudit(removeList.getList(), authentication.getName());
 			resultPayload.put("msg", "Deactivated accounts. Please make sure to handle PACS and Visage account accordingly.");
 		} catch (Exception ex) {
 			sts = HttpStatus.BAD_REQUEST;
