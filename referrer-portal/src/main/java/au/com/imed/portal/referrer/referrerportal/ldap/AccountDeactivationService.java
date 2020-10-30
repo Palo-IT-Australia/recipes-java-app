@@ -4,6 +4,7 @@ import static org.springframework.ldap.query.LdapQueryBuilder.query;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
@@ -166,7 +167,7 @@ public class AccountDeactivationService extends ABasicAccountService {
 		ModificationItem finItem = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, finAttr);
 		moditemList.add(finItem);
 		getGlobalLdapTemplate().modifyAttributes(acnt.getDn(), moditemList.toArray(new ModificationItem[moditemList.size()]));
-		logger.info("deactivatePacsEmail {}", acnt.getDn());
+		logger.info("deactivateMail {}", acnt.getDn());
 	}
 		
 	public List<GlobalLdapAccount> searchGlobalAccounts(final String word) throws Exception {
@@ -176,7 +177,14 @@ public class AccountDeactivationService extends ABasicAccountService {
 				.or("mail").is(word);
 		return getGlobalLdapTemplate().search(query, new GlobalAccountContextMapper());
 	}
-	
+
+	public List<GlobalLdapAccount> searchActiveGlobalAccounts(final String word) throws Exception {
+		return searchGlobalAccounts(word)
+		.stream()
+		.filter(a -> a.getMail() == null || !a.getMail().startsWith(INACTIVE_PREFIX))
+		.collect(Collectors.toList());
+	}
+
 	protected class GlobalAccountContextMapper extends AbstractContextMapper<GlobalLdapAccount> {
 		public GlobalLdapAccount doMapFromContext(DirContextOperations context) {
 			GlobalLdapAccount acnt = new GlobalLdapAccount();
@@ -215,19 +223,25 @@ public class AccountDeactivationService extends ABasicAccountService {
 		String dn = acnt.getDn();
 		for(int i = 0; i < REMOVABLE_OUS.length; i ++) {
 			// non internal account and not under validation
-			if(dn.contains(REMOVABLE_OUS[i]) && !acnt.getMail().contains("@i-med.com.au") && StringUtil.isBlank(acnt.getStage())) 
+			if(dn.contains(REMOVABLE_OUS[i]) && !acnt.getMail().contains("@i-med.com.au")) 
 			{
 				if(i < 2) { // PACSes
 					can = acnt.getAddn().endsWith(ADDN_REFERRER) && !acnt.getMail().startsWith(INACTIVE_PREFIX);
 				} else if(i == 2) { // Referrer 
-					List<ReferrerAutoValidationEntity> autos = autoValidationRepository.findByUidAndValidationStatusNot(acnt.getUid(), PortalConstant.VALIDATION_STATUS_INVALID);
-					if(autos.size() > 0) { // should be only one valid status
-						String sts = autos.get(0).getValidationStatus();
-						logger.info("canRemove() non-invalid validation status " + sts); 
-						// Notified status can be removed
-						can = PortalConstant.VALIDATION_STATUS_NOTIFIED.equalsIgnoreCase(sts);
-					} else { // completed account			
-						can = true;
+					if(StringUtil.isBlank(acnt.getStage())) {
+						List<ReferrerAutoValidationEntity> autos = autoValidationRepository.findByUidAndValidationStatusNot(acnt.getUid(), PortalConstant.VALIDATION_STATUS_INVALID);
+						if(autos.size() > 0) { // should be only one valid status
+							String sts = autos.get(0).getValidationStatus();
+							logger.info("canRemove() non-invalid validation status " + sts); 
+							// Notified status can be removed
+							can = PortalConstant.VALIDATION_STATUS_NOTIFIED.equalsIgnoreCase(sts);
+						} else { // completed account			
+							can = true;
+						}
+					} else {
+						// Still finalizing
+						logger.info("Referrer {} is finalising, should use approvre tool to decline.", acnt.getDn());
+						can = false;
 					}
 				} else if (i == 4) { // Inactive already
 					can = false;
