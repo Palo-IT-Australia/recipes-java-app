@@ -551,6 +551,7 @@ public class VisageController {
 				OrderDetails order = obtainOrderDetails(userName, paramMap);
 				if (order != null) {
 					// Report can be displayed on completed order
+					logger.info("/report Order status " + order.getStatus());
 					if(OrderStatusConst.STATUS_GROUP_COMPLETE.equalsIgnoreCase(order.getStatus()))
 					{
 						paramMap.put("reportUri", order.getReportUri());
@@ -565,6 +566,7 @@ public class VisageController {
 					}
 					else
 					{
+						logger.info("Not complete report");
 						responceEntity = new ResponseEntity<String>(REPORT_NOT_COMPLTED_ALERT_HTML, HttpStatus.OK);
 					}
 					auditService.doAudit("Report", userName, paramMap, order);
@@ -630,12 +632,14 @@ public class VisageController {
 		if (rateLimit(userName)) {
 			if (userName != null && preferenceService.isTermsAccepted(userName)) {
 				OrderDetails order = obtainOrderDetails(userName, paramMap);
-				if (order != null) {
+				if (order != null && OrderStatusConst.STATUS_GROUP_COMPLETE.equalsIgnoreCase(order.getStatus())) {
+					logger.info("/reportPdf Order status " + order.getStatus());
 					paramMap.put("reportUri", order.getReportUri());
 					auditService.doAudit("ReportPdf", userName, paramMap, order);
 					syslog.log(ReferrerEvent.REPORT_DOWNLOAD, "/reportPdf", userName, paramMap, order);
 					entity = pdfReportService.doRestGet(userName, paramMap, byte[].class);
 				} else {
+					logger.info("/reportPdf order not complete or report uri is invalid.");
 					entity = new ResponseEntity<byte[]>(HttpStatus.BAD_REQUEST);
 				}
 			}
