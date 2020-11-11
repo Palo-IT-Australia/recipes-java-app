@@ -3,7 +3,9 @@ package au.com.imed.portal.referrer.referrerportal.ldap;
 import static org.springframework.ldap.query.LdapQueryBuilder.query;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
@@ -22,8 +24,10 @@ import org.springframework.ldap.query.LdapQuery;
 import org.springframework.stereotype.Service;
 
 import au.com.imed.portal.referrer.referrerportal.common.PortalConstant;
+import au.com.imed.portal.referrer.referrerportal.jpa.audit.entity.ReferrerAccountDeactivationAuditEneity;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.entity.ReferrerActivationEntity;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.entity.ReferrerAutoValidationEntity;
+import au.com.imed.portal.referrer.referrerportal.jpa.audit.repository.ReferrerAccountDeactivationAuditJpaRepository;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.repository.ReferrerActivationJpaRepository;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.repository.ReferrerAutoValidationRepository;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.repository.UserPreferencesJPARepository;
@@ -50,6 +54,9 @@ public class AccountDeactivationService extends ABasicAccountService {
 	
 	@Autowired
 	private PatientHistoryJPARepository patientHistoryRepository;
+	
+	@Autowired
+	private ReferrerAccountDeactivationAuditJpaRepository auditRepository;
 	
 //	@Autowired
 //	private VisageRequestAuditJPARepository auditRepository;
@@ -166,7 +173,7 @@ public class AccountDeactivationService extends ABasicAccountService {
 		ModificationItem finItem = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, finAttr);
 		moditemList.add(finItem);
 		getGlobalLdapTemplate().modifyAttributes(acnt.getDn(), moditemList.toArray(new ModificationItem[moditemList.size()]));
-		logger.info("deactivatePacsEmail {}", acnt.getDn());
+		logger.info("deactivateMail {}", acnt.getDn());
 	}
 		
 	public List<GlobalLdapAccount> searchGlobalAccounts(final String word) throws Exception {
@@ -176,7 +183,14 @@ public class AccountDeactivationService extends ABasicAccountService {
 				.or("mail").is(word);
 		return getGlobalLdapTemplate().search(query, new GlobalAccountContextMapper());
 	}
-	
+
+	public List<GlobalLdapAccount> searchActiveGlobalAccounts(final String word) throws Exception {
+		return searchGlobalAccounts(word)
+		.stream()
+		.filter(a -> a.getMail() == null || !a.getMail().startsWith(INACTIVE_PREFIX))
+		.collect(Collectors.toList());
+	}
+
 	protected class GlobalAccountContextMapper extends AbstractContextMapper<GlobalLdapAccount> {
 		public GlobalLdapAccount doMapFromContext(DirContextOperations context) {
 			GlobalLdapAccount acnt = new GlobalLdapAccount();
@@ -215,19 +229,25 @@ public class AccountDeactivationService extends ABasicAccountService {
 		String dn = acnt.getDn();
 		for(int i = 0; i < REMOVABLE_OUS.length; i ++) {
 			// non internal account and not under validation
-			if(dn.contains(REMOVABLE_OUS[i]) && !acnt.getMail().contains("@i-med.com.au") && StringUtil.isBlank(acnt.getStage())) 
+			if(dn.contains(REMOVABLE_OUS[i]) && !acnt.getMail().contains("@i-med.com.au")) 
 			{
 				if(i < 2) { // PACSes
 					can = acnt.getAddn().endsWith(ADDN_REFERRER) && !acnt.getMail().startsWith(INACTIVE_PREFIX);
 				} else if(i == 2) { // Referrer 
-					List<ReferrerAutoValidationEntity> autos = autoValidationRepository.findByUidAndValidationStatusNot(acnt.getUid(), PortalConstant.VALIDATION_STATUS_INVALID);
-					if(autos.size() > 0) { // should be only one valid status
-						String sts = autos.get(0).getValidationStatus();
-						logger.info("canRemove() non-invalid validation status " + sts); 
-						// Notified status can be removed
-						can = PortalConstant.VALIDATION_STATUS_NOTIFIED.equalsIgnoreCase(sts);
-					} else { // completed account			
-						can = true;
+					if(StringUtil.isBlank(acnt.getStage())) {
+						List<ReferrerAutoValidationEntity> autos = autoValidationRepository.findByUidAndValidationStatusNot(acnt.getUid(), PortalConstant.VALIDATION_STATUS_INVALID);
+						if(autos.size() > 0) { // should be only one valid status
+							String sts = autos.get(0).getValidationStatus();
+							logger.info("canRemove() non-invalid validation status " + sts); 
+							// Notified status can be removed
+							can = PortalConstant.VALIDATION_STATUS_NOTIFIED.equalsIgnoreCase(sts);
+						} else { // completed account			
+							can = true;
+						}
+					} else {
+						// Still finalizing
+						logger.info("Referrer {} is finalising, should use approvre tool to decline.", acnt.getDn());
+						can = false;
 					}
 				} else if (i == 4) { // Inactive already
 					can = false;
@@ -249,5 +269,21 @@ public class AccountDeactivationService extends ABasicAccountService {
 			}
 		}
 		return type;
+	}
+	
+	public void doAudit(final List<GlobalLdapAccount> list, final String username) {
+		for(GlobalLdapAccount acnt : list) {
+			ReferrerAccountDeactivationAuditEneity entity = new ReferrerAccountDeactivationAuditEneity();
+			entity.setCommand("deactivate");
+			entity.setAuditAt(new Date());
+			entity.setUsername(username);
+			entity.setUid(acnt.getUid());
+			entity.setAhpra(acnt.getAhpra());
+			entity.setDn(acnt.getDn());
+			entity.setGivenName(acnt.getGivenName());
+			entity.setMail(acnt.getMail());
+			entity.setSn(acnt.getSn());
+			auditRepository.save(entity);
+		}
 	}
 }

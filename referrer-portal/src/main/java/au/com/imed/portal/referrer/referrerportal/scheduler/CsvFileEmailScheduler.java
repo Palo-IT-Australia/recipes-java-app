@@ -80,29 +80,57 @@ public class CsvFileEmailScheduler {
 	}
 	
 	/**
-	 * Weekly csv files
+	 * Weekly csv files. Split into Audit and doctors to avoid max size attachment limit
 	 */
-	@Scheduled(cron = "0 0 2 ? * MON")
-	public void scheduleWeeklyCsvFileEmail() {
-		Map<String, File> fileMap = new HashMap<>(3);
+	private static final String [] EMAILS_AUDIT = new String [] {"Alexandra.Arter@i-med.com.au", "Giles.Cox@i-med.com.au", "Julie-Ann.Evans@i-med.com.au", "tania.armstrong@i-med.com.au", "Georgia.McMeniman@i-med.com.au"};
+	private static final String SUBJECT_AUDIT = "IMED Online 2.0 Audit";
+	private static final String MESSAGE_AUDIT = "Please find attached csv files";
+	
+	@Scheduled(cron = "0 30 1 ? * MON")
+	public void scheduleWeeklyCsvFileEmailAudit() {
+		Map<String, File> fileMap = new HashMap<>(1);
 		try {
 			if(SCHEDULER_SERVER_NAME.equals(InetAddress.getLocalHost().getHostName())) { 
-				logger.info("scheduleWeeklyCsvFileEmail() starting...");
-				File refFile = ldapCsvCreationService.createCsv(true);
-				File prefFile = preferencesCsvService.createCsv();
+				logger.info("scheduleWeeklyCsvFileEmailAudit() starting...");
 				File auditFile = auditCsvService.createCsv();
 				
 				fileMap.put(FILE_AUDIT, auditFile);
+				logger.info("fileMap : " + fileMap);
+				
+				if("prod".equals(ACTIVE_PROFILE)) {
+					mailService.sendWithFileMap(EMAILS_AUDIT, 
+							SUBJECT_AUDIT, MESSAGE_AUDIT, fileMap);
+				} else {
+					mailService.sendWithFileMap(new String[] {"Hidehiro.Uehara@i-med.com.au"}, 
+							SUBJECT_AUDIT, MESSAGE_AUDIT, fileMap);
+				}
+			}
+		} catch(Exception ex) {
+			ex.printStackTrace();
+		} finally {
+			deleteTempFiles(fileMap);
+		}
+	}
+	
+	@Scheduled(cron = "0 0 2 ? * MON")
+	public void scheduleWeeklyCsvFileEmailReferrer() {
+		Map<String, File> fileMap = new HashMap<>(3);
+		try {
+			if(SCHEDULER_SERVER_NAME.equals(InetAddress.getLocalHost().getHostName())) { 
+				logger.info("scheduleWeeklyCsvFileEmailReferrer() starting...");
+				File refFile = ldapCsvCreationService.createCsv(true);
+				File prefFile = preferencesCsvService.createCsv();
+				
 				fileMap.put(FILE_PREFERENCES, prefFile);
 				fileMap.put(FILE_REFERRERS, refFile);
 				logger.info("fileMap : " + fileMap);
 				
 				if("prod".equals(ACTIVE_PROFILE)) {
-					mailService.sendWithFileMap(new String [] {"Alexandra.Arter@i-med.com.au", "Giles.Cox@i-med.com.au", "Julie-Ann.Evans@i-med.com.au", "tania.armstrong@i-med.com.au", "Georgia.McMeniman@i-med.com.au"}, 
-							"IMED Online 2.0 Audit", "Please find attached csv files", fileMap);
+					mailService.sendWithFileMap(EMAILS_AUDIT, 
+							SUBJECT_AUDIT, MESSAGE_AUDIT, fileMap);
 				} else {
 					mailService.sendWithFileMap(new String[] {"Hidehiro.Uehara@i-med.com.au"}, 
-							"IMED Online 2.0 Audit", "Please find attached csv files", fileMap);
+							SUBJECT_AUDIT, MESSAGE_AUDIT, fileMap);
 				}
 			}
 		} catch(Exception ex) {
