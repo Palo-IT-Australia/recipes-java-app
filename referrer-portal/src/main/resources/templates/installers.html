@@ -64,21 +64,25 @@
 	text-align: center;
 }
 </style>
-										<div class="colour-light-grey section w-section">
+										<div style="padding-top:15px;" class="colour-light-grey section w-section">
 											<div class="wrapper" style="padding-top: 10px;">
 												<div class="profiles row w-row">
 													<div
-														class="col-1-4 w-col w-col-3 w-col-medium-6 w-col-small-6 ng-scope">
+														class="col-1-4 w-col w-col-6 ng-scope">
 														<div class="hr wrapper-card">
 															<div class="profile-image-wrapper">
 																<div class="profile-container">
-																	<img
-																		src="images/public/phone_filter.jpg">
+																	<img th:src="@{images/public/personlaptop.jpg}">
 																</div>
 																<div class="hr wrapper-profile">
+																	<h3>Installers for downloading InteleViewer</h3>
+																	<a href="https://connections.i-medonline.com.au/images/imo/InteleViewer_App_Userguide.pdf" target="_blank" class="link-info link-underline">InteleViewer App User Guide (PDF)</a>
+																	<a href="https://connections.i-medonline.com.au/images/imo/IMED Online install guide.pdf" target="_blank" class="link-info link-underline">Windows Installation Guide</a>
+																	<a href="https://connections.i-medonline.com.au/images/imo/InteleViewer 64-Bit.zip" target="_blank" class="link-info link-underline">Windows 64-bit Bundle</a>
+																	<a href="https://connections.i-medonline.com.au/images/imo/MAC_Download_Instructions.pdf" target="_blank" class="link-info link-underline">Mac Download Instructions (PDF)</a>
+																	<a href="https://connections.i-medonline.com.au/images/imo/RIL+I-MED+Online+Mac+instructions+combined.pdf" target="_blank" class="link-info link-underline">MAC Instructions (PDF)</a>
+																	<a href="https://pacs.ril.com.au/InteleViewer-tracks/enterprise/macosx/InteleViewer.dmg" target="_blank" class="link-info link-underline">MAC Installer (ZIP 31MB)</a>
 																	<div class="text-tag">
-																		The App 'Filter' allows you to search by patient, and
-																		sort by alpha, date or time period.<br>&nbsp;<br>
 																	</div>
 																</div>
 															</div>
@@ -86,17 +90,16 @@
 
 													</div>
 													<div
-														class="col-1-4 w-col w-col-3 w-col-medium-6 w-col-small-6 ng-scope">
+														class="col-1-4 w-col w-col-6 ng-scope">
 														<div class="hr wrapper-card">
 															<div class="profile-image-wrapper">
 																<div class="profile-container">
-																	<img
-																		src="images/public/phone_orders.jpg">
+																	<img th:src="@{images/public/docipad.jpg}">
 																</div>
 																<div class="hr wrapper-profile">
+																	<h3><a th:href="@{/apply}" class="link-info link-underline">Create an I-MED Online account</a></h3>
 																	<div class="text-tag">
-																		Access all patient reports and images linked to you.
-																		Refine your search using the 'Filter' icon.<br>&nbsp;<br>
+																		Don't have an account? Register now for I-MED Online here, for easy and fast access to reports and images.<br>&nbsp;<br>
 																	</div>
 																</div>
 															</div>
@@ -104,103 +107,12 @@
 
 													</div>
 
-													<div
-														class="col-1-4 w-col w-col-3 w-col-medium-6 w-col-small-6 ng-scope">
-														<div class="hr wrapper-card">
-															<div class="profile-image-wrapper">
-																<div class="profile-container">
-																	<img
-																		src="images/public/report_detail.jpg">
-																</div>
-																<div class="hr wrapper-profile">
-																	<div class="text-tag">
-																		Use the 'Action' button then the 'Arrow' button to
-																		click through an image series.<br>&nbsp;<br>
-																	</div>
-																</div>
-															</div>
-														</div>
-													</div>
-													<div
-														class="col-1-4 w-col w-col-3 w-col-medium-6 w-col-small-6 ng-scope">
-														<div style="overflow: hidden;" class="hr wrapper-card">
-															<div class="profile-image-wrapper">
-																<div class="profile-container">
-																	<img
-																		src="images/public/report_detail_scroll.jpg"
-																		alt="" title="">
-																</div>
-																<div class="hr wrapper-profile">
-																	<div class="text-tag">Scroll through images, use
-																		two finger "pinch" to zoom or shrink screen, and two
-																		fingers to drag image around screen.</div>
-																</div>
-															</div>
-														</div>
-													</div>
 												</div>
 											</div>
 										</div>
 										<!-- gray bg-->
 
-										
-										<!-- wrapper 3-->
-
-				
-
-				
-
 									</div>
-
-
-									<style>
-.existing-tooltip {
-	position: relative;
-	display: inline-block;
-}
-
-.existing-tooltip .tooltiptext {
-	visibility: hidden;
-	width: 200px;
-	background-color: #888;
-	color: #fff;
-	text-align: center;
-	padding: 5px 0;
-	border-radius: 6px;
-	position: absolute;
-	z-index: 1;
-	bottom: 125%;
-	left: 50%;
-	margin-left: -60px;
-	/* Fade in tooltip */
-	opacity: 0;
-	transition: opacity 0.3s;
-}
-
-.existing-tooltip:hover .tooltiptext {
-	visibility: visible;
-	opacity: 1;
-}
-</style>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 									<div class="wpthemeClear"></div>
@@ -209,7 +121,6 @@
 						</div>
 					</div>
 				</div>
-				<div class="wpthemeClear"></div>
 			</div>
 		</div>
 	</div>
