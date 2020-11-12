@@ -563,10 +563,11 @@ public class VisageController {
 							ex.printStackTrace();
 						}
 						responceEntity = new ResponseEntity<String>(str, entity.getHeaders(), entity.getStatusCode());
+						logger.info("/report valid complete report {}", order.getReportUri());
 					}
 					else
 					{
-						logger.info("Not complete report");
+						logger.info("/report Not complete report. Returning --Report not completed-- alert HTML");
 						responceEntity = new ResponseEntity<String>(REPORT_NOT_COMPLTED_ALERT_HTML, HttpStatus.OK);
 					}
 					auditService.doAudit("Report", userName, paramMap, order);
@@ -633,19 +634,23 @@ public class VisageController {
 			if (userName != null && preferenceService.isTermsAccepted(userName)) {
 				OrderDetails order = obtainOrderDetails(userName, paramMap);
 				if (order != null && OrderStatusConst.STATUS_GROUP_COMPLETE.equalsIgnoreCase(order.getStatus())) {
-					logger.info("/reportPdf Order status " + order.getStatus());
+					logger.info("/reportPdf Order status {}, acc# {}, uri {}", 
+							order.getStatus(), order.getAccessionNumber(), order.getReportUri());
 					paramMap.put("reportUri", order.getReportUri());
 					auditService.doAudit("ReportPdf", userName, paramMap, order);
 					syslog.log(ReferrerEvent.REPORT_DOWNLOAD, "/reportPdf", userName, paramMap, order);
 					entity = pdfReportService.doRestGet(userName, paramMap, byte[].class);
 				} else {
-					logger.info("/reportPdf order not complete or report uri is invalid.");
+					logger.info("/reportPdf Returning error as this order is not complete or report uri is invalid. " 
+							+ (order != null ? "Order details : Acc# = " + order.getAccessionNumber() 
+							+ ", Status = " + order.getStatus() + ", User = " + userName : ""));
 					entity = new ResponseEntity<byte[]>(HttpStatus.BAD_REQUEST);
 				}
 			}
 		} else {
 			entity = new ResponseEntity<>(HttpStatus.TOO_MANY_REQUESTS);
 		}
+		logger.info("/reportPdf returning http code {}", entity.getStatusCodeValue());
 		return entity;
 	}
 
