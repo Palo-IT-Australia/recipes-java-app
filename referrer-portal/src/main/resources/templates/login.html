@@ -4,56 +4,59 @@
     <title id="pageTitle">Sign in</title>
 </head>
 <body>
-	<div th:replace="fragments/layout/header :: header"></div>
-	<div id="loginAppDiv" class="colour-light-grey section ng-scope">
-		<h1>Sign in to I-MED Online 2.0</h1>
-		<div class="half-rule"></div>
-   		<div class="wrapper">
-   			<img src="images/public/evinimol2.jpg">
-		    <br>
-		    <div th:if="${message}" class="red-alert-bar" th:text="${message}"></div>
-		    <div class="row w-row">
-		       <div class="col-1-2 col-1-2-padding-left w-col w-col-6 col-centre"> 
-				<form name="f" th:action="@{/login}" method="post">  
-	            <div th:if="${param.error}" class="alert alert-danger ng-binding ng-hide" role="alert">    
-	                Invalid user name or password.
-	            </div>
-	            <div th:if="${param.logout}" class="alert alert-info ng-binding ng-hide" role="alert"> 
-	                You have been logged out.
-	            </div>
-	            <input class="field-text w-input" placeholder="User ID" type="text" onChange="document.getElementById('username').value=this.value.replace('@','-!-');"/>
-	            <input type="hidden" id="username" name="username"/>        
-	            <input class="field-text w-input" placeholder="Password" type="password" id="password" name="password"/>    
-	            <div class="form-actions">
-	                <button type="submit" class="link-info button-primary w-button full-width">Sign in</button>
-	            </div>
-		    </form>
-		    
-		    <div class="row w-row">
-	           <div class="col-no-padding-top w-col w-col-12 w-col-stack">
-	             <a th:href="@{/reset}" class="link-info link-underline">Forgot password?</a>
-	           </div>
-	         </div>
-	
-	         <div class="row w-row">
-	           <div class="col-no-padding-top w-col w-col-12 w-col-stack">
-	             <a th:href="@{/apply}" class="link-info link-underline">Don't have an account? Create one here.</a>
-	           </div>
-	         </div>
-	         
-	         <!-- Intelerad -->
-	         <div class="row w-row" style="margin-top:35px;">
-	           <div class="col-no-padding-top w-col w-col-12 w-col-stack">
-	             <a href="https://pacs.i-med.com.au/Portal/app#/" class="link-info link-underline">Access InteleConnect EV</a>
-	             <img src="images/public/pacslarge.jpg">
-	             <a th:href="@{/installers}" class="link-info button-primary w-button full-width">Installers for downloading InteleViewer for Mac and Windows</a>
-	           </div>
-	         </div>
-	         
-	         </div>
-	         </div>
-	    </div>
-	 </div>
-	<div th:replace="fragments/layout/footer :: footer"></div>
+    <div th:replace="fragments/layout/header :: header"></div>
+    <div id="loginAppDiv" class="colour-light-grey section ng-scope">
+        
+        <div class="wrapper">
+            
+            <div class="row w-row">
+                <div class="col-1-2 w-col w-col-6">
+                		<h1>Sign in to I-MED Online 2.0</h1>
+        						<div class="half-rule"></div>
+                    <form name="f" th:action="@{/login}" method="post">
+                        <div th:if="${param.error}" class="alert alert-danger ng-binding ng-hide" role="alert">
+                            Invalid user name or password.
+                        </div>
+                        <div th:if="${param.logout}" class="alert alert-info ng-binding ng-hide" role="alert">
+                            You have been logged out.
+                        </div>
+                        <input class="field-text w-input" placeholder="User ID" type="text" onChange="document.getElementById('username').value=this.value.replace('@','-!-');" />
+                        <input type="hidden" id="username" name="username" />
+                        <input class="field-text w-input" placeholder="Password" type="password" id="password" name="password" />
+                        <div class="form-actions">
+                            <button type="submit" class="link-info button-primary w-button full-width">Sign in</button>
+                        </div>
+                    </form>
+
+                    <div class="row w-row">
+                        <div class="col-no-padding-top w-col w-col-12 w-col-stack">
+                            <a th:href="@{/reset}" class="link-info link-underline">Forgot password?</a>
+                        </div>
+                    </div>
+
+                    <div class="row w-row">
+                        <div class="col-no-padding-top w-col w-col-12 w-col-stack">
+                            <a th:href="@{/apply}" class="link-info link-underline">Don't have an account? Create one here.</a>
+                        </div>
+                    </div>
+                    
+                </div>
+                <div class="col-1-2 w-col w-col-6">
+                	<!-- Intelerad -->
+                	<h1>Access InteleConnect EV</h1>
+        					<div class="half-rule"></div>
+                  <div class="col-no-padding-top w-col w-col-12 w-col-stack">
+                      <a href="https://pacs.i-med.com.au/Portal/app#/">
+                      	<img src="images/public/pacslarge.jpg" />
+                      </a>
+                      <a th:href="@{/installers}" class="link-info button-primary w-button full-width">Installers for downloading InteleViewer for Mac and Windows</a>
+                  </div>
+                </div>
+            </div>
+            <img src="images/public/evinimol2.jpg" /><br/>
+            <div th:if="${message}" class="red-alert-bar" th:text="${message}"></div>
+        </div>
+    </div>
+    <div th:replace="fragments/layout/footer :: footer"></div>
 </body>
 </html>
