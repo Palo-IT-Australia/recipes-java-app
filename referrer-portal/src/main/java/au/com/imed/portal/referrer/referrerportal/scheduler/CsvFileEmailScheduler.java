@@ -92,11 +92,11 @@ public class CsvFileEmailScheduler {
 		try {
 			if(SCHEDULER_SERVER_NAME.equals(InetAddress.getLocalHost().getHostName())) { 
 				logger.info("scheduleWeeklyCsvFileEmailAudit() starting...");
-				File auditFile = auditCsvService.createCsv();
-				
-				fileMap.put(FILE_AUDIT, auditFile);
+				File auditFile = auditCsvService.createCsvZip();
+
+				fileMap.put(FILE_AUDIT + ".zip", auditFile);
 				logger.info("fileMap : " + fileMap);
-				
+
 				if("prod".equals(ACTIVE_PROFILE)) {
 					mailService.sendWithFileMap(EMAILS_AUDIT, 
 							SUBJECT_AUDIT, MESSAGE_AUDIT, fileMap);
