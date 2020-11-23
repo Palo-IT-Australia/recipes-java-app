@@ -630,6 +630,11 @@ public class ReferrerPortalMvcController {
 		return "about";
 	}
 	
+	@GetMapping("/installers")
+	public String getIntelerad() {
+		return "installers";
+	}
+	
 	@GetMapping("/support")
 	public String getSupport() {
 		return "support";
