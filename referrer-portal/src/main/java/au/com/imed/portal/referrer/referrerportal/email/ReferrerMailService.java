@@ -40,6 +40,8 @@ import au.com.imed.portal.referrer.referrerportal.jpa.audit.entity.ReferrerProvi
 import au.com.imed.portal.referrer.referrerportal.model.AddPractice;
 import au.com.imed.portal.referrer.referrerportal.model.AutoValidationResult;
 import au.com.imed.portal.referrer.referrerportal.model.ExternalUser;
+import au.com.imed.portal.referrer.referrerportal.model.LdapUserDetails;
+import au.com.imed.portal.referrer.referrerportal.model.RetrieveModel;
 import au.com.imed.portal.referrer.referrerportal.model.StageUser;
 import au.com.imed.portal.referrer.referrerportal.security.DetailedLdapUserDetails;
 
@@ -56,6 +58,9 @@ public class ReferrerMailService {
   private final static String TEMPLATE_APPROVED = "tempApproveEmail.html";
   private final static String TEMPLATE_MIDDLE_APPROVED = "tempApproveEmailMiddle.html";
   private final static String TEMPLATE_END_APPROVED = "tempApproveEmailEnd.html";
+  private final static String TEMPLATE_START_RETRIEVE ="tempRetrieveStart.html";
+  private final static String TEMPLATE_MIDDLE_RETRIEVE ="tempRetrieveMiddle.html";
+  private final static String TEMPLATE_END_RETRIEVE ="tempRetrieveEnd.html";
   private final static String NL = "\n";
 	private static final ClassPathResource IMED_BANNER = new ClassPathResource("static/images/public/banner.jpg");
 	private static final ClassPathResource IMED_REQUEST_FOR_IMG = new ClassPathResource("static/images/public/Request_for_Imaging.png");
@@ -644,4 +649,22 @@ public class ReferrerMailService {
     sendMail(UserMessageUtil.ADMIN_USER_EMAIL, "Account Registration Error", UserMessageUtil.getRegistrationErrorBody(e,stage,user));
   }
 
+  /**
+   * Retrieve user id
+   */
+  public void emailRetrieved(final String to, final LdapUserDetails detail) {
+  	String template = this.readMailTemplate(TEMPLATE_START_RETRIEVE);
+  	String tempmiddle = this.readMailTemplate(TEMPLATE_MIDDLE_RETRIEVE);
+  	String tempend = this.readMailTemplate(TEMPLATE_END_RETRIEVE);
+  	final String htmlBody = template + " " + detail.getGivenName() + " " + detail.getSurname() + tempmiddle + detail.getUid() + tempend;
+  	this.sendHtmlMail(to, FROM_ADDRESS, "Retrieve I-MED Online 2.0 User ID", htmlBody, IMG_CID_MAP_APPROVED);
+  }
+  
+  public void emailFailedRetrieveAttempt(final String [] tos, final RetrieveModel model) {
+  	String subject = "I-MED Online 2.0 Failed attempt to retrieve user id - " + model.getEmail() + " " + model.getAhpra();
+  	String body = "A referrer failed to retrieve user id with the following information.\n\n"
+  			+ "Email: " + model.getEmail() + "\n\n"
+  			+ "AHPRA#: " + model.getAhpra();
+  	sendMailWithCc(tos, new String [] {}, subject, body);
+  }
 }

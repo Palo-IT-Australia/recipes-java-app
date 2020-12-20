@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.tomcat.util.http.fileupload.IOUtils;
+import org.jsoup.helper.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,8 +52,10 @@ import au.com.imed.portal.referrer.referrerportal.model.AddPractice;
 import au.com.imed.portal.referrer.referrerportal.model.ChangeModel;
 import au.com.imed.portal.referrer.referrerportal.model.DetailModel;
 import au.com.imed.portal.referrer.referrerportal.model.ExternalUser;
+import au.com.imed.portal.referrer.referrerportal.model.LdapUserDetails;
 import au.com.imed.portal.referrer.referrerportal.model.ResetConfirmModel;
 import au.com.imed.portal.referrer.referrerportal.model.ResetModel;
+import au.com.imed.portal.referrer.referrerportal.model.RetrieveModel;
 import au.com.imed.portal.referrer.referrerportal.reportaccess.ReportAccessModel;
 import au.com.imed.portal.referrer.referrerportal.reportaccess.ReportAccessService;
 import au.com.imed.portal.referrer.referrerportal.rest.electronicreferral.model.ElectronicReferralForm;
@@ -373,7 +376,43 @@ public class ReferrerPortalMvcController {
 		model.addAttribute("practiceSuccessMsg", "Requested to add practice successfully. It takes up to two business days to complete the process.");
 		return "profile";
 	}
-	
+
+	@GetMapping("/retrieve")
+	public String getRetrieve(Model model) {
+		model.addAttribute(MODEL_KEY_FORM_MODEL, new RetrieveModel());
+		return "retrieve";
+	}
+
+	@PostMapping("/retrieve")
+	public String postRetrieve(@ModelAttribute RetrieveModel retrieveModel, Model model) {
+		logger.info("/retrieve {}", retrieveModel);
+		try {
+			if(StringUtil.isBlank(retrieveModel.getAhpra()) || StringUtil.isBlank(retrieveModel.getEmail())) {
+				model.addAttribute(MODEL_KEY_ERROR_MSG, "Invalid AHPRA number or email address.");				
+			} else {
+				List<LdapUserDetails> list = accountService.findReferrerAccountsByEmailAndAhpra(retrieveModel.getEmail(), retrieveModel.getAhpra());
+				if(list.size() == 1) {
+					LdapUserDetails referrer = list.get(0);
+					logger.info("/retrieve successfully found UID : " + referrer.getUid());
+					String to = "prod".equals(ACTIVE_PROFILE) ? referrer.getEmail() : "Hidehiro.Uehara@i-med.com.au";
+					emailService.emailRetrieved(to, referrer);
+					model.addAttribute(MODEL_KEY_SUCCESS_MSG, "Please check your email for account retrieval details.");
+				} else {
+					logger.info("/retrieve failed attempt. # of account " + list.size());
+					String [] tos = "prod".equals(ACTIVE_PROFILE) ? new String [] {"IT.Servicedesk@i-med.com.au"} : new String [] {"Hidehiro.Uehara@i-med.com.au"};
+					emailService.emailFailedRetrieveAttempt(tos, retrieveModel);
+					String reason = list.size() > 1 ? "Multiple accounts are found" : "No account is found";
+					model.addAttribute(MODEL_KEY_ERROR_MSG, reason + " with this AHPRA # and email address. Please contact our Service Desk on 1300 147 852 or email:  IT.Servicedesk@i-med.com.au to retrieve your User ID");
+				}
+			}
+		} catch(Exception exp) {
+			model.addAttribute(MODEL_KEY_ERROR_MSG, "Unexpedted exception occurred.");
+			exp.printStackTrace();
+		}
+		model.addAttribute(MODEL_KEY_FORM_MODEL, new ResetModel());
+		return "retrieve";
+	}
+
 	@GetMapping("/reset")
 	public String getReset(Model model) {
 		model.addAttribute(MODEL_KEY_FORM_MODEL, new ResetModel());
