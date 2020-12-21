@@ -419,7 +419,7 @@ public class ReferrerPortalMvcController {
 			model.addAttribute(MODEL_KEY_ERROR_MSG, "Unexpedted exception occurred.");
 			exp.printStackTrace();
 		}
-		model.addAttribute(MODEL_KEY_FORM_MODEL, new ResetModel());
+		model.addAttribute(MODEL_KEY_FORM_MODEL, retrieveModel);
 		return "retrieve";
 	}
 
