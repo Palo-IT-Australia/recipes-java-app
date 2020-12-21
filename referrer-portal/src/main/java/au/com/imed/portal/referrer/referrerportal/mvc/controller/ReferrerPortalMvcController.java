@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLEncoder;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ForkJoinPool;
@@ -59,6 +60,7 @@ import au.com.imed.portal.referrer.referrerportal.model.RetrieveModel;
 import au.com.imed.portal.referrer.referrerportal.reportaccess.ReportAccessModel;
 import au.com.imed.portal.referrer.referrerportal.reportaccess.ReportAccessService;
 import au.com.imed.portal.referrer.referrerportal.rest.electronicreferral.model.ElectronicReferralForm;
+import au.com.imed.portal.referrer.referrerportal.rest.visage.service.AuditService;
 import au.com.imed.portal.referrer.referrerportal.security.DetailedLdapUserDetails;
 import au.com.imed.portal.referrer.referrerportal.service.ConfirmProcessDataService;
 import au.com.imed.portal.referrer.referrerportal.service.EnvironmentVariableService;
@@ -114,6 +116,9 @@ public class ReferrerPortalMvcController {
 	
 	@Autowired
 	private ElectronicReferralDownloadService electronicReferralDownloadService;
+	
+	@Autowired
+	private AuditService auditService;
 
 	@GetMapping("/login")
 	public ModelAndView getLogin() {
@@ -396,6 +401,11 @@ public class ReferrerPortalMvcController {
 					logger.info("/retrieve successfully found UID : " + referrer.getUid());
 					String to = "prod".equals(ACTIVE_PROFILE) ? referrer.getEmail() : "Hidehiro.Uehara@i-med.com.au";
 					emailService.emailRetrieved(to, referrer);
+					// Audit
+					Map<String, String> params = new HashMap<>(2);
+					params.put("email", referrer.getEmail());
+					params.put("ahpra", referrer.getAhpra());
+					auditService.doAudit("UserID", referrer.getUid(), params);
 					model.addAttribute(MODEL_KEY_SUCCESS_MSG, "Please check your email for account retrieval details.");
 				} else {
 					logger.info("/retrieve failed attempt. # of account " + list.size());
