@@ -412,7 +412,7 @@ public class ReferrerPortalMvcController {
 					String [] tos = "prod".equals(ACTIVE_PROFILE) ? new String [] {"IT.Servicedesk@i-med.com.au"} : new String [] {"Hidehiro.Uehara@i-med.com.au", "erick.doust@i-med.com.au"};
 					emailService.emailFailedRetrieveAttempt(tos, retrieveModel);
 					String reason = list.size() > 1 ? "Multiple accounts are found" : "No account is found";
-					model.addAttribute(MODEL_KEY_ERROR_MSG, reason + " with this AHPRA # and email address. Please contact our Service Desk on 1300 147 852 or email:  IT.Servicedesk@i-med.com.au to retrieve your User ID");
+					model.addAttribute(MODEL_KEY_ERROR_MSG, reason + " with this AHPRA # and email address. Please contact our Service Desk on 1300 147 852 or email:  IT.Servicedesk@i-med.com.au for assistance.");
 				}
 			}
 		} catch(Exception exp) {
