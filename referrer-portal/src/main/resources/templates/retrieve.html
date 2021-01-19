@@ -1,0 +1,70 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragments/layout/head :: head">
+    <title id="pageTitle">Retrieve</title>
+</head>
+<body>
+	<script th:src="@{/js/public/angular.min.js}"></script>
+
+	<div th:replace="fragments/layout/header :: header"></div>
+	
+	<style>
+	    .fieldErrorMsg, .mandate-asta {
+	    	color: red;
+	    }
+	    a.disabled, a.disabled:hover, button:disabled, button:disabled:hover {
+			background-color: #bfbfbf;
+			border: 1px solid #bfbfbf;	
+			cursor: not-allowed;
+	    }
+	    .button-primary.w-button.enabled {
+	    	background-color: #004e9a;
+	    	border: 1px solid #004e9a;
+	    }
+	    .button-primary.w-button.enabled:hover {
+	    	background-color: #105eaa;
+	    }
+	</style>
+
+<div ng-app="retapp" ng-controller="retctrl">
+	<div class="index section w-section">
+		<div class="wrapper">
+	    <h1>Retrieve Your User ID</h1>
+			<div class="half-rule"></div>
+			<div class="image-procedures section"></div>	
+			<p class="intro-text">Enter your registered email address and AHPRA number to retrieve your user ID.</p>    
+		
+			<div class="row w-row">
+		  	<div class="col-1-2 col-1-2-padding-left w-col w-col-6 col-centre">
+		  		<div ng-show="errorMsg" class="alert alert-danger ng-binding ng-hide" role="alert">    
+            Error: {{errorMsg}}
+          </div>
+          <div ng-show="successMsg" class="alert alert-success ng-binding ng-hide" role="alert"> 
+	          {{successMsg}}
+         	</div>
+		  	
+					<form name="createForm" th:action="@{/retrieve}" th:object="${fmodel}" method="post" novalidate>
+		      	<input th:field="*{email}" class="field-text w-input" data-name="email" id="email" maxlength="50" name="email" placeholder="Email address" required="required" ng-model="createUser.email" ng-required="true" ng-pattern="/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/" type="email"></input>
+			      <p class="fieldErrorMsg" ng-show="createForm.email.$invalid && createForm.email.$touched">Valid email address is required</p>
+			      <input th:field="*{ahpra}" class="field-text w-input" data-name="ahpra" id="ahpra" maxlength="13" name="ahpra" placeholder="AHPRA #" required="required" ng-model="createUser.ahpra" ng-required="true" type="text" ng-pattern="/^[A-Z]{3}[0-9]{10}$/"></input>
+			      <p class="fieldErrorMsg" ng-show="createForm.ahpra.$invalid && createForm.ahpra.$touched">Valid AHPRA number is required</p>
+		        <button type="submit" class="link-info button-primary w-button full-width" ng-disabled="!createForm.$dirty || !createForm.$valid">Submit</button>              	
+		      </form>
+		   	</div>
+		  </div> 
+		</div> <!-- wrapper --> 
+	</div> 	 <!-- retctrl -->
+</div> <!-- app -->
+
+<script th:inline="javascript">
+angular.module('retapp',[])
+.controller('retctrl', function ($scope, $filter, $sce, $http) {
+	$scope.createUser = /*[[${fmodel}]]*/ null;
+	$scope.successMsg = /*[[${successMsg}]]*/ null;
+	$scope.errorMsg = /*[[${errorMsg}]]*/ null;
+});
+</script>
+	 
+	<div th:replace="fragments/layout/footer :: footer"></div>
+</body>
+</html>

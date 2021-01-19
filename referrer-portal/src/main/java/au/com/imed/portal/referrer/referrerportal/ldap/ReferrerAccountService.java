@@ -338,6 +338,14 @@ public class ReferrerAccountService extends ABasicAccountService {
 		return getReferrerLdapTemplate().search(query, new LdapUserDetailsUserAttributeMapper());
 	}
 	
+	public List<LdapUserDetails> findReferrerAccountsByEmailAndAhpra(final String email, final String ahpra) throws Exception {
+		LdapQuery query = query()
+				.attributes("ibm-pwdAccountLocked", "cn", "uid", "givenName", "sn", "mail", "ahpra", "createTimeStamp", "BusinessUnit", "employeeType", "homePhone", "mobile", "physicalDeliveryOfficeName")
+				.where("mail").is(email)
+				.and("ahpra").is(ahpra);
+		return getReferrerLdapTemplate().search(query, new LdapUserDetailsUserAttributeMapper());
+	}
+	
 	public List<Name> findImedPacsUsersDnListByFirstAndLastNames(final String firstName, final String lastName) throws Exception {
 		return findDnListByFirstAndLastNames(getImedPacsLdapTemplate(), firstName, lastName);
 	}
