@@ -340,9 +340,10 @@ public class ReferrerAccountService extends ABasicAccountService {
 	
 	public List<LdapUserDetails> findReferrerAccountsByEmailAndAhpra(final String email, final String ahpra) throws Exception {
 		LdapQuery query = query()
-				.attributes("ibm-pwdAccountLocked", "cn", "uid", "givenName", "sn", "mail", "ahpra", "createTimeStamp", "BusinessUnit", "employeeType", "homePhone", "mobile", "physicalDeliveryOfficeName")
+				.attributes(PortalConstant.PARAM_ATTR_FINALIZING_PAGER, "ibm-pwdAccountLocked", "cn", "uid", "givenName", "sn", "mail", "ahpra", "createTimeStamp", "BusinessUnit", "employeeType", "homePhone", "mobile", "physicalDeliveryOfficeName")
 				.where("mail").is(email)
-				.and("ahpra").is(ahpra);
+				.and("ahpra").is(ahpra)
+				.and(PortalConstant.PARAM_ATTR_FINALIZING_PAGER).is("");
 		return getReferrerLdapTemplate().search(query, new LdapUserDetailsUserAttributeMapper());
 	}
 	
