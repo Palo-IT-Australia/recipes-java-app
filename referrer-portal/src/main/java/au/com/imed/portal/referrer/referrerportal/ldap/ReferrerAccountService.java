@@ -343,7 +343,8 @@ public class ReferrerAccountService extends ABasicAccountService {
 				.attributes(PortalConstant.PARAM_ATTR_FINALIZING_PAGER, "ibm-pwdAccountLocked", "cn", "uid", "givenName", "sn", "mail", "ahpra", "createTimeStamp", "BusinessUnit", "employeeType", "homePhone", "mobile", "physicalDeliveryOfficeName")
 				.where("mail").is(email)
 				.and("ahpra").is(ahpra)
-				.and(PortalConstant.PARAM_ATTR_FINALIZING_PAGER).is("");
+				.and(PortalConstant.PARAM_ATTR_FINALIZING_PAGER).not().is(PortalConstant.PARAM_ATTR_VALUE_FINALIZING_PAGER)
+				.and(PortalConstant.PARAM_ATTR_FINALIZING_PAGER).not().is(PortalConstant.PARAM_ATTR_VALUE_VALIDATING_PAGER);
 		return getReferrerLdapTemplate().search(query, new LdapUserDetailsUserAttributeMapper());
 	}
 	
