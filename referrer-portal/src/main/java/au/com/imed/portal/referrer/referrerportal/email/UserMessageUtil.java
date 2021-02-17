@@ -8,6 +8,7 @@ import au.com.imed.portal.referrer.referrerportal.ahpra.AhpraDetails;
 import au.com.imed.portal.referrer.referrerportal.ahpra.AhpraDetails.RegistrationTypeSpecialist;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.entity.CrmProfileEntity;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.entity.ReferrerActivationEntity;
+import au.com.imed.portal.referrer.referrerportal.jpa.audit.entity.ReferrerProviderEntity;
 import au.com.imed.portal.referrer.referrerportal.model.ExternalPractice;
 import au.com.imed.portal.referrer.referrerportal.model.ExternalUser;
 import au.com.imed.portal.referrer.referrerportal.model.LdapUserDetails;
@@ -97,6 +98,60 @@ public class UserMessageUtil {
     sb.append("Opt to go filmless: " + imedExternalUser.getFilmless() + "\n");
     sb.append("\n");
   	return sb.toString();
+  }
+  
+  static public String buildStageUserDetailsContent(StageUser user) {
+    StringBuffer sb = new StringBuffer();
+    sb.append("User ID: ");
+    sb.append(user.getUid());
+    sb.append("\n");
+    sb.append("AHPRA #: ");
+    sb.append(user.getAhpra());
+    sb.append("\n");
+    sb.append("First Name: ");
+    sb.append(user.getGivenName());
+    sb.append("\n");
+    sb.append("Last Name: ");
+    sb.append(user.getSurname());
+    sb.append("\n");
+    sb.append("Mobile: ");
+    sb.append(user.getMobile());
+    sb.append("\n");
+    sb.append("Email: ");
+    sb.append(user.getEmail());
+    sb.append("\n");
+    sb.append("\n");
+    sb.append("<Practices>");
+    sb.append("\n");    
+    for(ReferrerProviderEntity prov : user.getProviders()) {
+      sb.append("Name: ");
+      sb.append(prov.getPracticeName());
+      sb.append("\n");
+      sb.append("Street: ");
+      sb.append(prov.getPracticeStreet());
+      sb.append("\n");
+      sb.append("Suburb: ");
+      sb.append(prov.getPracticeSuburb());
+      sb.append("\n");
+      sb.append("State: ");
+      sb.append(prov.getPracticeState());
+      sb.append("\n");
+      sb.append("Postcode: ");
+      sb.append(prov.getPracticePostcode());
+      sb.append("\n");
+      sb.append("Provider #: ");
+      sb.append(prov.getProviderNumber());
+      sb.append("\n");
+      sb.append("Phone: ");
+      sb.append(prov.getPracticePhone());
+      sb.append("\n");
+      sb.append("Fax: ");
+      sb.append(prov.getPracticeFax());
+      sb.append("\n");
+      sb.append("\n");
+      sb.append("\n");
+    }
+    return sb.toString();
   }
   
   public static String buildAhpraSpecialtyContent(final AhpraDetails ahpra) {

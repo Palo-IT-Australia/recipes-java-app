@@ -645,6 +645,10 @@ public class ReferrerMailService {
   	sendMailWithCc(tos, ccs, "I-MED Online 2.0 Referrer Account Created - " + user.getUserid(), UserMessageUtil.buildReferrerAccountContent(user));
   }  
 
+  public void emailNotifyNewReferrer(String [] tos, String [] ccs, StageUser user) {
+  	sendMailWithCc(tos, ccs, "I-MED Online 2.0 Referrer Account Created - " + user.getUid(), UserMessageUtil.buildStageUserDetailsContent(user));
+  }  
+
   public void emailSupportTeamRegistrationError(Exception e, String stage, ExternalUser user) {
     sendMail(UserMessageUtil.ADMIN_USER_EMAIL, "Account Registration Error", UserMessageUtil.getRegistrationErrorBody(e,stage,user));
   }

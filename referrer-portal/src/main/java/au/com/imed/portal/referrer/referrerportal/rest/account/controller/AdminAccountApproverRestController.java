@@ -28,9 +28,13 @@ import au.com.imed.portal.referrer.referrerportal.ahpra.AhpraDetails;
 import au.com.imed.portal.referrer.referrerportal.audit.CrmAdminAuditService;
 import au.com.imed.portal.referrer.referrerportal.common.PortalConstant;
 import au.com.imed.portal.referrer.referrerportal.email.ReferrerMailService;
+import au.com.imed.portal.referrer.referrerportal.jpa.audit.entity.CrmPostcodeEntity;
+import au.com.imed.portal.referrer.referrerportal.jpa.audit.entity.CrmProfileEntity;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.entity.MedicareProviderEntity;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.entity.ReferrerActivationEntity;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.entity.ReferrerProviderEntity;
+import au.com.imed.portal.referrer.referrerportal.jpa.audit.repository.CrmPostcodeJpaRepository;
+import au.com.imed.portal.referrer.referrerportal.jpa.audit.repository.CrmProfileJpaRepository;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.repository.MedicareProviderJpaRepository;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.repository.ReferrerActivationJpaRepository;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.repository.ReferrerAutoValidationRepository;
@@ -79,6 +83,12 @@ public class AdminAccountApproverRestController {
 	
 	@Autowired
 	private CrmAdminAuditService auditService;
+	
+	@Autowired
+	private CrmPostcodeJpaRepository crmPostcodeRepository;
+
+	@Autowired
+	private CrmProfileJpaRepository crmProfileRepository;
 	
 	@GetMapping("/getStageUsers")
 	public ResponseEntity<StagingUserList> getStagingUserList() {
@@ -155,6 +165,7 @@ public class AdminAccountApproverRestController {
   public ResponseEntity<StagingUserList> postFinaliseUser(@RequestBody AccountApproving aa) {
   	String uid = aa.getUid();
   	HttpStatus sts = HttpStatus.BAD_REQUEST;
+  	logger.info("Admin rest /finaliseUser uid = " + uid);
   	if(uid != null && !uid.isBlank()) {
   		try {
   			StageUser user = referrerAccountService.finaliseUser(uid);
@@ -168,6 +179,26 @@ public class AdminAccountApproverRestController {
   				emailService.emailAccountApproved(user, temppswd);
   			} else {
   				emailService.emailAccountApproved(user);
+  			}
+  			List<ReferrerProviderEntity> provs = referrerProviderJpaRepository.findByUsername(user.getUid());
+  			user.setProviders(provs);
+  			if(provs != null && provs.size() > 0) {
+  				CrmProfileEntity crm = getCrm(provs.get(0).getPracticePostcode());
+  				logger.info("postFinaliseUser() notify CRM with new finalized account : " + crm + user);
+  				if("prod".equals(ACTIVE_PROFILE)) {
+  					try {
+  						String [] toCrm = crm != null ? new String [] {crm.getEmail()} : new String [0];
+  						emailService.emailNotifyNewReferrer(toCrm,
+  								new String [] {"Julie-Ann.Evans@i-med.com.au"}, user);
+  					} catch (Exception e) {
+  						e.printStackTrace();
+  					}
+  				} else {
+  					emailService.emailNotifyNewReferrer(new String [] {"Hidehiro.Uehara@i-med.com.au"},
+  							new String [] {"Hidehiro.Uehara@i-med.com.au"}, user);
+  				}
+  			} else {
+  				logger.info("This user missing provider information, skipping CRM email.");
   			}
   			List<LdapUserDetails> details = referrerAccountService.findReferrerAccountsByUid(uid);
   			if(details.size() > 0) {
@@ -195,6 +226,20 @@ public class AdminAccountApproverRestController {
   	}
   	return new ResponseEntity<StagingUserList>(getCurrentStagingUserList(), sts);
   }
+  
+  private CrmProfileEntity getCrm(final String postcode) {
+		CrmProfileEntity profile = null;
+		if(postcode != null && postcode.length() > 0) {
+			List<CrmPostcodeEntity> plist = crmPostcodeRepository.findByPostcode(postcode);
+			if(plist.size() > 0) {
+				List<CrmProfileEntity> crmList = crmProfileRepository.findByName(plist.get(0).getName());
+				profile = crmList.size() > 0 ? crmList.get(0) : null;
+			}
+		}
+		logger.info("Admin finalization - Found crm for postcode {} ? {}", postcode, profile);
+		logger.info("Admin getCrm() Email {}", profile != null ? profile.getEmail() : "Not found.");
+		return profile;
+	}
   
   @PostMapping("/declineUser")
   public ResponseEntity<StagingUserList> postDeclineUser(@RequestBody AccountDeclining ad) {
