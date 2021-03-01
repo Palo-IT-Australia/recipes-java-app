@@ -695,6 +695,11 @@ public class ReferrerPortalMvcController {
 		return "privacy";
 	}
 	
+	@GetMapping("/agreement")
+	public String getAgreement() {
+		return "agreement";
+	}
+	
 	@GetMapping("/termsofuse")
 	public String getTermsOfUse() {
 		return "termsofuse";

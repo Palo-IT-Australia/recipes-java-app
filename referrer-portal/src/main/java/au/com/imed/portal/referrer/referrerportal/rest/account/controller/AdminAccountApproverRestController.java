@@ -189,7 +189,7 @@ public class AdminAccountApproverRestController {
   					try {
   						String [] toCrm = crm != null ? new String [] {crm.getEmail()} : new String [0];
   						emailService.emailNotifyNewReferrer(toCrm,
-  								new String [] {"Julie-Ann.Evans@i-med.com.au"}, user);
+  								new String [] {"georgia.wood@i-med.com.au","felicity.mcintyre@i-med.com.au"}, user);
   					} catch (Exception e) {
   						e.printStackTrace();
   					}

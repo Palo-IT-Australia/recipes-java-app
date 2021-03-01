@@ -82,7 +82,7 @@ public class CsvFileEmailScheduler {
 	/**
 	 * Weekly csv files. Split into Audit and doctors to avoid max size attachment limit
 	 */
-	private static final String [] EMAILS_AUDIT = new String [] {"Alexandra.Arter@i-med.com.au", "Giles.Cox@i-med.com.au", "Julie-Ann.Evans@i-med.com.au", "tania.armstrong@i-med.com.au", "Georgia.McMeniman@i-med.com.au"};
+	private static final String [] EMAILS_AUDIT = new String [] {"Alexandra.Arter@i-med.com.au", "Giles.Cox@i-med.com.au", "felicity.mcintyre@i-med.com.au", "tania.armstrong@i-med.com.au", "Georgia.McMeniman@i-med.com.au"};
 	private static final String SUBJECT_AUDIT = "IMED Online 2.0 Audit";
 	private static final String MESSAGE_AUDIT = "Please find attached csv files";
 	

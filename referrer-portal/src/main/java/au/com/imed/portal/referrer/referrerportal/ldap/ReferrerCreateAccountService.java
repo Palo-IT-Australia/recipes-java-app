@@ -833,7 +833,7 @@ public class ReferrerCreateAccountService extends ReferrerAccountService {
 			emailService.sendWithFileMap(new String[] {ReferrerMailService.SUPPORT_ADDRESS}, 
 					subject, "Please find attached csv files", fileMap);
 		} else {
-			emailService.sendWithFileMap(new String[] {"Hidehiro.Uehara@i-med.com.au", "julie-ann.evans@i-med.com.au", "erick.doust@i-med.com.au", "georgia.wood@i-med.com.au"}, 
+			emailService.sendWithFileMap(new String[] {"Hidehiro.Uehara@i-med.com.au", "erick.doust@i-med.com.au", "georgia.wood@i-med.com.au"}, 
 					subject, "Please find attached csv files", fileMap);
 		}
 
@@ -1038,7 +1038,7 @@ public class ReferrerCreateAccountService extends ReferrerAccountService {
 					try {
 						String [] toCrm = crm != null ? new String [] {crm.getEmail()} : new String [0];
 						emailService.emailNotifyNewReferrer(toCrm,
-								new String [] {"Julie-Ann.Evans@i-med.com.au"}, toExternalUser(entity, provs));
+								new String [] {"georgia.wood@i-med.com.au","felicity.mcintyre@i-med.com.au"}, toExternalUser(entity, provs));
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
