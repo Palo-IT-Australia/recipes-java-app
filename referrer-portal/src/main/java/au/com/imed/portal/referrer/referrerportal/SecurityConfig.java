@@ -128,7 +128,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter  {
 		contextSourceAd.setBase("ou=Business Units,dc=mia,dc=net,dc=au");
 		contextSourceAd.setUserDn("CN=IWS_LDAP_BIND_Prod,OU=ServiceAccounts,DC=mia,DC=net,DC=au");
 		contextSourceAd.setPassword("7Z79531seI32j49pu96m3172563435OKe65oA8g33y29mM3k6w85B80EH5EXZb7t");
-		contextSourceAd.setUrl("ldap://mia.net.au:389");
+		contextSourceAd.setUrl("ldap://10.100.120.10:389");
 		contextSourceAd.afterPropertiesSet();
 
 		auth
