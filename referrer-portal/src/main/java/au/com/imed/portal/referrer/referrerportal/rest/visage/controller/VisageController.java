@@ -2,6 +2,7 @@ package au.com.imed.portal.referrer.referrerportal.rest.visage.controller;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -402,13 +403,19 @@ public class VisageController {
 		String userName = AuthenticationUtil.getAuthenticatedUserName(authentication);
 		if (rateLimit(userName)) {
 			if (preferenceService.isTermsAccepted(userName)) {
-				ResponseEntity<SearchOrders> entity = searchOrdersService.doRestGet(userName, paramMap,
-						SearchOrders.class);
-				List<Order> orders = entity.getStatusCode().equals(HttpStatus.OK)
-						? getAccessibleOrders(entity.getBody().getOrders(), paramMap)
-						: new ArrayList<Order>(0);
-				syslog.log(ReferrerEvent.SEARCH_ORDERS, "/searchOrders", userName, paramMap);
-				return new ResponseEntity<List<Order>>(orders, entity.getHeaders(), entity.getStatusCode());
+				List<Order> orders = Collections.emptyList();
+				if(parametersValid(paramMap, "/searchOrders")) {
+					ResponseEntity<SearchOrders> entity = searchOrdersService.doRestGet(userName, paramMap,
+							SearchOrders.class);
+					orders = entity.getStatusCode().equals(HttpStatus.OK)
+							? getAccessibleOrders(entity.getBody().getOrders(), paramMap)
+									: new ArrayList<Order>(0);
+					syslog.log(ReferrerEvent.SEARCH_ORDERS, "/searchOrders", userName, paramMap);
+					return new ResponseEntity<List<Order>>(orders, entity.getHeaders(), entity.getStatusCode());
+				} else {
+					logger.info("Invalid parameters found. Returnig empty order list");
+					return new ResponseEntity<List<Order>>(orders, HttpStatus.OK);
+				}
 			} else {
 				return new ResponseEntity<List<Order>>(HttpStatus.METHOD_NOT_ALLOWED);
 			}
@@ -1023,6 +1030,17 @@ public class VisageController {
 		newPatientOrder.setHidden(hides);
 		newPatientOrder.setOrders(filtered.toArray(new Order[filtered.size()]));
 		return newPatientOrder;
+	}
+	
+	private boolean parametersValid(final Map<String, String> paramMap, final String method) {
+		boolean isValid = true;
+		String dob = paramMap.get("dob");
+		if(dob != null) {
+			logger.info("parametersValid() dob = " + dob); 
+			isValid = dob.matches("^[0-9]{4}-[0-9]{2}-[0-9]{2}$");
+			logger.info("dob valid ? " + isValid);
+		}
+		return isValid;
 	}
 
 	/**
