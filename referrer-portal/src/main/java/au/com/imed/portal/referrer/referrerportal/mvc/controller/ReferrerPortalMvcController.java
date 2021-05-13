@@ -705,15 +705,15 @@ public class ReferrerPortalMvcController {
 		return "termsofuse";
 	}
 	
-	@GetMapping("/mycrm")
-	public String getMyCrm() {
-		return "mycrm";
-	}
-	
-	@GetMapping("/findmycrm")
-	public String getFindMyCrm() {
-		return "findmycrm";
-	}
+//	@GetMapping("/mycrm")
+//	public String getMyCrm() {
+//		return "mycrm";
+//	}
+//	
+//	@GetMapping("/findmycrm")
+//	public String getFindMyCrm() {
+//		return "findmycrm";
+//	}
 	
 	@GetMapping("/feedback")
 	public String getFeedback() {
