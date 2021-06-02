@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -51,50 +52,51 @@ import au.com.imed.portal.referrer.referrerportal.rest.visage.service.GetReferre
 
 @RestController
 @RequestMapping("/adminrest/approver")
+@PreAuthorize("hasAuthority('ROLE_ADMIN')")
 public class AdminAccountApproverRestController {
 	private Logger logger = LoggerFactory.getLogger(AdminAccountApproverRestController.class);
-	
+
 	@Value("${spring.profiles.active}")
 	private String ACTIVE_PROFILE;
-	
+
 	@Autowired
 	private ReferrerAccountService referrerAccountService;
-	
+
 	@Autowired
 	private ReferrerMailService emailService;
-	
+
 	@Autowired
 	private ReferrerProviderJpaRepository referrerProviderJpaRepository;
-	
+
 	@Autowired
 	private ReferrerActivationJpaRepository referrerActivationEntityJapRepository;
-	
+
 	@Autowired
 	private MedicareProviderJpaRepository medicareProviderJpaRepository;
-	
+
 	@Autowired
 	private AhpraBotService ahpraBotService;
-	
+
 	@Autowired
 	private GetReferrerService visageReferrerService;
-	
+
 	@Autowired
 	private ReferrerAutoValidationRepository referrerAutoValidationRepository;
-	
+
 	@Autowired
 	private CrmAdminAuditService auditService;
-	
+
 	@Autowired
 	private CrmPostcodeJpaRepository crmPostcodeRepository;
 
 	@Autowired
 	private CrmProfileJpaRepository crmProfileRepository;
-	
+
 	@GetMapping("/getStageUsers")
 	public ResponseEntity<StagingUserList> getStagingUserList() {
 		return new ResponseEntity<StagingUserList>(getCurrentStagingUserList(), HttpStatus.OK);
 	}
-	
+
 	private StagingUserList getCurrentStagingUserList() {
 		StagingUserList sul = new StagingUserList();
 		// Stage with providers
@@ -107,7 +109,7 @@ public class AdminAccountApproverRestController {
 		sul.setFinalisings(finalisings);
 		return sul;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@GetMapping("/checkNewuid")
 	public ResponseEntity<JSONObject> checkNiewUid(@RequestParam("newuid") String uid) {
@@ -116,15 +118,15 @@ public class AdminAccountApproverRestController {
 			// Check referrer only as PACS ones can be as existing user type and Stage is current one
 			if(referrerAccountService.GetReferrerDnListByAttr("uid", uid).size() > 0 ||
 					new ImedActiveDirectoryLdapManager().findByUid(uid).size() > 0 ||
-					referrerAutoValidationRepository.findByUidAndValidationStatusNot(uid, VALIDATION_STATUS_INVALID).size() > 0) 
-			{		
+					referrerAutoValidationRepository.findByUidAndValidationStatusNot(uid, VALIDATION_STATUS_INVALID).size() > 0)
+			{
 				resultPayload.put("msg", "This User ID is Unavailable");
 				resultPayload.put("error", true);
 			}
 		}
 		return ResponseEntity.status(200).body(resultPayload);
 	}
-	
+
   private void putProviders(List<StageUser> list) {
     int size = list.size();
     for(int i = 0;  i < size; i++) {
@@ -132,13 +134,13 @@ public class AdminAccountApproverRestController {
       list.get(i).setProviders(providers);
     }
   }
-  
+
   @PostMapping("/approveUser")
   public ResponseEntity<StagingUserList> postApproveUser(@RequestBody AccountApproving aa) {
   	String uid = aa.getUid();
     String newuid = aa.getNewuid();
     String bu = aa.getBu();
-    
+
     HttpStatus sts = HttpStatus.BAD_REQUEST;
     if(uid != null && !uid.isBlank()) {
     	try {
@@ -157,7 +159,7 @@ public class AdminAccountApproverRestController {
 
 		return new ResponseEntity<StagingUserList>(getCurrentStagingUserList(), sts);
   }
-  
+
   /**
    * Unlock user and clear finalizing flag attrs
    */
@@ -226,7 +228,7 @@ public class AdminAccountApproverRestController {
   	}
   	return new ResponseEntity<StagingUserList>(getCurrentStagingUserList(), sts);
   }
-  
+
   private CrmProfileEntity getCrm(final String postcode) {
 		CrmProfileEntity profile = null;
 		if(postcode != null && postcode.length() > 0) {
@@ -240,15 +242,15 @@ public class AdminAccountApproverRestController {
 		logger.info("Admin getCrm() Email {}", profile != null ? profile.getEmail() : "Not found.");
 		return profile;
 	}
-  
+
   @PostMapping("/declineUser")
   public ResponseEntity<StagingUserList> postDeclineUser(@RequestBody AccountDeclining ad) {
   	String uid = ad.getUid();
     String reason = ad.getReason();
     String step = ad.getStep();
-    
+
     logger.info("postDeclineUser() {} {} {}", uid, reason, step);
-    		    
+
     HttpStatus sts = HttpStatus.BAD_REQUEST;
     if(uid != null && !uid.isBlank()) {
     	try {
@@ -262,12 +264,12 @@ public class AdminAccountApproverRestController {
     }
 		return new ResponseEntity<StagingUserList>(getCurrentStagingUserList(), sts);
   }
-  
+
   @PostMapping("/sendMessage")
   public ResponseEntity<String> postSentMessage() {
 		return new ResponseEntity<String>("Not Yet Implemented", HttpStatus.OK);
   }
-  
+
   private void switchProviderUid(final String uid, final String newuid) {
     if(uid != null && newuid != null && newuid.length() > 0 && !uid.equalsIgnoreCase(newuid)) {
       List<ReferrerProviderEntity> providers = referrerProviderJpaRepository.findByUsername(uid);
@@ -277,7 +279,7 @@ public class AdminAccountApproverRestController {
       }
     }
   }
-  
+
   private void deleteProviders(final String uid) {
     List<ReferrerProviderEntity> list = referrerProviderJpaRepository.findByUsername(uid);
     for(ReferrerProviderEntity entity : list) {
@@ -285,7 +287,7 @@ public class AdminAccountApproverRestController {
     }
     referrerProviderJpaRepository.flush();
   }
-  
+
   //
   // Details of key numbers
   //
@@ -299,7 +301,7 @@ public class AdminAccountApproverRestController {
   	}
   	return entity;
   }
-  
+
   @GetMapping("/ahpra")
   public ResponseEntity<AhpraDetails> getAhpra(@RequestParam("number") String ahpraNumber)
   {
@@ -310,7 +312,7 @@ public class AdminAccountApproverRestController {
   	}
   	return entity;
   }
-  
+
   //
   // uid existence
   //
@@ -339,7 +341,7 @@ public class AdminAccountApproverRestController {
   	}
   	return responseEntity;
   }
-  
+
   //
   // Referrer by number
   //
@@ -349,13 +351,13 @@ public class AdminAccountApproverRestController {
   	ResponseEntity<Referrer> entity = new ResponseEntity<>(HttpStatus.NOT_FOUND);
   	Map<String, String> paramMap = new HashMap<>(1);
   	if(ahpraNumber != null && ahpraNumber.length() > 0) {
-  		paramMap.put(GetReferrerService.PARAM_AHPRA_NUMBER, ahpraNumber);  		
+  		paramMap.put(GetReferrerService.PARAM_AHPRA_NUMBER, ahpraNumber);
   	} else if (providerNumber != null && providerNumber.length() > 0) {
-  		paramMap.put(GetReferrerService.PARAM_PROVIDER_NUMBER, providerNumber);  	
+  		paramMap.put(GetReferrerService.PARAM_PROVIDER_NUMBER, providerNumber);
   	} else {
   		paramMap = null;
   	}
-  	
+
   	if(paramMap != null) {
   		ResponseEntity<Referrer> ve = visageReferrerService.doRestGet(PortalConstant.REP_VISAGE_USER, paramMap, Referrer.class);
   		if(HttpStatus.OK.equals(ve.getStatusCode())) {

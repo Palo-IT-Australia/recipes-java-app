@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -33,18 +34,19 @@ import au.com.imed.portal.referrer.referrerportal.rest.visage.model.Order;
 
 @RestController
 @RequestMapping("/adminrest/account")
+@PreAuthorize("hasAuthority('ROLE_ADMIN')")
 public class AdminAccountManagerRestController {
 	private Logger logger = LoggerFactory.getLogger(AdminAccountManagerRestController.class);
-	
+
 	@Autowired
 	private ReferrerCreateAccountService referrerCreateAccountService;
-	
+
 	@Autowired
 	private HospitalGroupService hospitalGroupService;
-	
+
 	@Autowired
 	private ReportAccessService reportAccessService;
-	
+
 	@PostMapping("/placeholder")
 	public ResponseEntity<String> postPlaceholder(@RequestBody AccountUid au) {
 		final String uid = au.getUid();
@@ -61,20 +63,20 @@ public class AdminAccountManagerRestController {
 		}
 		return new ResponseEntity<String>(sts);
 	}
-	
+
 	@GetMapping("/isUidAvailablePlaceholder")
 	public ResponseEntity<UniquenessModel> isUidAvailablePlaceholder(@RequestParam("uid") String uid) {
 		UniquenessModel model = new UniquenessModel();
 		model.setAvailable(isUidAvailableForPlaceholder(uid));
 		return new ResponseEntity<UniquenessModel>(model, HttpStatus.OK);
 	}
-	
+
 	private boolean isUidAvailableForPlaceholder(final String uid) {
-		return uid != null && uid.length() > 4 && 
+		return uid != null && uid.length() > 4 &&
 				referrerCreateAccountService.findAccountsGlobalByAttr("uid", uid).size() == 0 &&
   			new ImedActiveDirectoryLdapManager().findByUid(uid).size() == 0;
 	}
-	
+
 	@GetMapping("/find")
 	public ResponseEntity<List<LdapUserDetails>> getFind(@RequestParam("word") String word) {
 		List<LdapUserDetails> list;
@@ -94,7 +96,7 @@ public class AdminAccountManagerRestController {
 		logger.info("Admin /find word:{} size:{}", word, list.size());
 		return new ResponseEntity<List<LdapUserDetails>>(list, sts);
 	}
-	
+
 	@PostMapping("/create")
 	public ResponseEntity<String> postCreateAccount(@RequestBody ExternalUser imedExternalUser) {
 		HttpStatus sts = HttpStatus.OK;
@@ -103,10 +105,10 @@ public class AdminAccountManagerRestController {
 		} catch (Exception e) {
 			sts = HttpStatus.BAD_REQUEST;
 			e.printStackTrace();
-		} 
+		}
 		return new ResponseEntity<String>(sts);
 	}
-	
+
 	@PostMapping("/detail")
 	public ResponseEntity<String> postDetail(@RequestBody AccountDetails detail) {
 		HttpStatus sts = HttpStatus.OK;
@@ -118,10 +120,10 @@ public class AdminAccountManagerRestController {
 		} catch (Exception e) {
 			sts = HttpStatus.BAD_REQUEST;
 			e.printStackTrace();
-		} 
+		}
 		return new ResponseEntity<String>(sts);
 	}
-	
+
 	@PostMapping("/password")
 	public ResponseEntity<String> postUpdatePassword(@RequestBody AccountUidPassword aup) {
 		final String uid = aup.getUid();
@@ -137,11 +139,11 @@ public class AdminAccountManagerRestController {
 			}
 		} else {
 			sts = HttpStatus.BAD_REQUEST;
-		} 
+		}
 
 		return new ResponseEntity<String>(sts);
 	}
-	
+
 	@PostMapping("/lock")
 	public ResponseEntity<String> postLockUnlock(@RequestBody AccountLockUnlock alu) {
 		final String uid = alu.getUid();
@@ -158,11 +160,11 @@ public class AdminAccountManagerRestController {
 			}
 		} else {
 			sts = HttpStatus.BAD_REQUEST;
-		} 
+		}
 
 		return new ResponseEntity<String>(sts);
 	}
-	
+
 	//
   // HospitalGroupService
   //
@@ -170,7 +172,7 @@ public class AdminAccountManagerRestController {
   public ResponseEntity<List<AccountUid>> getHospitalMemberList() {
   	return new ResponseEntity<List<AccountUid>>(this.hospitalGroupService.list(), HttpStatus.OK);
   }
-  
+
   @PostMapping("/hospitalAdd")
   public ResponseEntity<List<AccountUid>> addHospitalMember(@RequestBody AccountUid accountUid) {
   	if(this.hospitalGroupService.add(accountUid.getUid())) {
@@ -181,7 +183,7 @@ public class AdminAccountManagerRestController {
   		return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
   	}
   }
-  
+
   @PostMapping("/hospitalRemove")
   public ResponseEntity<List<AccountUid>> removeHospitalMember(@RequestBody AccountUid accountUid) {
   	if(this.hospitalGroupService.remove(accountUid.getUid())) {
@@ -192,14 +194,14 @@ public class AdminAccountManagerRestController {
   		return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
   	}
   }
-  
-  
+
+
   // Report Access
 	@GetMapping("/reportlist")
 	public ResponseEntity<List<Order>> getList(@RequestParam("patientId") String patientId) {
 		return new ResponseEntity<List<Order>>(reportAccessService.listOrders(patientId), HttpStatus.OK);
 	}
-	
+
 	@PostMapping("/reportavailable")
 	public ResponseEntity<JSONObject> postAvailable(@RequestBody AccountReportAccess ra) {
 		logger.info("/available request body = " + ra);

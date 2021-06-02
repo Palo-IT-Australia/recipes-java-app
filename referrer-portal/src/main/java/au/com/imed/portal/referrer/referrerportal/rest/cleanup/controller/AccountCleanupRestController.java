@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,6 +24,7 @@ import au.com.imed.portal.referrer.referrerportal.rest.cleanup.model.RemoveList;
 
 @RestController
 @RequestMapping("/cleanuprest")
+@PreAuthorize("hasAuthority('ROLE_CLEANUP')")
 public class AccountCleanupRestController {
 	private Logger logger = LoggerFactory.getLogger(AccountCleanupRestController.class);
 
@@ -54,7 +56,7 @@ public class AccountCleanupRestController {
 			resultPayload.put("msg", "Deactivated accounts. Please make sure to handle PACS and Visage account accordingly.");
 		} catch (Exception ex) {
 			sts = HttpStatus.BAD_REQUEST;
-			resultPayload.put("msg", "Failed to deactivated accounts");			
+			resultPayload.put("msg", "Failed to deactivated accounts");
 			ex.printStackTrace();
 		}
 		return ResponseEntity.status(sts).body(resultPayload);

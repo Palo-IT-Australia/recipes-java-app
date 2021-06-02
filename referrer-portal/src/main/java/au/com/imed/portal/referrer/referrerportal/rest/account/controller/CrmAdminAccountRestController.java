@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -44,30 +45,31 @@ import au.com.imed.portal.referrer.referrerportal.rest.visage.service.GetReferre
 
 @RestController
 @RequestMapping("/crmadminrest/account")
+@PreAuthorize("hasAuthority('ROLE_CRM_ADMIN')")
 public class CrmAdminAccountRestController {
 	private Logger logger = LoggerFactory.getLogger(CrmAdminAccountRestController.class);
-	
+
 	@Value("${spring.profiles.active}")
 	private String ACTIVE_PROFILE;
-	
+
 	@Value("${imed.application.url}")
 	private String APPLICATION_URL;
-	
+
 	@Autowired
 	private ReferrerCreateAccountService referrerAccountService;
-	
+
 	@Autowired
 	private GetReferrerService visageReferrerService;
-	
+
 	@Autowired
 	private ReferrerProviderJpaRepository referrerProviderJpaRepository;
-	
+
 	@Autowired
 	private CrmAdminAuditService auditService;
-	
+
 	@Autowired
 	private ReferrerMailService emailService;
-	
+
 	@SuppressWarnings("unchecked")
 	@PostMapping("/create")
 	public ResponseEntity<JSONObject> postCreate(@RequestBody ExternalUser imedExternalUser, Authentication authentication) {
@@ -94,10 +96,10 @@ public class CrmAdminAccountRestController {
 			}
 		} else {
 			reps.put("msg", resultsMap.get(PortalConstant.MODEL_KEY_ERROR_MSG));
-			return new ResponseEntity<>(reps, HttpStatus.BAD_REQUEST);			
+			return new ResponseEntity<>(reps, HttpStatus.BAD_REQUEST);
 		}
 	}
-	
+
 //	private int markCrmCreate(final String referrerUid) {
 //		int validationId = 0;
 //		boolean isSet = referrerAccountService.updateReferrerCrmActionIfStating(referrerUid, PortalConstant.PARAM_ATTR_VALUE_CRM_ACTION_CREATE);
@@ -114,41 +116,41 @@ public class CrmAdminAccountRestController {
 //		}
 //		return validationId;
 //	}
-	
+
 	@SuppressWarnings("unchecked")
 	@PostMapping("/reset")
-	public ResponseEntity<JSONObject> postReset(@RequestBody JSONObject resetUid, Authentication authentication) 
+	public ResponseEntity<JSONObject> postReset(@RequestBody JSONObject resetUid, Authentication authentication)
 	{
 		String crm = authentication.getName();
-		
+
 		boolean isSuccess = false;
 		JSONObject reps = new JSONObject();
 
 		String uid = (String) resetUid.get("uid");
 		logger.info("/reset for uid : " + uid + " by crm " + crm);
-		
+
 		try
 		{
 			if(StringUtil.isBlank(uid)) {
 				throw new IllegalArgumentException("Empty uid");
 			}
-			
+
 			AccountDetail userDetails = referrerAccountService.getReferrerAccountDetail(uid);
 			if(userDetails == null) {
 				throw new IllegalArgumentException("Not referrer");
 			}
-				
+
 			final String email = userDetails.getEmail();
 			if(StringUtil.isBlank(email)) {
 				throw new IllegalArgumentException("Email not registered");
 			}
-			
+
 			final String mobile = userDetails.getMobile();
 			if(StringUtil.isBlank(mobile) || !mobile.startsWith("04")) {
 				throw new IllegalArgumentException("Email unregistered or non australian number.");
 			}
 			logger.info("/reset email {} mobile {} ", email, mobile);
-			
+
 			// Temporal password
 			final String temppswd = ForceResetPasswordAes128Util.randomString(16);
 			referrerAccountService.resetReferrerPassword(uid, temppswd);
@@ -161,7 +163,7 @@ public class CrmAdminAccountRestController {
 			}
 			// Save to DB
 			auditService.auditReset(crm, userDetails, temppswd);
-			reps.put("msg", "Password reset successfully");		
+			reps.put("msg", "Password reset successfully");
 			isSuccess = true;
 		}
 		catch(Exception ex)
@@ -169,7 +171,7 @@ public class CrmAdminAccountRestController {
 			ex.printStackTrace();
 			reps.put("msg", "Failed to reset password - " + ex.getMessage());
 		}
-		
+
 		return new ResponseEntity<>(reps, isSuccess ? HttpStatus.OK : HttpStatus.BAD_REQUEST);
 	}
 
@@ -192,7 +194,7 @@ public class CrmAdminAccountRestController {
 		logger.info("Crm Admin /find word:{} size:{}", word, list.size());
 		return new ResponseEntity<List<LdapUserDetails>>(list, sts);
 	}
-	
+
 	@GetMapping("/inquire")
 	public ResponseEntity<List<AccountStatus>> getInquire(@RequestParam("provider") String provider, @RequestParam("name") String name, Authentication authentication) {
 		logger.info("/inquire parameter provider: {}, name: {}", provider, name);
@@ -221,7 +223,7 @@ public class CrmAdminAccountRestController {
 								logger.info("Practice name matched.");
 							}
 							logger.info("Name matched to practice name or referrer name? " + isMatch);
-							
+
 							if(isMatch) {
 								AccountStatus accountStatus = new AccountStatus();
 								accountStatus.setUid(uid);
@@ -229,16 +231,16 @@ public class CrmAdminAccountRestController {
 								accountStatus.setVisage(getVisageReferrer(GetReferrerService.PARAM_CURRENT_USER_NAME, uid) != null);
 								accountStatus.setPacs(referrerAccountService.GetPacsDnListByAttr("cn", uid).size() > 0);
 								accountStatus.setImedpacs(referrerAccountService.GetImedPacsDnListByAttr("cn", uid).size() > 0);
-								accountStatus.setPortal(referrerAccountService.GetReferrerDnListByAttr("uid", uid).size() > 0);				
+								accountStatus.setPortal(referrerAccountService.GetReferrerDnListByAttr("uid", uid).size() > 0);
 								list.add(accountStatus);
 							}
 						} else {
 							logger.info("uid is emply for provider#");
 						}
 					}
-				} else {					
+				} else {
 					logger.info("Not in provider DB, finding visage");
-					Referrer referrer = getVisageReferrer(GetReferrerService.PARAM_PROVIDER_NUMBER, provider);   
+					Referrer referrer = getVisageReferrer(GetReferrerService.PARAM_PROVIDER_NUMBER, provider);
 					if(referrer != null) {
 						String visName = referrer.getName();
 						logger.info("Visage referrer name : " + visName + " vs " + name);
@@ -250,11 +252,11 @@ public class CrmAdminAccountRestController {
 							logger.info("Visage user name " + visUid);
 							AccountStatus accountStatus = new AccountStatus();
 							accountStatus.setUid(visUid);
-							accountStatus.setProviders(toProviderEntities(referrer.getPractices())); 
+							accountStatus.setProviders(toProviderEntities(referrer.getPractices()));
 							accountStatus.setVisage(true);
 							accountStatus.setPacs(visUid.length() > 0 ? referrerAccountService.GetPacsDnListByAttr("cn", visUid).size() > 0 : false);
 							accountStatus.setImedpacs(visUid.length() > 0 ? referrerAccountService.GetImedPacsDnListByAttr("cn", visUid).size() > 0 : false);
-							accountStatus.setPortal(visUid.length() > 0 ? referrerAccountService.GetReferrerDnListByAttr("uid", visUid).size() > 0 : false);				
+							accountStatus.setPortal(visUid.length() > 0 ? referrerAccountService.GetReferrerDnListByAttr("uid", visUid).size() > 0 : false);
 							list.add(accountStatus);
 						} else {
 							logger.info("Name does not match in visage");
@@ -272,7 +274,7 @@ public class CrmAdminAccountRestController {
 		logger.info("Crm Admin /inquire provider:{} size:{}", provider, list.size());
 		return new ResponseEntity<List<AccountStatus>>(list, sts);
 	}
-	
+
 	private List<ReferrerProviderEntity> toProviderEntities(final Practice [] visPracs) {
 		List<ReferrerProviderEntity> list = new ArrayList<ReferrerProviderEntity>(1);
 		for(Practice vis : visPracs) {
@@ -291,7 +293,7 @@ public class CrmAdminAccountRestController {
 		}
 		return list;
 	}
-	
+
 	private Referrer getVisageReferrer(final String key, final String value) {
 		Referrer referrer = null;
 		ResponseEntity<Referrer> ve = visageReferrerService.doRestGet(PortalConstant.REP_VISAGE_USER, Collections.singletonMap(key, value), Referrer.class);
@@ -304,7 +306,7 @@ public class CrmAdminAccountRestController {
 		}
 		return referrer;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@PostMapping("/approve")
 	public ResponseEntity<StagingValidatingUserList> postApprove(@RequestBody JSONObject reqObj, Authentication authentication) {
@@ -324,12 +326,12 @@ public class CrmAdminAccountRestController {
 		}
 		return entity;
 	}
-	
+
 	@GetMapping("/getStageUsers")
 	public ResponseEntity<StagingValidatingUserList> getStagingUserList() {
 		return new ResponseEntity<StagingValidatingUserList>(getCurrentStagingUserList(), HttpStatus.OK);
 	}
-	
+
 	private StagingValidatingUserList getCurrentStagingUserList() {
 		StagingValidatingUserList sul = new StagingValidatingUserList();
 		// Stage with providers
@@ -342,7 +344,7 @@ public class CrmAdminAccountRestController {
 		sul.setValidatings(validatings);
 		return sul;
 	}
-	
+
   private void putProviders(List<StageUser> list) {
     int size = list.size();
     for(int i = 0;  i < size; i++) {

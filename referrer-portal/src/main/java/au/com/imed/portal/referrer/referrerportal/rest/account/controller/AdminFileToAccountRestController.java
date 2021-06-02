@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -16,9 +17,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/adminrest/filetoaccount")
+@PreAuthorize("hasAuthority('ROLE_ADMIN')")
 public class AdminFileToAccountRestController {
 	private Logger logger = LoggerFactory.getLogger(AdminFileToAccountRestController.class);
-	
+
 	@GetMapping("/downloadresultfile")
 	public void download(@RequestParam("name") String fname, HttpServletResponse response) {
 		try{
