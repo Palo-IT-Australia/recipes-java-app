@@ -5,13 +5,20 @@ import au.com.imed.portal.referrer.referrerportal.rest.visage.service.AuditServi
 import au.com.imed.portal.referrer.referrerportal.security.PortalLogoutSuccessHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.ldap.core.support.LdapContextSource;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -46,6 +53,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Value("${imed.ldap.password}")
     private String ldapPassword;
 
+    @Value("${imed.frontend.url}")
+    private String frontendUrl;
 
     @Autowired
     private PortalLogoutSuccessHandler portalLogoutSuccessHandler;
@@ -54,9 +63,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
                 .antMatchers("/", "/login", "/portal/login").permitAll()
-                .and()
-                .addFilterAfter(new JwtTokenFilter(), UsernamePasswordAuthenticationFilter.class)
-                .csrf().disable();
+                .and().sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and().cors().and().csrf().disable()
+                .addFilterAfter(new JwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
     }
 
     @Override
@@ -86,5 +96,20 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .ldapAuthentication()
                 .userSearchFilter("(sAMAccountName={0})")
                 .contextSource(contextSourceAd);
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        final CorsConfiguration configuration = new CorsConfiguration();
+
+        configuration.setAllowedOrigins(List.of(frontendUrl));  //set access from all domains
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT"));
+        configuration.setAllowCredentials(true);
+        configuration.setAllowedHeaders(List.of("Authorization", "Cache-Control", "Content-Type"));
+
+        final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+
+        return source;
     }
 }
