@@ -56,10 +56,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/", "/login", "/portal/login").permitAll()
                 .and()
                 .addFilterAfter(new JwtTokenFilter(), UsernamePasswordAuthenticationFilter.class)
-                .formLogin()
-                .loginPage("/login")
-                .defaultSuccessUrl("/results", true)
-                .permitAll();
+                .csrf().disable();
     }
 
     @Override
