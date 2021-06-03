@@ -23,7 +23,7 @@ import au.com.imed.portal.referrer.referrerportal.rest.account.model.AccountUid;
 @Service
 public class HospitalGroupService extends ABasicAccountService {
   private static final LdapQuery QUERY_MEMBER = query().where("cn").is("HospitalAccess").and("objectclass").is("groupOfUniqueNames");
-  private static final String DN_PRE = "uid="; 
+  private static final String DN_PRE = "uid=";
   private static final String DN_POST = ",ou=Referrers,ou=Portal,ou=Applications,dc=mia,dc=net,dc=au";
 
   public List<AccountUid> list() {
@@ -43,7 +43,7 @@ public class HospitalGroupService extends ABasicAccountService {
     }
     return list;
   }
-  
+
   public boolean add(final String uid) {
     boolean isDone = false;
     if(uid != null && uid.length() > 0) {
@@ -72,7 +72,7 @@ public class HospitalGroupService extends ABasicAccountService {
     }
     return isDone;
   }
-  
+
   public boolean remove(final String uid) {
     boolean isDone = false;
     if(uid != null && uid.length() > 0) {

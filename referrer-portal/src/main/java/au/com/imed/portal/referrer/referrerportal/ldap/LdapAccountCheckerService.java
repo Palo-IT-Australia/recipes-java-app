@@ -50,8 +50,4 @@ public class LdapAccountCheckerService {
                 new ImedActiveDirectoryLdapManager().findByUid(uid).size() == 0 &&
                 referrerAutoValidationRepository.findByUidAndValidationStatusNot(uid, VALIDATION_STATUS_INVALID).size() == 0;
     }
-
-    public boolean login(String username, String password) {
-        return referrerAccountService.checkPassword(username, password);
-    }
 }
