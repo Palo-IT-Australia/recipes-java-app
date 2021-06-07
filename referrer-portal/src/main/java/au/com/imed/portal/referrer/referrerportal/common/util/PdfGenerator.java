@@ -82,7 +82,11 @@ public class PdfGenerator {
 		sb.append(addEntryToPdf(electronicReferralForm, "doctorRequesterNumber", "Requester number"));
 		sb.append(addEntryToPdf(electronicReferralForm, "doctorAhpra", "AHPRA number"));
 		sb.append(addEntryToPdf(electronicReferralForm, "doctorEmail", "Email"));
-		sb.append(addEntryToPdf(electronicReferralForm, "doctorPhone", "Phone"));
+		// Mobile# no show
+		if(electronicReferralForm.getDoctorPhone() != null &&
+				!electronicReferralForm.getDoctorPhone().startsWith("04")) {
+			sb.append(addEntryToPdf(electronicReferralForm, "doctorPhone", "Phone"));
+		}
 		sb.append(addEntryToPdf(electronicReferralForm, "doctorPracticeName", "Practice name"));
 		sb.append("<tr><td>Address</td><td>");
 		sb.append(printAddress(electronicReferralForm.getDoctorStreet(), electronicReferralForm.getDoctorSuburb(), electronicReferralForm.getDoctorState(), electronicReferralForm.getDoctorPostcode()));
