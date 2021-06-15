@@ -12,6 +12,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.Map;
 
+import static au.com.imed.portal.referrer.referrerportal.common.PortalConstant.MODEL_KEY_ERROR_MSG;
+import static au.com.imed.portal.referrer.referrerportal.common.PortalConstant.MODEL_KEY_SUCCESS_MSG;
+
 @RestController
 @RequestMapping("/registration")
 public class RegistrationController {
@@ -24,12 +27,13 @@ public class RegistrationController {
     public ResponseEntity<Map<String,String>> postApply(@RequestBody ExternalUser imedExternalUser) {
         logger.info("/registration/apply " + imedExternalUser.toString());
         try {
-//            var response = accountService.createAccount(imedExternalUser);
-//            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-
-            return ResponseEntity.ok(new HashMap<String, String>());
+            var response = accountService.createAccount(imedExternalUser);
+            if (response.containsKey(MODEL_KEY_SUCCESS_MSG)){
+                return ResponseEntity.ok(response);
+            }
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new HashMap<>(), HttpStatus.BAD_REQUEST);
         }
     }
 
