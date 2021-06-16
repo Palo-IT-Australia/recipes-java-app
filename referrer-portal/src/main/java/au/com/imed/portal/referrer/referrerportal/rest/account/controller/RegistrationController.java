@@ -33,7 +33,9 @@ public class RegistrationController {
             }
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
-            return new ResponseEntity<>(new HashMap<>(), HttpStatus.BAD_REQUEST);
+            e.printStackTrace();
+            var response = new HashMap<String, String>();
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
     }
 
