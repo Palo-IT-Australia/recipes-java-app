@@ -6,7 +6,6 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class AccountTokenResponse {
-
     private final String type;
     private final String token;
 }
