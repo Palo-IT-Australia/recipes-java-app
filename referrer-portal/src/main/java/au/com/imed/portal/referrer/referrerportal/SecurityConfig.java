@@ -65,7 +65,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/", "/login", "/portal/login", "/account/details").permitAll()
                 .and().sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and().cors().disable()
+                .and().cors().and()
                 .csrf().disable()
                 .addFilterAfter(new JwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
     }
