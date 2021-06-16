@@ -6,35 +6,29 @@ import au.com.imed.portal.referrer.referrerportal.model.ExternalUser;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.HashMap;
 
 import static au.com.imed.portal.referrer.referrerportal.common.PortalConstant.MODEL_KEY_ERROR_MSG;
 import static au.com.imed.portal.referrer.referrerportal.common.PortalConstant.MODEL_KEY_SUCCESS_MSG;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
 
 
-@RunWith(SpringRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 @SpringBootTest(classes = ReferrerPortalApplication.class)
 @AutoConfigureMockMvc
 @TestPropertySource(
         locations = "classpath:application-local.properties")
 public class LoginControllerTests {
-    @Autowired
-    private MockMvc mockMvc;
 
-    @MockBean
+    @Mock
     private ReferrerCreateAccountService referrerCreateAccountService;
 
     @InjectMocks
@@ -44,26 +38,24 @@ public class LoginControllerTests {
     public void shouldTryRegisterUserAndSucceed() throws Exception {
         var mockReturn = new HashMap<String, String>();
         mockReturn.put(MODEL_KEY_SUCCESS_MSG, "data");
-        Mockito.when(referrerCreateAccountService.createAccount(Mockito.any(ExternalUser.class))).thenReturn(mockReturn);
-
-        this.mockMvc
-                .perform(
-                        post("/portal/register").contentType(MediaType.APPLICATION_JSON).content("{}"))
-                .andExpect(status().is2xxSuccessful())
-                .andExpect(content().json("{}"));
+        var mockExternalUser = new ExternalUser();
+        when(referrerCreateAccountService.createAccount(mockExternalUser)).thenReturn(mockReturn);
+        var result = loginController.register(mockExternalUser);
+        assertTrue(result.getStatusCode().is2xxSuccessful());
+        assertSame(mockReturn, result.getBody());
     }
 
     @Test
     public void shouldTryRegisterUserAndFail() throws Exception {
         var mockReturn = new HashMap<String, String>();
         mockReturn.put(MODEL_KEY_ERROR_MSG, "data");
-        Mockito.when(referrerCreateAccountService.createAccount(Mockito.any(ExternalUser.class))).thenReturn(mockReturn);
-
-        this.mockMvc
-                .perform(
-                        post("/portal/register").contentType(MediaType.APPLICATION_JSON).content("{}"))
-                .andExpect(status().is4xxClientError());
+        var mockExternalUser = new ExternalUser();
+        when(referrerCreateAccountService.createAccount(mockExternalUser)).thenReturn(mockReturn);
+        var result = loginController.register(mockExternalUser);
+        assertTrue(result.getStatusCode().is4xxClientError());
+        assertSame(mockReturn, result.getBody());
     }
+
 }
 
 

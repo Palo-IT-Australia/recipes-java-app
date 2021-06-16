@@ -13,7 +13,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import static au.com.imed.portal.referrer.referrerportal.common.PortalConstant.MODEL_KEY_SUCCESS_MSG;
@@ -44,7 +43,7 @@ public class LoginController {
 
 
     @PostMapping("/register")
-    public ResponseEntity<Map<String,String>> postApply(@RequestBody ExternalUser imedExternalUser) {
+    public ResponseEntity<Map<String,String>> register(@RequestBody ExternalUser imedExternalUser) {
         logger.info("/portal/register" + imedExternalUser.toString());
         try {
             var response = referrerAccountService.createAccount(imedExternalUser);
