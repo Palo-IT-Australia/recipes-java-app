@@ -21,11 +21,11 @@ public class PatientHistoryService {
   public ResponseEntity<List<PatientHistory>> getHistories(final String username) {
     if(username != null) {
       List<PatientHistoryEntity> entities = repository.getHistories(username);
-      return new ResponseEntity<>(convertList(entities), null, HttpStatus.OK);
+      return new ResponseEntity<List<PatientHistory>>(convertList(entities), null, HttpStatus.OK);
     }
     else
     {
-      return new ResponseEntity<>(new ArrayList<>(), null, HttpStatus.UNAUTHORIZED);
+      return new ResponseEntity<List<PatientHistory>>(new ArrayList<PatientHistory>(), null, HttpStatus.UNAUTHORIZED);
     }
   }
 

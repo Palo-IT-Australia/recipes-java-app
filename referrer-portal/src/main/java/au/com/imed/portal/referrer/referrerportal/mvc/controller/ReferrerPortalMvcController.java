@@ -364,7 +364,6 @@ public class ReferrerPortalMvcController {
 		return "retrieve";
 	}
 
-	//TODO: Remove (migrated to a REST controller)
 	@PostMapping("/retrieve")
 	public String postRetrieve(@ModelAttribute RetrieveModel retrieveModel, Model model) {
 		logger.info("/retrieve {}", retrieveModel);
