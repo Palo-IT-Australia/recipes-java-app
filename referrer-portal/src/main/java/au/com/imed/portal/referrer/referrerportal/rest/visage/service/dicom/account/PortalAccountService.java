@@ -234,7 +234,7 @@ public class PortalAccountService extends ABasicAccountService {
 		AndFilter filter = new AndFilter();
 		filter.and(new EqualsFilter("uid", userName));
 
-		LdapTemplate ldapTemplate = getGlobalLdapTemplate();
+		LdapTemplate ldapTemplate = getReferrerLdapTemplate();
 		List<Name> list = ldapTemplate.search("", filter.encode(), new PersonContextMapper());
 		System.out.println("updateReferrerPassword() " + list);
 		if (list.size() > 0) {
