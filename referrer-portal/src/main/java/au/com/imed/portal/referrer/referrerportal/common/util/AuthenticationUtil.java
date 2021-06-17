@@ -25,7 +25,9 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class AuthenticationUtil {
@@ -272,11 +274,6 @@ public class AuthenticationUtil {
                 }
             } catch (Exception ex) {
                 logger.info("getAuthenticatedUserName() " + PortalConstant.HEADER_AUTHENTICATION + " invalid");
-            }
-        } else {
-            var authentication = SecurityContextHolder.getContext().getAuthentication();
-            if (authentication != null && authentication.getPrincipal() != null) {
-                userName = authentication.getPrincipal().toString();
             }
         }
 

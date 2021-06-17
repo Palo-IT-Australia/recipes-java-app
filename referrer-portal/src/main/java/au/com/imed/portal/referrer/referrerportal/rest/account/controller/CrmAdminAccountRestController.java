@@ -1,30 +1,5 @@
 package au.com.imed.portal.referrer.referrerportal.rest.account.controller;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import org.jose4j.json.internal.json_simple.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.itextpdf.html2pdf.jsoup.helper.StringUtil;
-
 import au.com.imed.portal.referrer.referrerportal.audit.CrmAdminAuditService;
 import au.com.imed.portal.referrer.referrerportal.common.PortalConstant;
 import au.com.imed.portal.referrer.referrerportal.common.util.ForceResetPasswordAes128Util;
@@ -32,20 +7,26 @@ import au.com.imed.portal.referrer.referrerportal.email.ReferrerMailService;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.entity.ReferrerProviderEntity;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.repository.ReferrerProviderJpaRepository;
 import au.com.imed.portal.referrer.referrerportal.ldap.ReferrerCreateAccountService;
-import au.com.imed.portal.referrer.referrerportal.model.AccountDetail;
-import au.com.imed.portal.referrer.referrerportal.model.AccountStatus;
-import au.com.imed.portal.referrer.referrerportal.model.AutoValidationResult;
-import au.com.imed.portal.referrer.referrerportal.model.ExternalUser;
-import au.com.imed.portal.referrer.referrerportal.model.LdapUserDetails;
-import au.com.imed.portal.referrer.referrerportal.model.StageUser;
-import au.com.imed.portal.referrer.referrerportal.model.StagingValidatingUserList;
+import au.com.imed.portal.referrer.referrerportal.model.*;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.model.Referrer;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.model.Referrer.Practice;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.service.GetReferrerService;
+import com.itextpdf.html2pdf.jsoup.helper.StringUtil;
+import org.jose4j.json.internal.json_simple.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/crmadminrest/account")
-@PreAuthorize("hasAuthority('ROLE_CRM_ADMIN')")
 public class CrmAdminAccountRestController {
 	private Logger logger = LoggerFactory.getLogger(CrmAdminAccountRestController.class);
 
