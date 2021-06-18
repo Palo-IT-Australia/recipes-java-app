@@ -37,7 +37,7 @@ public class PasswordControllerTests {
         when(securityContext.getAuthentication()).thenReturn(authentication);
         SecurityContextHolder.setContext(securityContext);
 
-        var result = changePasswordController.changePassword("Bearer token", mockAccountPassword);
+        var result = changePasswordController.changePassword(mockAccountPassword);
 
         verify(portalAccountService).updateReferrerPassword(mockUser, mockAccountPassword);
 
@@ -56,7 +56,7 @@ public class PasswordControllerTests {
         when(securityContext.getAuthentication()).thenReturn(null);
         SecurityContextHolder.setContext(securityContext);
 
-        var result = changePasswordController.changePassword("Bearer token", mockAccountPassword);
+        var result = changePasswordController.changePassword(mockAccountPassword);
 
         assertTrue(result.getStatusCode().is4xxClientError());
     }
