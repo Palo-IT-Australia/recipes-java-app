@@ -1,16 +1,13 @@
 package au.com.imed.portal.referrer.referrerportal.rest.account.controller;
 
-import au.com.imed.portal.referrer.referrerportal.ReferrerPortalApplication;
 import au.com.imed.portal.referrer.referrerportal.ldap.ReferrerCreateAccountService;
 import au.com.imed.portal.referrer.referrerportal.model.ExternalUser;
+import au.com.imed.portal.referrer.referrerportal.rest.account.controller.v2.LoginController;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.TestPropertySource;
 
 import java.util.HashMap;
 
@@ -22,17 +19,13 @@ import static org.mockito.Mockito.when;
 
 
 @RunWith(MockitoJUnitRunner.class)
-@SpringBootTest(classes = ReferrerPortalApplication.class)
-@AutoConfigureMockMvc
-@TestPropertySource(
-        locations = "classpath:application-local.properties")
 public class LoginControllerTests {
 
     @Mock
     private ReferrerCreateAccountService referrerCreateAccountService;
 
     @InjectMocks
-    private LoginController loginController = new LoginController();
+    private LoginController loginController;
 
     @Test
     public void shouldTryRegisterUserAndSucceed() throws Exception {
