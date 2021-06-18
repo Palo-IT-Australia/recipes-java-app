@@ -31,8 +31,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
@@ -283,7 +281,6 @@ public class VisageController {
     ///
     /// Hospital
     ///
-    @PreAuthorize("isAuthenticated()")
     @GetMapping("/searchHospitalOrders")
     public ResponseEntity<List<HospitalOrderSummary>> searchHospitalOrders(@RequestParam Map<String, String> paramMap, @RequestHeader(value = PortalConstant.HEADER_AUTHENTICATION, required = false) String authentication) {
         String userName = AuthenticationUtil.getAuthenticatedUserName(authentication);
@@ -294,9 +291,9 @@ public class VisageController {
                 if (HttpStatus.OK.equals(entity.getStatusCode())) {
                     originalList = entity.getBody().getOrders();
                     // May add search by urn etc.
-					// if(paramMap.containsKey("externalIdentifier")) {
-					//  	originalList.stream().filter(o -> o.getPatient().externalIdentifier() == paramMap.get("externalIdentifier")).collect(Collectors.toList());
-					// }
+                    // if(paramMap.containsKey("externalIdentifier")) {
+                    //  	originalList.stream().filter(o -> o.getPatient().externalIdentifier() == paramMap.get("externalIdentifier")).collect(Collectors.toList());
+                    // }
                 }
 
                 return new ResponseEntity<>(originalList, entity.getHeaders(), entity.getStatusCode());
@@ -349,9 +346,9 @@ public class VisageController {
     //
 
     @GetMapping("/searchOrders")
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<Order>> searchOrders(@RequestParam Map<String, String> paramMap) {
-        String userName = SecurityContextHolder.getContext().getAuthentication().getName();
+    public ResponseEntity<List<Order>> searchOrders(@RequestParam Map<String, String> paramMap,
+                                                    @RequestHeader(value = PortalConstant.HEADER_AUTHENTICATION, required = false) String authentication) {
+        String userName = AuthenticationUtil.getAuthenticatedUserName(authentication);
         if (rateLimit(userName)) {
             if (preferenceService.isTermsAccepted(userName)) {
                 List<Order> orders = Collections.emptyList();
@@ -360,9 +357,9 @@ public class VisageController {
                             SearchOrders.class);
                     orders = entity.getStatusCode().equals(HttpStatus.OK)
                             ? getAccessibleOrders(entity.getBody().getOrders(), paramMap)
-                            : new ArrayList<>(0);
+                            : new ArrayList<Order>(0);
                     syslog.log(ReferrerEvent.SEARCH_ORDERS, "/searchOrders", userName, paramMap);
-                    return new ResponseEntity<>(orders, HttpStatus.OK);
+                    return new ResponseEntity<List<Order>>(orders, entity.getHeaders(), entity.getStatusCode());
                 } else {
                     logger.info("Invalid parameters found. Returning empty order list");
                     return new ResponseEntity<List<Order>>(orders, HttpStatus.OK);
@@ -376,7 +373,6 @@ public class VisageController {
     }
 
     @RequestMapping("/patient")
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Patient> getPatient(@RequestParam Map<String, String> paramMap,
                                               @RequestHeader(value = PortalConstant.HEADER_AUTHENTICATION, required = false) String authentication) {
         String userName = AuthenticationUtil.getAuthenticatedUserName(authentication);
@@ -422,7 +418,7 @@ public class VisageController {
                         if (patientEntity.getStatusCode().equals(HttpStatus.OK)) {
                             String dob = patientEntity.getBody().getDateOfBirth();
                             orderDetails.setPatientDob(dob);
-                            entity = new ResponseEntity<>(orderDetails, HttpStatus.OK);
+                            entity = new ResponseEntity<OrderDetails>(orderDetails, entity.getHeaders(), HttpStatus.OK);
                             auditService.doAudit("Order", userName, paramMap, orderDetails);
                             syslog.log(ReferrerEvent.ORDER, "/order", userName, paramMap, orderDetails);
                         } else {
@@ -447,9 +443,9 @@ public class VisageController {
     }
 
     @RequestMapping("/patientOrders")
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<PatientOrder> getPatientOrders(@RequestParam Map<String, String> paramMap) {
-        String userName = SecurityContextHolder.getContext().getAuthentication().getName();
+    public ResponseEntity<PatientOrder> getPatientOrders(@RequestParam Map<String, String> paramMap,
+                                                         @RequestHeader(value = PortalConstant.HEADER_AUTHENTICATION, required = false) String authentication) {
+        String userName = AuthenticationUtil.getAuthenticatedUserName(authentication);
         ResponseEntity<PatientOrder> entity;
         if (rateLimit(userName)) {
             if (preferenceService.isTermsAccepted(userName)) {
@@ -711,7 +707,6 @@ public class VisageController {
         return viewEntity;
     }
 
-    @PreAuthorize("isAuthenticated()")
     @RequestMapping("/history")
     public ResponseEntity<List<PatientHistory>> getPatientHistory(
             @RequestHeader(value = PortalConstant.HEADER_AUTHENTICATION, required = false) String authentication) {

@@ -75,5 +75,4 @@ public class ReferrerPortalAccountRestController {
         um.setAvailable(providerCheckerService.isProviderNumberValid(provider));
         return new ResponseEntity<UniquenessModel>(um, HttpStatus.OK);
     }
-
 }

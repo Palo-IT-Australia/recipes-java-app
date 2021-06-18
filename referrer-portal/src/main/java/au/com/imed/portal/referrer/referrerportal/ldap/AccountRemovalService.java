@@ -1,21 +1,5 @@
 package au.com.imed.portal.referrer.referrerportal.ldap;
 
-import static org.springframework.ldap.query.LdapQueryBuilder.query;
-
-import java.util.List;
-
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-
-import org.jsoup.helper.StringUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ldap.core.DirContextOperations;
-import org.springframework.ldap.core.support.AbstractContextMapper;
-import org.springframework.ldap.query.LdapQuery;
-import org.springframework.stereotype.Service;
-
 import au.com.imed.portal.referrer.referrerportal.common.PortalConstant;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.entity.ReferrerActivationEntity;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.entity.ReferrerAutoValidationEntity;
@@ -28,6 +12,20 @@ import au.com.imed.portal.referrer.referrerportal.jpa.history.model.PatientHisto
 import au.com.imed.portal.referrer.referrerportal.jpa.history.model.UserPreferencesEntity;
 import au.com.imed.portal.referrer.referrerportal.jpa.history.repository.PatientHistoryJPARepository;
 import au.com.imed.portal.referrer.referrerportal.rest.cleanup.model.GlobalLdapAccount;
+import org.jsoup.helper.StringUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.ldap.core.DirContextOperations;
+import org.springframework.ldap.core.support.AbstractContextMapper;
+import org.springframework.ldap.query.LdapQuery;
+import org.springframework.stereotype.Service;
+
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import java.util.List;
+
+import static org.springframework.ldap.query.LdapQueryBuilder.query;
 
 @Service
 public class AccountRemovalService extends ABasicAccountService {
@@ -41,16 +39,16 @@ public class AccountRemovalService extends ABasicAccountService {
 
 	@Autowired
 	private ReferrerActivationJpaRepository activationRepository;
-	
+
 	@Autowired
-	private UserPreferencesJPARepository preferencesRespository;
-	
+	private UserPreferencesJPARepository preferencesRepository;
+
 	@Autowired
 	private PatientHistoryJPARepository patientHistoryRepository;
 
 	private final static String OU_REFERRER = PortalConstant.DOMAIN_REFERRER.split(",")[0];
 	// canRemove() use this order
-	private final static String [] REMOVABLE_OUS = new String [] {
+	private final static String[] REMOVABLE_OUS = new String[]{
 			PortalConstant.DOMAIN_IMED_PACS_USERS.split(",")[0], PortalConstant.DOMAIN_PACS_USERS.split(",")[0],
 			OU_REFERRER, PortalConstant.DOMAIN_STAGING_PACS_USERS.split(",")[0]
 	};
@@ -60,12 +58,12 @@ public class AccountRemovalService extends ABasicAccountService {
 			"Referrer", "Placeholder"
 	};
 	private static final String ADDN_REFERRER = "ou=referrers,ou=portal,ou=applications,dc=mia,dc=net,dc=au";
-			
+
 	public void removeGlobalAccount(final String dn) throws Exception {
 		logger.info("removeAccount() {} ", dn);
 		getGlobalLdapTemplate().unbind(dn);
 	}
-	
+
 	public List<GlobalLdapAccount> findGlobalAccounts(final String word) throws Exception {
 		LdapQuery query = query()
 				.attributes("cn", "uid", "givenName", "sn", "mail", "adDn", PortalConstant.PARAM_ATTR_FINALIZING_PAGER)
@@ -73,7 +71,7 @@ public class AccountRemovalService extends ABasicAccountService {
 				.or("mail").is(word);
 		return getGlobalLdapTemplate().search(query, new GlobalAccountContextMapper());
 	}
-	
+
 	protected class GlobalAccountContextMapper extends AbstractContextMapper<GlobalLdapAccount> {
 		public GlobalLdapAccount doMapFromContext(DirContextOperations context) {
 			GlobalLdapAccount acnt = new GlobalLdapAccount();
@@ -95,34 +93,33 @@ public class AccountRemovalService extends ABasicAccountService {
 			return acnt;
 		}
 	}
-	
+
 	protected String atrString(Attribute atr) {
 		String val = "";
 		try {
-			val =  (atr != null && atr.get(0) != null) ? atr.get(0).toString() : "";	
+			val = (atr != null && atr.get(0) != null) ? atr.get(0).toString() : "";
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
 		return val;
 	}
-	
+
 	protected boolean canRemove(final GlobalLdapAccount acnt) {
 		boolean can = false;
 		String dn = acnt.getDn();
 		for(int i = 0; i < REMOVABLE_OUS.length; i ++) {
 			// non internal account and not under validation
-			if(dn.contains(REMOVABLE_OUS[i]) && !acnt.getMail().contains("@i-med.com.au") && StringUtil.isBlank(acnt.getStage())) 
-			{
-				if(i < 2) { // PACSes
+			if (dn.contains(REMOVABLE_OUS[i]) && !acnt.getMail().contains("@i-med.com.au") && StringUtil.isBlank(acnt.getStage())) {
+				if (i < 2) { // PACSes
 					can = acnt.getAddn().endsWith(ADDN_REFERRER);
-				} else if(i == 2) { // Referrer 
+				} else if (i == 2) { // Referrer
 					List<ReferrerAutoValidationEntity> autos = autoValidationRepository.findByUidAndValidationStatusNot(acnt.getUid(), PortalConstant.VALIDATION_STATUS_INVALID);
-					if(autos.size() > 0) { // should be only one valid status
+					if (autos.size() > 0) { // should be only one valid status
 						String sts = autos.get(0).getValidationStatus();
-						logger.info("canRemove() non-invalid validation status " + sts); 
+						logger.info("canRemove() non-invalid validation status " + sts);
 						// Notified status can be removed
 						can = PortalConstant.VALIDATION_STATUS_NOTIFIED.equalsIgnoreCase(sts);
-					} else { // completed account			
+					} else { // completed account
 						can = true;
 					}
 				} else {
@@ -133,7 +130,7 @@ public class AccountRemovalService extends ABasicAccountService {
 		}
 		return can;
 	}
-	
+
 	protected String toType(final String dn) {
 		String type = "Other/Validating";
 		for(int i = 0; i < REMOVABLE_OUS.length; i ++) {
@@ -144,18 +141,18 @@ public class AccountRemovalService extends ABasicAccountService {
 		}
 		return type;
 	}
-	
+
 	public void cleanupDb(final GlobalLdapAccount acnt) {
 		// On removing referrer account
 		if(acnt.getDn().contains(OU_REFERRER) && acnt.isCanRemove()) {
 			String uid = acnt.getUid();
-	    
+
 			List<ReferrerProviderEntity> provs = referrerProviderJpaRepository.findByUsername(uid);
 			if(provs.size() > 0) {
 				logger.info("cleanupDB() removing providers");
 				referrerProviderJpaRepository.deleteAll(provs);
 			}
-			
+
 			List<ReferrerAutoValidationEntity> autos = autoValidationRepository.findByUidAndValidationStatusNot(uid, PortalConstant.VALIDATION_STATUS_INVALID);
 			if(autos.size() > 0) {
 				logger.info("cleanupDB() removing auto validations");
@@ -163,23 +160,23 @@ public class AccountRemovalService extends ABasicAccountService {
 			}
 
 			List<ReferrerActivationEntity> activations = activationRepository.findByUid(uid);
-			if(activations.size() > 0) {
+			if (activations.size() > 0) {
 				logger.info("cleanupDB() removing activations");
 				activationRepository.delete(activations.get(0));
 			}
 
-			List<UserPreferencesEntity> prefs = preferencesRespository.findByUsername(uid);
-			if(prefs.size() > 0) {
+			List<UserPreferencesEntity> prefs = preferencesRepository.findByUsername(uid);
+			if (prefs.size() > 0) {
 				logger.info("cleanupDB() removing preferences");
-				preferencesRespository.delete(prefs.get(0));
+				preferencesRepository.delete(prefs.get(0));
 			}
-	  	
+
 			List<PatientHistoryEntity> hists = patientHistoryRepository.findByUsername(uid);
-			if(hists.size() > 0) {
+			if (hists.size() > 0) {
 				logger.info("cleanupDB() removing histories");
 				patientHistoryRepository.delete(hists.get(0));
 			}
 		}
 	}
-	
+
 }

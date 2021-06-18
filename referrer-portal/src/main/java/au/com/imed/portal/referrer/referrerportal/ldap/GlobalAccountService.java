@@ -17,11 +17,11 @@ import java.util.regex.Pattern;
 @Service
 public class GlobalAccountService extends ABasicAccountService {
 
-    private static final String AUTH_ADMIN = "ROLE_ADMIN";
-    private static final String AUTH_EDITOR = "ROLE_EDITOR";
-    private static final String AUTH_HOSPITAL = "ROLE_HOSPITAL";
-    private static final String AUTH_CLEANUP = "ROLE_CLEANUP";
-    private static final String AUTH_CRM_ADMIN = "ROLE_CRM_ADMIN";
+    public static final String AUTH_ADMIN = "ROLE_ADMIN";
+    public static final String AUTH_EDITOR = "ROLE_EDITOR";
+    public static final String AUTH_HOSPITAL = "ROLE_HOSPITAL";
+    public static final String AUTH_CLEANUP = "ROLE_CLEANUP";
+    public static final String AUTH_CRM_ADMIN = "ROLE_CRM_ADMIN";
 
     @Autowired
     private ReferrerAccountService accountService;
@@ -40,6 +40,20 @@ public class GlobalAccountService extends ABasicAccountService {
 
     @Value("${imed.portal.auth.groups.hospital}")
     private String[] hospitalGroups;
+
+    public boolean checkPasswordForReferrer(String username, String password) {
+        var isAuth = false;
+        try {
+            if (username != null && username.length() > 0 && password != null && password.length() > 0) {
+                var filter = new AndFilter();
+                filter.and(new EqualsFilter("uid", username));
+                isAuth = getReferrerLdapTemplate().authenticate("", filter.toString(), password);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return isAuth;
+    }
 
     private SearchControls getSimpleSearchControls() {
         var searchControls = new SearchControls();
@@ -98,19 +112,5 @@ public class GlobalAccountService extends ABasicAccountService {
             return groups.stream().anyMatch(s -> Arrays.asList(targetGroup).contains(s));
         }
         return false;
-    }
-
-    public boolean checkPassword(String username, String password) {
-        var isAuth = false;
-        try {
-            if (username != null && username.length() > 0 && password != null && password.length() > 0) {
-                var filter = new AndFilter();
-                filter.and(new EqualsFilter("uid", username));
-                isAuth = getGlobalLdapTemplate().authenticate("ou=users", filter.toString(), password);
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        return isAuth;
     }
 }

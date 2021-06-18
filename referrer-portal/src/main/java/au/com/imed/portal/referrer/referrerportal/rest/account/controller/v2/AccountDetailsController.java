@@ -1,4 +1,4 @@
-package au.com.imed.portal.referrer.referrerportal.rest.account.controller;
+package au.com.imed.portal.referrer.referrerportal.rest.account.controller.v2;
 
 import au.com.imed.portal.referrer.referrerportal.ldap.ReferrerAccountService;
 import au.com.imed.portal.referrer.referrerportal.model.AccountDetail;
@@ -13,14 +13,18 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
 
 import static au.com.imed.portal.referrer.referrerportal.common.PortalConstant.MODEL_KEY_ERROR_MSG;
 
 @RestController
-@RequestMapping("/account")
+@RequestMapping("${imed.api-v2.prefix}/account")
+@PreAuthorize("isAuthenticated()")
 public class AccountDetailsController {
 
     @Autowired

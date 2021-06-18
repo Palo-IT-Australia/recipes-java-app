@@ -1,23 +1,5 @@
 package au.com.imed.portal.referrer.referrerportal.rest.editor.controller;
 
-import java.io.OutputStream;
-import java.util.List;
-
-import javax.servlet.http.HttpServletResponse;
-import javax.transaction.Transactional;
-
-import org.apache.commons.codec.binary.Base64;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import au.com.imed.portal.referrer.referrerportal.jpa.clinic.entity.ClinicContentEntity;
 import au.com.imed.portal.referrer.referrerportal.jpa.clinic.entity.RadiologistEntity;
 import au.com.imed.portal.referrer.referrerportal.jpa.clinic.repository.ClinicContentRepository;
@@ -25,10 +7,20 @@ import au.com.imed.portal.referrer.referrerportal.jpa.clinic.repository.Radiolog
 import au.com.imed.portal.referrer.referrerportal.rest.editor.model.ClinicContentSaveModel;
 import au.com.imed.portal.referrer.referrerportal.rest.editor.model.RadiologistSaveModel;
 import au.com.imed.portal.referrer.referrerportal.rest.editor.model.SimpleResultModel;
+import org.apache.commons.codec.binary.Base64;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletResponse;
+import javax.transaction.Transactional;
+import java.io.OutputStream;
+import java.util.List;
 
 @RestController
 @RequestMapping("/editorrest/dbmanager")
-@PreAuthorize("hasAuthority('ROLE_EDITOR')")
 public class EditorDbManagerController {
 	@Autowired
 	private ClinicContentRepository clinicContentRepository;

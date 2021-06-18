@@ -52,7 +52,7 @@
 		<repository>
 			<id>central-repo</id>
 			<name>Central Repository</name>
-			<url>https://repo1.maven.org/maven2</url>
+			<url>http://repo1.maven.org/maven2</url>
 		</repository>
 		<repository>
 			<id>www.dcm4che.org</id>
@@ -68,7 +68,7 @@
 	<pluginRepositories>
 		<pluginRepository>
 			<id>central-repo</id>
-			<url>https://repo1.maven.org/maven2</url>
+			<url>http://repo1.maven.org/maven2</url>
 		</pluginRepository>
 	</pluginRepositories>
 
@@ -309,12 +309,6 @@
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-engine</artifactId>
-			<version>5.7.0</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.junit.jupiter</groupId>
-			<artifactId>junit-jupiter-api</artifactId>
 			<version>5.7.0</version>
 			<scope>test</scope>
 		</dependency>

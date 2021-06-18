@@ -1,4 +1,4 @@
-package au.com.imed.portal.referrer.referrerportal.rest.account.controller;
+package au.com.imed.portal.referrer.referrerportal.rest.account.controller.v2;
 
 import au.com.imed.portal.referrer.referrerportal.common.util.AuthenticationUtil;
 import au.com.imed.portal.referrer.referrerportal.ldap.GlobalAccountService;
@@ -11,14 +11,17 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
 
 import static au.com.imed.portal.referrer.referrerportal.common.PortalConstant.MODEL_KEY_SUCCESS_MSG;
 
 @RestController
-@RequestMapping("/portal")
+@RequestMapping("${imed.api-v2.prefix}/portal/")
 public class LoginController {
     private Logger logger = LoggerFactory.getLogger(LoginController.class);
 
@@ -30,7 +33,7 @@ public class LoginController {
 
     @PostMapping("/login")
     public ResponseEntity<AccountTokenResponse> login(@RequestBody AccountUidPassword user) {
-        if (accountService.checkPassword(user.getUid(), user.getPassword())) {
+        if (accountService.checkPasswordForReferrer(user.getUid(), user.getPassword())) {
             try {
                 var token = AuthenticationUtil.createAccessToken(user.getUid(), accountService.getAccountGroups(user.getUid()));
                 return ResponseEntity.ok(new AccountTokenResponse("Bearer", token));
