@@ -18,6 +18,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 
+
+// @ TODO change the name when the proper class will be rewritten with Mockito Runner
 @RunWith(MockitoJUnitRunner.class)
 public class PostAccountDetailsControllerTests {
 
