@@ -2,6 +2,7 @@ package au.com.imed.portal.referrer.referrerportal.rest.account.controller.v2;
 
 import au.com.imed.portal.referrer.referrerportal.ldap.ReferrerCreateAccountService;
 import au.com.imed.portal.referrer.referrerportal.model.ExternalUser;
+import au.com.imed.portal.referrer.referrerportal.rest.account.controller.v2.LoginController;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;

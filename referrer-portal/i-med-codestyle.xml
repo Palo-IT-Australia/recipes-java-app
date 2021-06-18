@@ -1,0 +1,16 @@
+<code_scheme name="Default" version="173">
+    <ScalaCodeStyleSettings>
+        <option name="MULTILINE_STRING_CLOSING_QUOTES_ON_NEW_LINE" value="true"/>
+        <option name="configuration">
+            <map>
+                <entry key="checkstyle-version" value="8.43"/>
+                <entry key="copy-libs" value="false"/>
+                <entry key="location-0" value="BUNDLED:(bundled):Sun Checks"/>
+                <entry key="location-1" value="BUNDLED:(bundled):Google Checks"/>
+                <entry key="scan-before-checkin" value="false"/>
+                <entry key="scanscope" value="JavaOnly"/>
+                <entry key="suppress-errors" value="false"/>
+            </map>
+        </option>
+    </ScalaCodeStyleSettings>
+</code_scheme>
