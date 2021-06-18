@@ -1,26 +1,17 @@
 package au.com.imed.portal.referrer.referrerportal.rest.account.controller;
 
 import au.com.imed.portal.referrer.referrerportal.ldap.LdapAccountCheckerService;
-import au.com.imed.portal.referrer.referrerportal.ldap.ReferrerCreateAccountService;
-import au.com.imed.portal.referrer.referrerportal.model.AddPractice;
-import au.com.imed.portal.referrer.referrerportal.model.ChangeModel;
-import au.com.imed.portal.referrer.referrerportal.model.DetailModel;
 import au.com.imed.portal.referrer.referrerportal.provider.MedicareProviderCheckerService;
-import au.com.imed.portal.referrer.referrerportal.rest.account.model.AccountDetailsResponse;
 import au.com.imed.portal.referrer.referrerportal.rest.account.model.UniquenessModel;
-import au.com.imed.portal.referrer.referrerportal.utils.ModelUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
-
-import static au.com.imed.portal.referrer.referrerportal.common.PortalConstant.MODEL_KEY_ERROR_MSG;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/referreraccount")

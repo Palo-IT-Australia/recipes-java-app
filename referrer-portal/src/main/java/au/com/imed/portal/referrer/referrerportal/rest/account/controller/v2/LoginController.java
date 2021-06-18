@@ -6,6 +6,7 @@ import au.com.imed.portal.referrer.referrerportal.ldap.ReferrerCreateAccountServ
 import au.com.imed.portal.referrer.referrerportal.model.ExternalUser;
 import au.com.imed.portal.referrer.referrerportal.rest.account.model.AccountTokenResponse;
 import au.com.imed.portal.referrer.referrerportal.rest.account.model.AccountUidPassword;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,9 +22,9 @@ import java.util.Map;
 import static au.com.imed.portal.referrer.referrerportal.common.PortalConstant.MODEL_KEY_SUCCESS_MSG;
 
 @RestController
+@Slf4j
 @RequestMapping("${imed.api-v2.prefix}/portal/")
 public class LoginController {
-    private Logger logger = LoggerFactory.getLogger(LoginController.class);
 
     @Autowired
     private GlobalAccountService accountService;
@@ -47,7 +48,7 @@ public class LoginController {
 
     @PostMapping("/register")
     public ResponseEntity<Map<String,String>> register(@RequestBody ExternalUser imedExternalUser) {
-        logger.info("/portal/register" + imedExternalUser.toString());
+        log.info("/portal/register" + imedExternalUser.toString());
         try {
             var response = referrerAccountService.createAccount(imedExternalUser);
             if (response.containsKey(MODEL_KEY_SUCCESS_MSG)){
