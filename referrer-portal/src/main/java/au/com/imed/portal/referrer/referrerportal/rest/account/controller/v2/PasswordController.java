@@ -20,7 +20,7 @@ public class PasswordController {
 
     @PostMapping("/change_password")
     public ResponseEntity<String> changePassword(@RequestHeader("Authorization") String token, @RequestBody AccountPassword accountPassword) throws Exception {
-        log.info("/portal/register" + accountPassword.toString());
+        log.info("/account/change_password" + accountPassword.toString());
         try {
             var user = AuthenticationUtil.getAuthenticatedUserName("");
             portalAccountService.updateReferrerPassword(user, accountPassword);
