@@ -1,6 +1,5 @@
 package au.com.imed.portal.referrer.referrerportal.rest.account.controller.v2;
 
-import au.com.imed.portal.referrer.referrerportal.common.util.AuthenticationUtil;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.model.account.AccountPassword;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.service.dicom.account.PortalAccountService;
 import org.junit.Test;
