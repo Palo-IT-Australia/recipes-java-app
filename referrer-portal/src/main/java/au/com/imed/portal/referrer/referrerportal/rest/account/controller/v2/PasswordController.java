@@ -11,18 +11,18 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("${imed.api-v2.prefix}/account")
+@RequestMapping("${imed.api-v2.prefix}/password")
 @Slf4j
 public class PasswordController {
 
     @Autowired
     private PortalAccountService portalAccountService;
 
-    @PostMapping("/change_password")
+    @PostMapping("/change")
     public ResponseEntity<String> changePassword(@RequestHeader("Authorization") String token, @RequestBody AccountPassword accountPassword) throws Exception {
         log.info("/account/change_password" + accountPassword.toString());
         try {
-            var user = AuthenticationUtil.getAuthenticatedUserName("");
+            var user = AuthenticationUtil.getAuthenticatedUserName(null);
             portalAccountService.updateReferrerPassword(user, accountPassword);
             return ResponseEntity.ok("Successfully changed password");
         } catch (Exception e) {
