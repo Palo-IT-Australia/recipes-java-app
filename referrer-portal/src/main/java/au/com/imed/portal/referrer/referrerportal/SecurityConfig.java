@@ -95,8 +95,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http
-                .authorizeRequests()
+        http.authorizeRequests()
                 .antMatchers(anonUrls).permitAll()
                 .antMatchers(adminUrls).hasAuthority(AUTH_ADMIN)
                 .antMatchers(cleanupUrls).hasAuthority(AUTH_CLEANUP)
