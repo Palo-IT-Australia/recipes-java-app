@@ -56,7 +56,7 @@ public class AccountDetailsController {
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/details")
-    public ResponseEntity<AccountDetailsResponse> accountDetails(@RequestHeader("Authorization") String token, Authentication authentication) throws Exception {
+    public ResponseEntity<AccountDetailsResponse> accountDetails(Authentication authentication) throws Exception {
         try {
             var details = getPopulatedDetailModel(authentication);
             var practices = getListedPracticesModel(authentication);
