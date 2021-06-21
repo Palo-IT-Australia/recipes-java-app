@@ -1,41 +1,27 @@
 package au.com.imed.portal.referrer.referrerportal.rest.account.controller.v2;
 
-import au.com.imed.portal.referrer.referrerportal.ReferrerPortalApplication;
 import au.com.imed.portal.referrer.referrerportal.ldap.ReferrerAccountService;
 import au.com.imed.portal.referrer.referrerportal.model.AccountDetail;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.web.servlet.MockMvc;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.security.core.Authentication;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.*;
 
 
-@RunWith(SpringRunner.class)
-@SpringBootTest(classes = ReferrerPortalApplication.class)
-@AutoConfigureMockMvc
-@TestPropertySource(
-        locations = "classpath:application-local.properties")
+@RunWith(MockitoJUnitRunner.class)
 public class AccountDetailsControllerTests {
-    @Autowired
-    private MockMvc mockMvc;
 
-    @MockBean
+    @Mock
     private ReferrerAccountService referrerAccountService;
 
     @InjectMocks
-    private AccountDetailsController accountDetailsController = new AccountDetailsController();
+    private AccountDetailsController accountDetailsController;
 
     @Test
     public void shouldRequestAccountDetailsAndSucceed() throws Exception {
@@ -44,13 +30,13 @@ public class AccountDetailsControllerTests {
         mockReturn.setEmail("jackson@palo-it.com");
         mockReturn.setName("jackson");
         mockReturn.setUid("0404040404");
-        Mockito.when(referrerAccountService.getReferrerAccountDetail(Mockito.any(String.class))).thenReturn(mockReturn);
+        lenient().when(referrerAccountService.getReferrerAccountDetail(Mockito.any(String.class))).thenReturn(mockReturn);
 
-        this.mockMvc
-                .perform(
-                        get("/account/details").contentType(MediaType.APPLICATION_JSON).content("{}").header(HttpHeaders.AUTHORIZATION, "Bearer token"))
-                .andExpect(status().is2xxSuccessful())
-                .andExpect(content().json("{}"));
+        var authentication = mock(Authentication.class);
+
+        var result = accountDetailsController.accountDetails(authentication);
+
+        assertTrue(result.getStatusCode().is2xxSuccessful());
     }
 
     @Test
@@ -60,10 +46,11 @@ public class AccountDetailsControllerTests {
         mockReturn.setEmail("");
         mockReturn.setName("");
         mockReturn.setUid("");
-        Mockito.when(referrerAccountService.getReferrerAccountDetail(Mockito.any(String.class))).thenReturn(mockReturn);
-        this.mockMvc
-                .perform(
-                        get("/account/details").contentType(MediaType.APPLICATION_JSON).content("{}"))
-                .andExpect(status().is4xxClientError());
+        var authentication = mock(Authentication.class);
+        when(authentication.getName()).thenReturn("Jackson");
+        when(referrerAccountService.getReferrerAccountDetail("Jackson")).thenThrow(new RuntimeException());
+        var result = accountDetailsController.accountDetails(authentication);
+
+        assertTrue(result.getStatusCode().is4xxClientError());
     }
 }
