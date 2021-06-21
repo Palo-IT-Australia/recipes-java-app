@@ -79,7 +79,9 @@ public class AccountDetailsController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         try {
+            // MODEL_KEY_SUCCESS_MSG, "Your details have been changed."
             Map<String, String> resultMap = accountService.updateReferrerAccountDetail(uid, detailModel);
+
             return new ResponseEntity(getPopulatedDetailModel(authentication), HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
