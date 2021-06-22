@@ -74,7 +74,7 @@ public class AccountDetailsController {
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/details")
-    public ResponseEntity<DetailModel> info(@RequestBody DetailModel detailModel, Authentication authentication) throws ResponseStatusException {
+    public ResponseEntity<DetailModel> updateContactDetails(@RequestBody DetailModel detailModel, Authentication authentication) throws ResponseStatusException {
         final String uid = authentication.getName();
         try {
             if (uid == null) {

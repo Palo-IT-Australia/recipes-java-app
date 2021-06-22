@@ -9,8 +9,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -22,8 +20,6 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
 @RunWith(MockitoJUnitRunner.class)
@@ -53,13 +49,13 @@ public class AccountDetailsControllerTests {
         assertSame(result.getBody().getMobile(), "jackson" );
     }
 
-    @Test
+    @Test(expected = ResponseStatusException.class)
     public void shouldUpdateAccountDetailsAndFailOnGetName() throws Exception {
         var mockDetail = new DetailModel();
         mockDetail.setMobile("123");
         mockDetail.setEmail("test@email.com");
         Authentication authentication = Mockito.mock(Authentication.class);
-        var result = accountDetailsController.info(mockDetail, authentication);
+        var result = accountDetailsController.updateContactDetails(mockDetail, authentication);
         assertTrue(result.getStatusCode().is4xxClientError());
         verify(authentication, times(1)).getName();
     }
@@ -73,7 +69,7 @@ public class AccountDetailsControllerTests {
 
         Mockito.when(accountService.updateReferrerAccountDetail("test", mockDetail)).thenThrow(new Exception(("Test Exception")));
         Mockito.when(authentication.getName()).thenReturn("test");
-        var result = accountDetailsController.info(mockDetail, authentication);
+        var result = accountDetailsController.updateContactDetails(mockDetail, authentication);
         assertTrue(result.getStatusCode().is4xxClientError());
         verify(authentication, times(1)).getName();
         verify(accountService, times(1)).updateReferrerAccountDetail("test", mockDetail);
@@ -91,7 +87,7 @@ public class AccountDetailsControllerTests {
 
         Mockito.when(accountService.updateReferrerAccountDetail("test", mockDetail)).thenReturn(mockAccountUpdateReturn);
         Mockito.when(authentication.getName()).thenReturn("test");
-        var result = accountDetailsController.info(mockDetail, authentication);
+        var result = accountDetailsController.updateContactDetails(mockDetail, authentication);
         assertTrue(result.getStatusCode().is2xxSuccessful());
         verify(authentication, times(2)).getName();
         verify(accountService, times(1)).updateReferrerAccountDetail("test", mockDetail);
