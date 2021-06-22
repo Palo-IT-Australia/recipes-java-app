@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -23,7 +24,7 @@ import java.util.Map;
 
 @Slf4j
 @RestController("ReferrerPortalAccountRestControllerV2")
-@RequestMapping("${imed.api-v2.prefix}/referreraccount")
+    @RequestMapping("${imed.api-v2.prefix}/referreraccount")
 public class ReferrerPortalAccountRestController {
 
     @Autowired
@@ -41,6 +42,7 @@ public class ReferrerPortalAccountRestController {
     @Value("${imed.email.reciever}")
     private String emailReceiver;
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/recoverUID")
     public ResponseEntity<ErrorResponse> recoverUID(@RequestParam("email") String email, @RequestParam("ahpra") String ahpra) {
         log.info("/recoverUID {}", email);

@@ -13,6 +13,10 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import static au.com.imed.portal.referrer.referrerportal.common.PortalConstant.MODEL_KEY_SUCCESS_MSG;
+import static au.com.imed.portal.referrer.referrerportal.common.PortalConstant.MODEL_KEY_ERROR_MSG;
+
+
 import java.util.Map;
 
 @RestController
@@ -23,7 +27,7 @@ public class AccountDetailsController {
     @Autowired
     private ReferrerAccountService accountService;
 
-    private DetailModel getPopulatedDetailModel(final Authentication authentication) {
+    private DetailModel getPopulatedDetailModel(final Authentication authentication){
         DetailModel model = new DetailModel();
         if (authentication != null) {
             AccountDetail detail = accountService.getReferrerAccountDetail(authentication.getName());
@@ -56,12 +60,13 @@ public class AccountDetailsController {
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/details")
-    public ResponseEntity<AccountDetailsResponse> accountDetails(Authentication authentication) throws Exception {
+    public ResponseEntity<AccountDetailsResponse> accountDetails(Authentication authentication) {
         try {
             var details = getPopulatedDetailModel(authentication);
             var practices = getListedPracticesModel(authentication);
             return ResponseEntity.ok(new AccountDetailsResponse(details.getEmail(), details.getMobile(), details.getDisplayName(), practices));
         } catch (Exception e) {
+            e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
@@ -70,22 +75,20 @@ public class AccountDetailsController {
     @PostMapping("/details")
     public ResponseEntity<AccountDetailsResponse> info(@RequestBody DetailModel detailModel, Authentication authentication) {
         final String uid = authentication.getName();
-        if (uid == null) {
-            // MODEL_KEY_ERROR_MSG, "Failed to change details. User does not exist."
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-        if (!ModelUtil.sanitizeModel(detailModel, true)) {
-            // MODEL_KEY_ERROR_MSG, "Failed to change details. Invalid character input found."
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
         try {
-            // MODEL_KEY_SUCCESS_MSG, "Your details have been changed."
+            if (uid == null) {
+                throw new Exception("Failed to change details. User does not exist.");
+            }
+            if (!ModelUtil.sanitizeModel(detailModel, true)) {
+                throw new Exception("Failed to change details. Invalid character input found.");
+            }
             Map<String, String> resultMap = accountService.updateReferrerAccountDetail(uid, detailModel);
-
-            return new ResponseEntity(getPopulatedDetailModel(authentication), HttpStatus.OK);
+            if (resultMap.containsKey(MODEL_KEY_SUCCESS_MSG)) {
+                return new ResponseEntity(getPopulatedDetailModel(authentication), HttpStatus.OK);
+            }
+            throw new Exception(resultMap.get(MODEL_KEY_ERROR_MSG));
         } catch (Exception e) {
             e.printStackTrace();
-            // MODEL_KEY_ERROR_MSG, "Failed to change details."
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
