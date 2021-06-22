@@ -1,4 +1,4 @@
-package au.com.imed.portal.referrer.referrerportal.rest.account.controller;
+package au.com.imed.portal.referrer.referrerportal.rest.account.controller.v2;
 
 import au.com.imed.portal.referrer.referrerportal.ldap.ReferrerCreateAccountService;
 import au.com.imed.portal.referrer.referrerportal.model.ExternalUser;
