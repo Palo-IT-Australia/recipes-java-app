@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import static au.com.imed.portal.referrer.referrerportal.common.PortalConstant.MODEL_KEY_SUCCESS_MSG;
 import static au.com.imed.portal.referrer.referrerportal.common.PortalConstant.MODEL_KEY_ERROR_MSG;
@@ -27,7 +28,7 @@ public class AccountDetailsController {
     @Autowired
     private ReferrerAccountService accountService;
 
-    private DetailModel getPopulatedDetailModel(final Authentication authentication){
+    private DetailModel getPopulatedDetailModel(final Authentication authentication) {
         DetailModel model = new DetailModel();
         if (authentication != null) {
             AccountDetail detail = accountService.getReferrerAccountDetail(authentication.getName());
@@ -73,20 +74,20 @@ public class AccountDetailsController {
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/details")
-    public ResponseEntity<AccountDetailsResponse> info(@RequestBody DetailModel detailModel, Authentication authentication) {
+    public ResponseEntity<DetailModel> info(@RequestBody DetailModel detailModel, Authentication authentication) {
         final String uid = authentication.getName();
         try {
             if (uid == null) {
-                throw new Exception("Failed to change details. User does not exist.");
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Failed to change details. User does not exist.");
             }
             if (!ModelUtil.sanitizeModel(detailModel, true)) {
-                throw new Exception("Failed to change details. Invalid character input found.");
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Failed to change details. Invalid character input found.");
             }
             Map<String, String> resultMap = accountService.updateReferrerAccountDetail(uid, detailModel);
             if (resultMap.containsKey(MODEL_KEY_SUCCESS_MSG)) {
-                return new ResponseEntity(getPopulatedDetailModel(authentication), HttpStatus.OK);
+                return new ResponseEntity<>(getPopulatedDetailModel(authentication), HttpStatus.OK);
             }
-            throw new Exception(resultMap.get(MODEL_KEY_ERROR_MSG));
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, resultMap.get(MODEL_KEY_ERROR_MSG));
         } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
