@@ -74,7 +74,7 @@ public class AccountDetailsController {
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/details")
-    public ResponseEntity<DetailModel> info(@RequestBody DetailModel detailModel, Authentication authentication) {
+    public ResponseEntity<DetailModel> info(@RequestBody DetailModel detailModel, Authentication authentication) throws ResponseStatusException {
         final String uid = authentication.getName();
         try {
             if (uid == null) {
@@ -90,7 +90,7 @@ public class AccountDetailsController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, resultMap.get(MODEL_KEY_ERROR_MSG));
         } catch (Exception e) {
             e.printStackTrace();
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
     }
 
