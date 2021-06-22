@@ -4,8 +4,10 @@ import au.com.imed.portal.referrer.referrerportal.common.util.AuthenticationUtil
 import au.com.imed.portal.referrer.referrerportal.ldap.GlobalAccountService;
 import au.com.imed.portal.referrer.referrerportal.ldap.ReferrerCreateAccountService;
 import au.com.imed.portal.referrer.referrerportal.model.ExternalUser;
+import au.com.imed.portal.referrer.referrerportal.model.ResetConfirmModel;
 import au.com.imed.portal.referrer.referrerportal.model.ResetModel;
 import au.com.imed.portal.referrer.referrerportal.rest.account.error.EmailException;
+import au.com.imed.portal.referrer.referrerportal.rest.account.error.IMedGenericException;
 import au.com.imed.portal.referrer.referrerportal.rest.account.error.SmsException;
 import au.com.imed.portal.referrer.referrerportal.rest.account.model.AccountTokenResponse;
 import au.com.imed.portal.referrer.referrerportal.rest.account.model.AccountUidPassword;
@@ -15,10 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Map;
@@ -58,7 +57,7 @@ public class UserAccountController {
         if (ModelUtil.sanitizeModel(resetModel)) {
             try {
                 var userDetails = referrerAccountService.getReferrerAccountDetailByEmail(resetModel.getUsername());
-                userAccountService.confirmPasswordReset(userDetails);
+                userAccountService.requestPasswordReset(userDetails);
             } catch (EmailException | SmsException ex) {
                 ex.printStackTrace();
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage());
@@ -70,6 +69,23 @@ public class UserAccountController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid character input found");
         }
         return new ResponseEntity<>(HttpStatus.ACCEPTED);
+    }
+
+    @PostMapping("/reset-confirm")
+    public ResponseEntity<ResetConfirmModel> postResetConfirm(@ModelAttribute ResetConfirmModel confirmModel) {
+        log.info(confirmModel.toString());
+        if (ModelUtil.sanitizeModel(confirmModel)) {
+            try {
+                userAccountService.confirmPasswordReset(confirmModel);
+            } catch (IMedGenericException ex) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage());
+            }
+        } else {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        var confirm = new ResetConfirmModel();
+        confirm.setSecret(confirmModel.getSecret());
+        return new ResponseEntity<>(confirm, HttpStatus.OK);
     }
 
     @PostMapping("/register")

@@ -45,7 +45,7 @@ public class UserAccountControllerTest {
 
         var response = controller.resetPassword(resetModel);
 
-        verify(service).confirmPasswordReset(accountDetail);
+        verify(service).requestPasswordReset(accountDetail);
         assertTrue(response.getStatusCode().is2xxSuccessful());
     }
 
@@ -58,7 +58,7 @@ public class UserAccountControllerTest {
         var accountDetail = mock(AccountDetail.class);
         when(referrerAccountService.getReferrerAccountDetailByEmail(email1)).thenReturn(accountDetail);
 
-        doThrow(new SmsException("Wrong phone number")).when(service).confirmPasswordReset(accountDetail);
+        doThrow(new SmsException("Wrong phone number")).when(service).requestPasswordReset(accountDetail);
 
         Assertions.assertThrows(ResponseStatusException.class, () -> controller.resetPassword(resetModel));
     }

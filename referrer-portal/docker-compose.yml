@@ -1,0 +1,32 @@
+version: "3"
+
+networks:
+  my-network:
+    driver: bridge
+
+services:
+  sql_server:
+    image: "mcr.microsoft.com/mssql/server"
+    ports:
+      - "1433:1433"
+    environment:
+      SA_PASSWORD: "Your_password123"
+      ACCEPT_EULA: "Y"
+    networks:
+      - my-network
+  openldap:
+    image: bitnami/openldap:2
+    ports:
+      - '1389:1389'
+      - '1636:1636'
+    environment:
+      - LDAP_ADMIN_USERNAME=admin
+      - LDAP_ADMIN_PASSWORD=adminpassword
+      - LDAP_ROOT=dc=mia,dc=net,dc=au
+    networks:
+      - my-network
+    volumes:
+      - 'openldap_data:/bitnami/openldap'
+volumes:
+  openldap_data:
+    driver: local

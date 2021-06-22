@@ -45,7 +45,7 @@ public class UserAccountServiceTest {
         when(refPasswordResetEntity.getUrlCode()).thenReturn("fake-url-code");
         when(confirmProcessDataService.savePasswordReset(eq(email1), anyString())).thenReturn(refPasswordResetEntity);
 
-        userAccountService.confirmPasswordReset(accountDetail);
+        userAccountService.requestPasswordReset(accountDetail);
 
         verify(smsService).send(eq(new String[]{phone1}), anyString());
     }
@@ -63,7 +63,7 @@ public class UserAccountServiceTest {
         when(refPasswordResetEntity.getUrlCode()).thenReturn("fake-url-code");
         when(confirmProcessDataService.savePasswordReset(eq(email1), anyString())).thenReturn(refPasswordResetEntity);
 
-        userAccountService.confirmPasswordReset(accountDetail);
+        userAccountService.requestPasswordReset(accountDetail);
 
         verify(mailService).sendPasswordResetHtml(eq(new String[]{email1}), anyString());
     }
@@ -82,7 +82,7 @@ public class UserAccountServiceTest {
         when(refPasswordResetEntity.getUrlCode()).thenReturn("fake-url-code");
         when(confirmProcessDataService.savePasswordReset(eq(email1), anyString())).thenReturn(refPasswordResetEntity);
 
-        userAccountService.confirmPasswordReset(accountDetail);
+        userAccountService.requestPasswordReset(accountDetail);
     }
 
     @Test(expected = EmailException.class)
@@ -93,7 +93,7 @@ public class UserAccountServiceTest {
         accountDetail.setEmail(email1);
         accountDetail.setMobile(null);
 
-        userAccountService.confirmPasswordReset(accountDetail);
+        userAccountService.requestPasswordReset(accountDetail);
     }
 
     @Test(expected = EmailException.class)
@@ -104,7 +104,7 @@ public class UserAccountServiceTest {
         accountDetail.setEmail(null);
         accountDetail.setMobile(phone1);
 
-        userAccountService.confirmPasswordReset(accountDetail);
+        userAccountService.requestPasswordReset(accountDetail);
     }
 
     @Test(expected = EmailException.class)
@@ -116,7 +116,7 @@ public class UserAccountServiceTest {
         accountDetail.setEmail(email1);
         accountDetail.setMobile(phone1);
 
-        userAccountService.confirmPasswordReset(accountDetail);
+        userAccountService.requestPasswordReset(accountDetail);
     }
 
     @Test(expected = EmailException.class)
@@ -133,7 +133,7 @@ public class UserAccountServiceTest {
         when(confirmProcessDataService.savePasswordReset(eq(email1), anyString())).thenReturn(refPasswordResetEntity);
 
         doThrow(new Exception()).when(mailService).sendPasswordResetHtml(eq(new String[]{email1}), anyString());
-        userAccountService.confirmPasswordReset(accountDetail);
+        userAccountService.requestPasswordReset(accountDetail);
     }
 
     @Test(expected = SmsException.class)
@@ -150,6 +150,6 @@ public class UserAccountServiceTest {
         when(confirmProcessDataService.savePasswordReset(eq(email1), anyString())).thenReturn(refPasswordResetEntity);
 
         doThrow(new Exception()).when(smsService).send(eq(new String[]{phone1}), anyString());
-        userAccountService.confirmPasswordReset(accountDetail);
+        userAccountService.requestPasswordReset(accountDetail);
     }
 }

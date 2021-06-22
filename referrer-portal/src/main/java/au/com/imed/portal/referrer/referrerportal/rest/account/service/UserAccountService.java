@@ -2,8 +2,11 @@ package au.com.imed.portal.referrer.referrerportal.rest.account.service;
 
 import au.com.imed.portal.referrer.referrerportal.email.ReferrerMailService;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.entity.ReferrerPasswordResetEntity;
+import au.com.imed.portal.referrer.referrerportal.ldap.ReferrerCreateAccountService;
 import au.com.imed.portal.referrer.referrerportal.model.AccountDetail;
+import au.com.imed.portal.referrer.referrerportal.model.ResetConfirmModel;
 import au.com.imed.portal.referrer.referrerportal.rest.account.error.EmailException;
+import au.com.imed.portal.referrer.referrerportal.rest.account.error.IMedGenericException;
 import au.com.imed.portal.referrer.referrerportal.rest.account.error.SmsException;
 import au.com.imed.portal.referrer.referrerportal.service.ConfirmProcessDataService;
 import au.com.imed.portal.referrer.referrerportal.sms.GoFaxSmsService;
@@ -18,21 +21,58 @@ import org.springframework.stereotype.Service;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
+import static org.apache.commons.lang3.StringUtils.isBlank;
+
 @Log4j
 @Service
 public class UserAccountService {
 
     private static final String SMS_BODY = "I-MED Radiology Network : Your account reset passcode is ";
+
     @Autowired
     private ReferrerMailService emailService;
+
     @Autowired
     private GoFaxSmsService smsService;
+
     @Autowired
     private ConfirmProcessDataService confirmProcessDataService;
+
+    @Autowired
+    private ReferrerCreateAccountService referrerAccountService;
+
     @Value("${imed.application.url}")
     private String applicationUrl;
 
-    public void confirmPasswordReset(AccountDetail userDetails) {
+    public void confirmPasswordReset(ResetConfirmModel confirmModel) {
+        final String passcode = confirmModel.getPasscode();
+        final String password = confirmModel.getPassword();
+        final String secret = confirmModel.getSecret();
+        if (!isBlank(passcode) && !isBlank(password) && !isBlank(secret)) {
+            var entity = confirmProcessDataService.getReferrerPasswordResetEntityBySecret(secret);
+            if (entity != null) {
+                try {
+                    if (SmsPasscodeHashUtil.validatePassword(passcode, entity.getPasscodeHash(), entity.getPasscodeSalt())) {
+                        referrerAccountService.resetReferrerPassword(entity.getUid(), password);
+                        confirmProcessDataService.setPasswordResetActive(entity);
+                    } else {
+                        log.info("postResetConfirm() Passcode wrong");
+                        confirmProcessDataService.incrementPasswordResetFailures(entity);
+                        throw new IMedGenericException("Wrong passcode");
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    throw new IMedGenericException("Error");
+                }
+            } else {
+                throw new IMedGenericException("Invalid secret");
+            }
+        } else {
+            throw new IMedGenericException("Invalid request");
+        }
+    }
+
+    public void requestPasswordReset(AccountDetail userDetails) {
         if (validateUserDetails(userDetails)) {
             final var passcode = SmsPasscodeHashUtil.randomString(8);
             final String confirmParam = getConfirmParam(confirmProcessDataService.savePasswordReset(userDetails.getUid(), passcode));
