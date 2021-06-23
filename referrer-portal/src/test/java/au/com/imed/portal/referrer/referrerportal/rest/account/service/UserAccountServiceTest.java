@@ -210,6 +210,33 @@ public class UserAccountServiceTest {
         Assertions.assertThrows(IMedGenericException.class, () -> userAccountService.confirmPasswordReset(resetConfirmModel));
     }
 
+    @Test
+    public void shouldFailWhenConfirmPasswordDueToBlankCode() throws Exception {
+        var secret = "secret";
+        var pass = "pass";
+        var code = "";
+        var resetConfirmModel = new ResetConfirmModel();
+        resetConfirmModel.setPassword(pass);
+        resetConfirmModel.setSecret(secret);
+        resetConfirmModel.setPasscode(code);
+        Assertions.assertThrows(IMedGenericException.class, () -> userAccountService.confirmPasswordReset(resetConfirmModel));
+    }
+
+    @Test
+    public void shouldFailWhenConfirmPasswordDueToNullEntity() throws Exception {
+        var secret = "#";
+        var pass = "pass";
+        var code = "1021";
+        var resetConfirmModel = new ResetConfirmModel();
+        resetConfirmModel.setPassword(pass);
+        resetConfirmModel.setSecret(secret);
+        resetConfirmModel.setPasscode(code);
+        ReferrerPasswordResetEntity entity = null;
+        when(confirmProcessDataService.getReferrerPasswordResetEntityBySecret(secret)).thenReturn(entity);
+        Assertions.assertThrows(IMedGenericException.class, () -> userAccountService.confirmPasswordReset(resetConfirmModel));
+    }
+
+
     private ReferrerPasswordResetEntity createReferrerPasswordResetEntity(String code, String uid) throws NoSuchAlgorithmException, InvalidKeySpecException {
         var entity = new ReferrerPasswordResetEntity();
         entity.setUid(uid);
@@ -223,6 +250,4 @@ public class UserAccountServiceTest {
         entity.setUrlCode(urlCode);
         return entity;
     }
-
-
 }

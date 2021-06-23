@@ -1,5 +1,6 @@
 package au.com.imed.portal.referrer.referrerportal.rest.account.controller.v2;
 
+import au.com.imed.portal.referrer.referrerportal.ldap.GlobalAccountService;
 import au.com.imed.portal.referrer.referrerportal.ldap.ReferrerCreateAccountService;
 import au.com.imed.portal.referrer.referrerportal.model.AccountDetail;
 import au.com.imed.portal.referrer.referrerportal.model.ExternalUser;
@@ -7,7 +8,10 @@ import au.com.imed.portal.referrer.referrerportal.model.ResetConfirmModel;
 import au.com.imed.portal.referrer.referrerportal.model.ResetModel;
 import au.com.imed.portal.referrer.referrerportal.rest.account.error.IMedGenericException;
 import au.com.imed.portal.referrer.referrerportal.rest.account.error.SmsException;
+import au.com.imed.portal.referrer.referrerportal.rest.account.model.AccountTokenResponse;
+import au.com.imed.portal.referrer.referrerportal.rest.account.model.AccountUidPassword;
 import au.com.imed.portal.referrer.referrerportal.rest.account.service.UserAccountService;
+import lombok.SneakyThrows;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
 import org.junit.runner.RunWith;
@@ -22,8 +26,7 @@ import java.util.HashMap;
 
 import static au.com.imed.portal.referrer.referrerportal.common.PortalConstant.MODEL_KEY_ERROR_MSG;
 import static au.com.imed.portal.referrer.referrerportal.common.PortalConstant.MODEL_KEY_SUCCESS_MSG;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -106,11 +109,55 @@ public class UserAccountControllerTest {
         var resetConfirmModel = new ResetConfirmModel();
         resetConfirmModel.setPassword("pass");
         resetConfirmModel.setSecret("secret");
-        resetConfirmModel.setPasscode("1021");
+        resetConfirmModel.setPasscode("");
         Mockito.doThrow(new IMedGenericException("")).when(service).confirmPasswordReset(resetConfirmModel);
         Assertions.assertThrows(ResponseStatusException.class, () -> controller.postResetConfirm(resetConfirmModel));
     }
 
+    @Mock
+    private GlobalAccountService accountService;
 
+    @SneakyThrows
+    @Test
+    public void shouldReturn2xxOnSuccessfulLogin() {
+        AccountUidPassword userAccount = new AccountUidPassword();
+        userAccount.setUid("email@email.com");
+        userAccount.setPassword("password");
+
+        when(accountService.checkPasswordForReferrer(userAccount.getUid(), userAccount.getPassword())).thenReturn(true);
+        var response = controller.login(userAccount);
+        verify(accountService).checkPasswordForReferrer(userAccount.getUid(), userAccount.getPassword());
+        verify(accountService).getAccountGroups(userAccount.getUid());
+        assertTrue(response.getStatusCode().is2xxSuccessful());
+        assertEquals(response.getBody().getType(), "Bearer");
+    }
+
+    @SneakyThrows
+    @Test
+    public void shouldReturn4xxOnFailedLogin() {
+        AccountUidPassword userAccount = new AccountUidPassword();
+        userAccount.setUid("email@email.com");
+        userAccount.setPassword("password");
+
+        when(accountService.checkPasswordForReferrer(userAccount.getUid(), userAccount.getPassword())).thenReturn(false);
+        var response = controller.login(userAccount);
+        verify(accountService).checkPasswordForReferrer(userAccount.getUid(), userAccount.getPassword());
+        assertTrue(response.getStatusCode().is4xxClientError());
+    }
+
+    @SneakyThrows
+    @Test
+    public void shouldReturn4xxOnFailedLogin2() {
+        AccountUidPassword userAccount = new AccountUidPassword();
+        userAccount.setUid("email@email.com");
+        userAccount.setPassword("password");
+
+        when(accountService.checkPasswordForReferrer(userAccount.getUid(), userAccount.getPassword())).thenReturn(true);
+        doThrow(new Exception()).when(accountService).getAccountGroups(userAccount.getUid());
+
+        var response = controller.login(userAccount);
+        verify(accountService).checkPasswordForReferrer(userAccount.getUid(), userAccount.getPassword());
+        assertTrue(response.getStatusCode().is4xxClientError());
+    }
 
 }
