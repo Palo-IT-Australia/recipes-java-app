@@ -3,7 +3,9 @@ package au.com.imed.portal.referrer.referrerportal.rest.account.controller.v2;
 import au.com.imed.portal.referrer.referrerportal.ldap.ReferrerCreateAccountService;
 import au.com.imed.portal.referrer.referrerportal.model.AccountDetail;
 import au.com.imed.portal.referrer.referrerportal.model.ExternalUser;
+import au.com.imed.portal.referrer.referrerportal.model.ResetConfirmModel;
 import au.com.imed.portal.referrer.referrerportal.model.ResetModel;
+import au.com.imed.portal.referrer.referrerportal.rest.account.error.IMedGenericException;
 import au.com.imed.portal.referrer.referrerportal.rest.account.error.SmsException;
 import au.com.imed.portal.referrer.referrerportal.rest.account.service.UserAccountService;
 import org.junit.Test;
@@ -11,7 +13,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.HashMap;
@@ -84,4 +88,29 @@ public class UserAccountControllerTest {
         assertTrue(result.getStatusCode().is4xxClientError());
         assertSame(mockReturn, result.getBody());
     }
+
+    @Test
+    public void shouldReturn2xxOnSuccessfulPasswordResetConfirmation() {
+        var resetConfirmModel = new ResetConfirmModel();
+        resetConfirmModel.setPassword("pass");
+        resetConfirmModel.setSecret("secret");
+        resetConfirmModel.setPasscode("1021");
+        Mockito.doNothing().when(service).confirmPasswordReset(resetConfirmModel);
+        var response = controller.postResetConfirm(resetConfirmModel);
+        verify(service).confirmPasswordReset(resetConfirmModel);
+        assertTrue(response.getStatusCode().is2xxSuccessful());
+    }
+
+    @Test
+    public void shouldReturn4xxOnFailedPasswordResetConfirmation() {
+        var resetConfirmModel = new ResetConfirmModel();
+        resetConfirmModel.setPassword("pass");
+        resetConfirmModel.setSecret("secret");
+        resetConfirmModel.setPasscode("1021");
+        Mockito.doThrow(new IMedGenericException("")).when(service).confirmPasswordReset(resetConfirmModel);
+        Assertions.assertThrows(ResponseStatusException.class, () -> controller.postResetConfirm(resetConfirmModel));
+    }
+
+
+
 }
