@@ -1,44 +1,5 @@
 package au.com.imed.portal.referrer.referrerportal.mvc.controller;
 
-import static au.com.imed.portal.referrer.referrerportal.common.PortalConstant.MODEL_KEY_ACTION_STATUS;
-import static au.com.imed.portal.referrer.referrerportal.common.PortalConstant.MODEL_KEY_ERROR_MSG;
-import static au.com.imed.portal.referrer.referrerportal.common.PortalConstant.MODEL_KEY_FORM_MODEL;
-import static au.com.imed.portal.referrer.referrerportal.common.PortalConstant.MODEL_KEY_SECRET_MODE;
-import static au.com.imed.portal.referrer.referrerportal.common.PortalConstant.MODEL_KEY_SUCCESS_MSG;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URLEncoder;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ForkJoinPool;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.tomcat.util.http.fileupload.IOUtils;
-import org.jsoup.helper.StringUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.security.core.Authentication;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.context.request.async.DeferredResult;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.ModelAndView;
-
 import au.com.imed.portal.referrer.referrerportal.crm.MyCrmExcelService;
 import au.com.imed.portal.referrer.referrerportal.crm.MyCrmImageService;
 import au.com.imed.portal.referrer.referrerportal.electronicreferraldownload.ElectronicReferralDownloadModel;
@@ -48,15 +9,7 @@ import au.com.imed.portal.referrer.referrerportal.email.ReferrerMailService;
 import au.com.imed.portal.referrer.referrerportal.filetoaccount.AccountExcelImportService;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.entity.ReferrerPasswordResetEntity;
 import au.com.imed.portal.referrer.referrerportal.ldap.ReferrerCreateAccountService;
-import au.com.imed.portal.referrer.referrerportal.model.AccountDetail;
-import au.com.imed.portal.referrer.referrerportal.model.AddPractice;
-import au.com.imed.portal.referrer.referrerportal.model.ChangeModel;
-import au.com.imed.portal.referrer.referrerportal.model.DetailModel;
-import au.com.imed.portal.referrer.referrerportal.model.ExternalUser;
-import au.com.imed.portal.referrer.referrerportal.model.LdapUserDetails;
-import au.com.imed.portal.referrer.referrerportal.model.ResetConfirmModel;
-import au.com.imed.portal.referrer.referrerportal.model.ResetModel;
-import au.com.imed.portal.referrer.referrerportal.model.RetrieveModel;
+import au.com.imed.portal.referrer.referrerportal.model.*;
 import au.com.imed.portal.referrer.referrerportal.reportaccess.ReportAccessModel;
 import au.com.imed.portal.referrer.referrerportal.reportaccess.ReportAccessService;
 import au.com.imed.portal.referrer.referrerportal.rest.electronicreferral.model.ElectronicReferralForm;
@@ -68,11 +21,39 @@ import au.com.imed.portal.referrer.referrerportal.sms.GoFaxSmsService;
 import au.com.imed.portal.referrer.referrerportal.utils.ModelUtil;
 import au.com.imed.portal.referrer.referrerportal.utils.SmsPasscodeHashUtil;
 import au.com.imed.portal.referrer.referrerportal.utils.UrlCodeAes128Util;
+import org.apache.tomcat.util.http.fileupload.IOUtils;
+import org.jsoup.helper.StringUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.security.core.Authentication;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.async.DeferredResult;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ForkJoinPool;
+
+import static au.com.imed.portal.referrer.referrerportal.common.PortalConstant.*;
 
 @Controller
 public class ReferrerPortalMvcController {
 	private Logger logger = LoggerFactory.getLogger(ReferrerPortalMvcController.class);
-	
+
 	private static final String PARAM_IMED_EXTERNAL_USER = "imedExternalUser";
 
 	@Value("${imed.portal.sare.base.url}")
@@ -80,7 +61,7 @@ public class ReferrerPortalMvcController {
 
 	@Value("${spring.profiles.active}")
 	private String ACTIVE_PROFILE;
-	
+
 	@Value("${imed.application.url}")
 	private String APPLICATION_URL;
 
@@ -89,34 +70,34 @@ public class ReferrerPortalMvcController {
 
 	@Autowired
 	private ReferrerCreateAccountService accountService;
-	
+
 	@Autowired
 	private ReferrerMailService emailService;
-	
+
 	@Autowired
 	private ConfirmProcessDataService confirmProcessDataService;
-	
+
 	@Autowired
 	private GoFaxSmsService smsService;
-	
+
 	@Autowired
 	private EnvironmentVariableService environmentVariableService;
-	
+
 	@Autowired
 	private ReportAccessService reportAccessService;
-	
+
 	@Autowired
 	private MyCrmExcelService myCrmExcelService;
-	
+
 	@Autowired
 	private MyCrmImageService myCrmImageService;
-	
+
 	@Autowired
 	private AccountExcelImportService accountExcelImportService;
-	
+
 	@Autowired
 	private ElectronicReferralDownloadService electronicReferralDownloadService;
-	
+
 	@Autowired
 	private AuditService auditService;
 
@@ -126,12 +107,12 @@ public class ReferrerPortalMvcController {
 		loginModelAndView.addObject("message", environmentVariableService.getValue("login_page_alert_text"));
 		return loginModelAndView;
 	}
-	
+
 	@GetMapping("/apply")
 	public String getApply() {
 		return "apply";
 	}
-	
+
 	@PostMapping("/apply")
 	public String postApply(@ModelAttribute(PARAM_IMED_EXTERNAL_USER) ExternalUser imedExternalUser, Model model) {
 		logger.info("/apply " + imedExternalUser.toString());
@@ -147,7 +128,7 @@ public class ReferrerPortalMvcController {
 			return "evaluation";
 		}
 	}
-	
+
 //	@GetMapping("/evaluation")
 //	public String getEvaluation() {
 //		if("prod".equals(ACTIVE_PROFILE)) {
@@ -166,22 +147,22 @@ public class ReferrerPortalMvcController {
 	public String getElectronicreferral() {
 		return "electronicreferral";
 	}
-	
+
 	@GetMapping("/installsupport")
 	public String getInstallSupport() {
 		return "installsupport";
 	}
-	
+
 	@GetMapping("/hospital")
 	public String getHospital() {
 		return "hospital";
 	}
-	
+
 	@GetMapping("/cleanup")
 	public String getCreanup() {
 		return "cleanup";
 	}
-	
+
 	@GetMapping("/crmadmin")
 	public String getCrmAdmin() {
 		return "crmadmin";
@@ -191,27 +172,27 @@ public class ReferrerPortalMvcController {
 	public String getAdmin() {
 		return "admin";
 	}
-	
+
 	@GetMapping("/admin/approve")
 	public String getAdminApprove() {
 		return "approve";
-	}	
+	}
 
 	@GetMapping("/admin/approvervalidator")
 	public String getAdminApproverValidator() {
 		return "approvervalidator";
-	}	
+	}
 
 	@GetMapping("/admin/account")
 	public String getAdminAccout() {
 		return "account";
 	}
-	
+
 	@GetMapping("/admin/filetoaccount")
 	public String getAdminFileToAccout() {
 		return "filetoaccount";
 	}
-	
+
 	@PostMapping("/admin/filetoaccount")
 	public DeferredResult<String> postFileToAccount(Model model, @RequestPart(name="file",required=false) MultipartFile file,
 			@RequestParam(name="dryrun",required=false) boolean dryrun) {
@@ -220,13 +201,13 @@ public class ReferrerPortalMvcController {
 		if(file != null && file.getSize() > 0) {
 				try {
 					File tmpFile = accountExcelImportService.importExcel(file.getInputStream(), dryrun);
-					model.addAttribute("okmsg", "Uploaded successfully.");			
-					model.addAttribute("resultfile", tmpFile);			
+					model.addAttribute("okmsg", "Uploaded successfully.");
+					model.addAttribute("resultfile", tmpFile);
 					deferredResult.setResult("filetoaccount");
 					// TODO tmpFile.delete();
 				} catch (Exception e) {
 					e.printStackTrace();
-					model.addAttribute("errmsg", "Failed to upload excel file");			
+					model.addAttribute("errmsg", "Failed to upload excel file");
 					deferredResult.setResult("filetoaccount");
 				}
 		}
@@ -237,28 +218,28 @@ public class ReferrerPortalMvcController {
 		}
 		return deferredResult;
 	}
-	
+
 	@GetMapping("/editor")
 	public String getEditor() {
 		return "editor";
 	}
-	
+
 	@GetMapping("/editor/dbmanager")
 	public String getEditorDBManager() {
 		return "dbmanager";
 	}
-	
+
 	@GetMapping("/editor/crmmanager")
 	public String getEditorCrmManager() {
 		return "crmmanager";
 	}
-	
+
 	@PostMapping("/editor/crmmanager")
 	public DeferredResult<String> postmycrm(Model model, @RequestPart(name="file",required=false) MultipartFile file,
 			@RequestPart(name="profiles",required=false) List<MultipartFile> profiles) {
 		logger.info("file = " + file + ", profiles " + profiles);
 		DeferredResult<String> deferredResult = new DeferredResult<>(6 * 60 * 1000L);  // 6 min timeout
-		
+
 		ForkJoinPool.commonPool().submit(()-> {
 			try {
 				if(file != null && file.getSize() > 0) {
@@ -271,7 +252,7 @@ public class ReferrerPortalMvcController {
 				model.addAttribute("errmsg", "Failed to upload excel or excel not provided.");
 				deferredResult.setResult("crmmanager");
 			}
-	
+
 			try {
 				if(profiles != null && !profiles.isEmpty()) {
 					myCrmImageService.saveImages(profiles);
@@ -287,7 +268,7 @@ public class ReferrerPortalMvcController {
 
 		return deferredResult;
 	}
-	
+
 	@GetMapping("/profile")
 	public String getProfile(Model model, Authentication authentication) {
 		model.addAttribute("ChangeModel", new ChangeModel());
@@ -298,18 +279,16 @@ public class ReferrerPortalMvcController {
 
 	private DetailModel getPopulatedDetailModel(final Authentication authentication) {
 		DetailModel model = new DetailModel();
-		if(authentication != null)
-		{	
+		if (authentication != null) {
 			AccountDetail detail = accountService.getReferrerAccountDetail(authentication.getName());
-			if(detail != null)
-			{
+			if (detail != null) {
 				model.setEmail(detail.getEmail());
 				model.setMobile(detail.getMobile());
 				model.setDisplayName(detail.getName());
 			}
 		}
 		return model;
-	} 
+	}
 
 	@PostMapping("/detail")
 	public String postUpdate(@ModelAttribute DetailModel detailModel, Model model, Authentication authentication) {
@@ -325,9 +304,8 @@ public class ReferrerPortalMvcController {
 					model.addAttribute(MODEL_KEY_ERROR_MSG, "Failed to change details.");
 				}
 			}
-			else
-			{
-				model.addAttribute(MODEL_KEY_ERROR_MSG, "Failed to change details. Invalid charactor input found.");      
+			else {
+				model.addAttribute(MODEL_KEY_ERROR_MSG, "Failed to change details. Invalid charactor input found.");
 			}
 		}
 		model.addAttribute("ChangeModel", new ChangeModel());
@@ -341,8 +319,8 @@ public class ReferrerPortalMvcController {
 		logger.info(changeModel.toString());
 		if(ModelUtil.sanitizeModel(changeModel)) {
 			final String uid = authentication.getName();
-			if(uid != null && 
-					changeModel.getNewPassword().length() >= 8 && 
+			if (uid != null &&
+					changeModel.getNewPassword().length() >= 8 &&
 					changeModel.getNewPassword().equals(changeModel.getConfirmPassword())) {
 				try {
 					accountService.updateReferrerPassword(uid, changeModel);
@@ -351,22 +329,20 @@ public class ReferrerPortalMvcController {
 					e.printStackTrace();
 					model.addAttribute(MODEL_KEY_ERROR_MSG, "Failed to change password. Current passwod is wrong.");
 				}
-			}
-			else {
+			} else {
 				logger.info("actionChange() password unmatch or uid null.");
 				model.addAttribute(MODEL_KEY_ERROR_MSG, "Failed to change password. Password is too short.");
 			}
 		}
-		else
-		{
-			model.addAttribute(MODEL_KEY_ERROR_MSG, "Failed to change password. Invalid charactor input found.");      
+		else {
+			model.addAttribute(MODEL_KEY_ERROR_MSG, "Failed to change password. Invalid charactor input found.");
 		}
 		model.addAttribute("ChangeModel", new ChangeModel());
 		model.addAttribute("AddPractice", new AddPractice());
 		model.addAttribute("DetailModel", getPopulatedDetailModel(authentication));
 		return "profile";
 	}
-	
+
 	@PostMapping("/addpractice")
 	public String postAddpractice(@ModelAttribute AddPractice practice, Model model, Authentication authentication) {
 		logger.info("postAddpractice()", practice.toString());
@@ -392,11 +368,11 @@ public class ReferrerPortalMvcController {
 	public String postRetrieve(@ModelAttribute RetrieveModel retrieveModel, Model model) {
 		logger.info("/retrieve {}", retrieveModel);
 		try {
-			if(StringUtil.isBlank(retrieveModel.getAhpra()) || StringUtil.isBlank(retrieveModel.getEmail())) {
-				model.addAttribute(MODEL_KEY_ERROR_MSG, "Invalid AHPRA number or email address.");				
+			if (StringUtil.isBlank(retrieveModel.getAhpra()) || StringUtil.isBlank(retrieveModel.getEmail())) {
+				model.addAttribute(MODEL_KEY_ERROR_MSG, "Invalid AHPRA number or email address.");
 			} else {
 				List<LdapUserDetails> list = accountService.findReferrerAccountsByEmailAndAhpra(retrieveModel.getEmail(), retrieveModel.getAhpra());
-				if(list.size() == 1) {
+				if (list.size() == 1) {
 					LdapUserDetails referrer = list.get(0);
 					logger.info("/retrieve successfully found UID : " + referrer.getUid());
 					String to = "prod".equals(ACTIVE_PROFILE) ? referrer.getEmail() : "Hidehiro.Uehara@i-med.com.au";
@@ -410,8 +386,8 @@ public class ReferrerPortalMvcController {
 				} else {
 					logger.info("/retrieve failed attempt. # of account " + list.size() + ", attempted with " + retrieveModel);
 					// No to SD, logging purpose
-					String [] tos = "prod".equals(ACTIVE_PROFILE) ? new String [] {"Hidehiro.Uehara@i-med.com.au"} : new String [] {"Hidehiro.Uehara@i-med.com.au"};
-					emailService.emailFailedRetrieveAttempt(tos, retrieveModel);
+					String[] tos = "prod".equals(ACTIVE_PROFILE) ? new String[]{"Hidehiro.Uehara@i-med.com.au"} : new String[]{"Hidehiro.Uehara@i-med.com.au"};
+					emailService.emailFailedRetrieveAttempt(tos, retrieveModel.getEmail(), retrieveModel.getAhpra());
 					String reason = list.size() > 1 ? "Multiple accounts are found" : "No account is found";
 					model.addAttribute(MODEL_KEY_ERROR_MSG, reason + " with this AHPRA # and email address. Please contact our Service Desk on 1300 147 852 or email:  IT.Servicedesk@i-med.com.au for assistance.");
 				}
@@ -429,7 +405,7 @@ public class ReferrerPortalMvcController {
 		model.addAttribute(MODEL_KEY_FORM_MODEL, new ResetModel());
 		return "reset";
 	}
-	
+
 	@PostMapping("/reset")
 	public String postReset(@ModelAttribute ResetModel resetModel, Model model) {
 		logger.info(resetModel.toString());
@@ -456,25 +432,21 @@ public class ReferrerPortalMvcController {
 								}
 								model.addAttribute(MODEL_KEY_SUCCESS_MSG, "You have successfully completed the password reset process. Shortly you will receive an email with a link and SMS with a code to finalise your new password.");
 							}
-							catch(Exception ex)
-							{
+							catch(Exception ex) {
 								ex.printStackTrace();
-								model.addAttribute(MODEL_KEY_ERROR_MSG, "Error : Failed to send SMS or email.");                         
+								model.addAttribute(MODEL_KEY_ERROR_MSG, "Error : Failed to send SMS or email.");
 							}
 						}
-						else
-						{
-							model.addAttribute(MODEL_KEY_ERROR_MSG, "Error : Your registered mobile number is invalid in Australia. Please update on My Account page.");      
+						else {
+							model.addAttribute(MODEL_KEY_ERROR_MSG, "Error : Your registered mobile number is invalid in Australia. Please update on My Account page.");
 						}
 					}
-					else
-					{
-						model.addAttribute(MODEL_KEY_ERROR_MSG, "Error : We don't have your email address or mobile number.");              
+					else {
+						model.addAttribute(MODEL_KEY_ERROR_MSG, "Error : We don't have your email address or mobile number.");
 					}
 				}
-				else
-				{
-					model.addAttribute(MODEL_KEY_ERROR_MSG, "Email address is invalid");					
+				else {
+					model.addAttribute(MODEL_KEY_ERROR_MSG, "Email address is invalid");
 				}
 			}
 			catch(IllegalArgumentException iae) {
@@ -486,32 +458,29 @@ public class ReferrerPortalMvcController {
 				model.addAttribute(MODEL_KEY_ERROR_MSG, "Unexpected error occured");
 			}
 		}
-		else
-		{
-			model.addAttribute(MODEL_KEY_ERROR_MSG, "Invalid charactor input found");			
+		else {
+			model.addAttribute(MODEL_KEY_ERROR_MSG, "Invalid charactor input found");
 		}
 		model.addAttribute(MODEL_KEY_FORM_MODEL, new ResetModel());
 		return "reset";
 	}
-	
+
 	@GetMapping("/resetconfirm")
 	public String getResetConfirm(ModelMap modelMap, HttpServletRequest request) {
 		String secret = request.getParameter("secret");
-		if(secret != null && secret.length() > 0 && 
+		if (secret != null && secret.length() > 0 &&
 				confirmProcessDataService.getReferrerPasswordResetEntityBySecret(secret) != null) {
 			ResetConfirmModel confirm = new ResetConfirmModel();
 			confirm.setSecret(secret);
 			modelMap.put(MODEL_KEY_FORM_MODEL, confirm);
-			modelMap.put(MODEL_KEY_ACTION_STATUS, "normal");			
-		}
-		else
-		{
+			modelMap.put(MODEL_KEY_ACTION_STATUS, "normal");
+		} else {
 			modelMap.put(MODEL_KEY_FORM_MODEL, new ResetConfirmModel());
-			modelMap.put(MODEL_KEY_ACTION_STATUS, "invalid");			
+			modelMap.put(MODEL_KEY_ACTION_STATUS, "invalid");
 		}
 		return "resetconfirm";
 	}
-	
+
 	@PostMapping("/resetconfirm")
 	public String postResetConfirm(@ModelAttribute ResetConfirmModel confirmModel, Model model) {
 		logger.info(confirmModel.toString());
@@ -523,57 +492,50 @@ public class ReferrerPortalMvcController {
 			if(passcode != null && passcode.trim().length() > 0 &&
 					password != null && password.length() >= 8 &&
 					secret != null && secret.length() > 0) {
-				ReferrerPasswordResetEntity entity = confirmProcessDataService.getReferrerPasswordResetEntityBySecret(secret); 
-				if(entity != null) {					
+				ReferrerPasswordResetEntity entity = confirmProcessDataService.getReferrerPasswordResetEntityBySecret(secret);
+				if (entity != null) {
 					try {
-						if(SmsPasscodeHashUtil.validatePassword(passcode, entity.getPasscodeHash(), entity.getPasscodeSalt())) {
-						  accountService.resetReferrerPassword(entity.getUid(), password);
-						  confirmProcessDataService.setPasswordResetActive(entity);
-						  model.addAttribute(MODEL_KEY_ACTION_STATUS, "success");						  
-						}
-						else
-						{
-							logger.info("postResetConfirm() Passcode wrong"); 
+						if (SmsPasscodeHashUtil.validatePassword(passcode, entity.getPasscodeHash(), entity.getPasscodeSalt())) {
+							accountService.resetReferrerPassword(entity.getUid(), password);
+							confirmProcessDataService.setPasswordResetActive(entity);
+							model.addAttribute(MODEL_KEY_ACTION_STATUS, "success");
+						} else {
+							logger.info("postResetConfirm() Passcode wrong");
 							confirmProcessDataService.incrementPasswordResetFailures(entity);
-							model.addAttribute(MODEL_KEY_ACTION_STATUS, "error");															
+							model.addAttribute(MODEL_KEY_ACTION_STATUS, "error");
 						}
 					} catch (Exception e) {
 						e.printStackTrace();
-						model.addAttribute(MODEL_KEY_ACTION_STATUS, "error");								
+						model.addAttribute(MODEL_KEY_ACTION_STATUS, "error");
 					}
 				}
-				else
-				{
-					model.addAttribute(MODEL_KEY_ACTION_STATUS, "error");								
+				else {
+					model.addAttribute(MODEL_KEY_ACTION_STATUS, "error");
 				}
 			}
-			else
-			{
-				model.addAttribute(MODEL_KEY_ACTION_STATUS, "error");			
+			else {
+				model.addAttribute(MODEL_KEY_ACTION_STATUS, "error");
 			}
-		}
-		else
-		{
-			model.addAttribute(MODEL_KEY_ACTION_STATUS, "error");						
+		} else {
+			model.addAttribute(MODEL_KEY_ACTION_STATUS, "error");
 		}
 		ResetConfirmModel confirm = new ResetConfirmModel();
 		confirm.setSecret(confirmModel.getSecret());
-		model.addAttribute(MODEL_KEY_FORM_MODEL, confirm); 
+		model.addAttribute(MODEL_KEY_FORM_MODEL, confirm);
 		return "resetconfirm";
 	}
-	
+
 	@GetMapping("/forceresetpassword")
 	public String getForceResetPassword(ModelMap modelMap, HttpServletRequest request) {
 		String secret = request.getParameter("secret");
 		logger.info("secret " + secret);
 		if(secret != null && secret.length() > 0) {
 			modelMap.put("secret", secret);
-			modelMap.put(MODEL_KEY_ACTION_STATUS, "normal");			
+			modelMap.put(MODEL_KEY_ACTION_STATUS, "normal");
 		}
-		else
-		{
+		else {
 			modelMap.put(MODEL_KEY_FORM_MODEL, new ResetConfirmModel());
-			modelMap.put(MODEL_KEY_ACTION_STATUS, "invalid");			
+			modelMap.put(MODEL_KEY_ACTION_STATUS, "invalid");
 		}
 		return "forceresetpassword";
 	}
@@ -582,76 +544,66 @@ public class ReferrerPortalMvcController {
 	public String getQuickReport() {
 		return "quickreport";
 	}
-	
+
 	@GetMapping("/reportdownload")
 	public String getReportDownload(ModelMap modelMap, @RequestParam("code") String secret) {
-		if(secret != null && secret.length() > 0 &&	reportAccessService.isUrlcodeValid(secret))
-		{ 
+		if (secret != null && secret.length() > 0 && reportAccessService.isUrlcodeValid(secret)) {
 			ReportAccessModel confirm = new ReportAccessModel();
 			confirm.setSecret(secret);
 			modelMap.put(MODEL_KEY_FORM_MODEL, confirm);
-			modelMap.put(MODEL_KEY_ACTION_STATUS, "normal");			
-		}
-		else
-		{
+			modelMap.put(MODEL_KEY_ACTION_STATUS, "normal");
+		} else {
 			modelMap.put(MODEL_KEY_FORM_MODEL, new ReportAccessModel());
 			modelMap.put(MODEL_KEY_ACTION_STATUS, "invalid");
 		}
 		return "reportdownload";
 	}
-	
+
 	@PostMapping("/reportdownload")
 	public String postReportDownload(ModelMap modelMap, HttpServletResponse response, @RequestBody ReportAccessModel reportAccess) {
 		reportAccessService.download(reportAccess.getSecret(), reportAccess.getPasscode(), response);
-		if(reportAccess.getSecret() != null && reportAccess.getSecret().length() > 0 &&	
-				reportAccessService.isUrlcodeValid(reportAccess.getSecret()))
-		{ 
+		if (reportAccess.getSecret() != null && reportAccess.getSecret().length() > 0 &&
+				reportAccessService.isUrlcodeValid(reportAccess.getSecret())) {
 			ReportAccessModel confirm = new ReportAccessModel();
 			confirm.setSecret(reportAccess.getSecret());
 			modelMap.put(MODEL_KEY_FORM_MODEL, confirm);
-			modelMap.put(MODEL_KEY_ACTION_STATUS, "normal");			
-		}
-		else
-		{
+			modelMap.put(MODEL_KEY_ACTION_STATUS, "normal");
+		} else {
 			modelMap.put(MODEL_KEY_FORM_MODEL, new ReportAccessModel());
 			modelMap.put(MODEL_KEY_ACTION_STATUS, "invalid");
 		}
 		return "reportdownload";
 	}
-	
+
 	@GetMapping("/electronicreferraldownload")
 	public String getElectronicreferralDownload(ModelMap modelMap, @RequestParam("code") String secret) {
 		ElectronicReferralDownloadSecretModel secretModel = electronicReferralDownloadService.decodeToSecretModel(secret);
-		if(secretModel != null && electronicReferralDownloadService.isFormEffective(secretModel))
-		{ 
+		if (secretModel != null && electronicReferralDownloadService.isFormEffective(secretModel)) {
 			ElectronicReferralDownloadModel confirm = new ElectronicReferralDownloadModel();
 			confirm.setSecret(secret);
 			modelMap.put(MODEL_KEY_FORM_MODEL, confirm);
-			modelMap.put(MODEL_KEY_ACTION_STATUS, "normal");			
-			modelMap.put(MODEL_KEY_SECRET_MODE, secretModel.getMode()); 
-		}
-		else
-		{
+			modelMap.put(MODEL_KEY_ACTION_STATUS, "normal");
+			modelMap.put(MODEL_KEY_SECRET_MODE, secretModel.getMode());
+		} else {
 			modelMap.put(MODEL_KEY_FORM_MODEL, new ElectronicReferralDownloadModel());
 			modelMap.put(MODEL_KEY_ACTION_STATUS, "invalid");
-			modelMap.put(MODEL_KEY_SECRET_MODE, ""); 
+			modelMap.put(MODEL_KEY_SECRET_MODE, "");
 		}
 		return "electronicreferraldownload";
 	}
-	
+
 	@PostMapping("/electronicreferraldownload")
 	public String postElectronicreferralDownload(ModelMap modelMap, HttpServletResponse response, @ModelAttribute(MODEL_KEY_FORM_MODEL) ElectronicReferralDownloadModel downloadModel) {
 		ElectronicReferralDownloadSecretModel secretModel = electronicReferralDownloadService.decodeToSecretModel(downloadModel.getSecret());
-		if(secretModel != null && electronicReferralDownloadService.isFormEffective(secretModel))
-		{ 
+		if (secretModel != null && electronicReferralDownloadService.isFormEffective(secretModel)) {
 			ElectronicReferralForm entity = electronicReferralDownloadService.getMatchingEntity(secretModel, downloadModel.getPasscode());
-			if(entity != null) { 
+			if (entity != null) {
 				logger.info("Entity " + entity + ", secret model " + secretModel);
-				electronicReferralDownloadService.download(entity, secretModel,  response);
+				electronicReferralDownloadService.download(entity, secretModel, response);
 				ElectronicReferralDownloadModel confirm = new ElectronicReferralDownloadModel();
 				confirm.setSecret(downloadModel.getSecret());
 				modelMap.put(MODEL_KEY_FORM_MODEL, confirm);
-				modelMap.put(MODEL_KEY_ACTION_STATUS, "normal");			
+				modelMap.put(MODEL_KEY_ACTION_STATUS, "normal");
 				modelMap.put(MODEL_KEY_SECRET_MODE, secretModel.getMode());
 			} else {
 				ElectronicReferralDownloadModel confirm = new ElectronicReferralDownloadModel();
@@ -669,67 +621,67 @@ public class ReferrerPortalMvcController {
 		}
 		return "electronicreferraldownload";
 	}
-	
+
 	@GetMapping("/")
 	public String getHome(Model model) {
 		return "home";
 	}
-	
+
 	@GetMapping("/about")
 	public String getAbout() {
 		return "about";
 	}
-	
+
 	@GetMapping("/installers")
 	public String getIntelerad() {
 		return "installers";
 	}
-	
+
 	@GetMapping("/support")
 	public String getSupport() {
 		return "support";
 	}
-	
+
 	@GetMapping("/privacy")
 	public String getPrivacy() {
 		return "privacy";
 	}
-	
+
 	@GetMapping("/agreement")
 	public String getAgreement() {
 		return "agreement";
 	}
-	
+
 	@GetMapping("/termsofuse")
 	public String getTermsOfUse() {
 		return "termsofuse";
 	}
-	
+
 //	@GetMapping("/mycrm")
 //	public String getMyCrm() {
 //		return "mycrm";
 //	}
-//	
+//
 //	@GetMapping("/findmycrm")
 //	public String getFindMyCrm() {
 //		return "findmycrm";
 //	}
-	
+
 	@GetMapping("/feedback")
 	public String getFeedback() {
 		return "feedback";
 	}
-	
+
 	@GetMapping("/book")
 	public String getBook() {
 		return "book";
 	}
-	
+
 	@GetMapping("/genericmsg.html")
-	public String getGenericMsg() {		
+	public String getGenericMsg() {
 		return "genericmsg";
 	}
-	
+
 	@GetMapping("/robots.txt")
 	public void getRobotsTxt(HttpServletResponse response) {
 		InputStream resourceAsStream = null;
@@ -752,7 +704,7 @@ public class ReferrerPortalMvcController {
         }
     }
 	}
-	
+
 	@GetMapping("/sitemap.xml")
 	public void getSitemapXml(HttpServletResponse response) {
 		InputStream resourceAsStream = null;
@@ -774,5 +726,5 @@ public class ReferrerPortalMvcController {
         }
     }
 	}
-	
+
 }

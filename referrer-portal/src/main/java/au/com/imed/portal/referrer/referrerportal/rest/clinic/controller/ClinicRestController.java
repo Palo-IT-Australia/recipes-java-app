@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import au.com.imed.portal.referrer.referrerportal.common.PortalConstant;
-import au.com.imed.portal.referrer.referrerportal.common.util.AuthenticationUtil;
 import au.com.imed.portal.referrer.referrerportal.jpa.clinic.entity.ClinicContentEntity;
 import au.com.imed.portal.referrer.referrerportal.jpa.clinic.entity.ClinicContentSummaryEntity;
 import au.com.imed.portal.referrer.referrerportal.jpa.clinic.model.Appointment;
@@ -118,7 +117,7 @@ public class ClinicRestController {
 	 * This API supposed to return current user details to pre-populate patient
 	 * information in the appointment page but here the current user is referrer
 	 * returning not implemented
-	 * 
+	 *
 	 * @param authentication
 	 * @return
 	 */
