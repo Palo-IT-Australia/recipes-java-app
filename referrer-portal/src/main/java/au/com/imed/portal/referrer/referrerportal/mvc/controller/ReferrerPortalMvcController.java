@@ -349,7 +349,7 @@ public class ReferrerPortalMvcController {
 		logger.info(authentication.getPrincipal().toString());
 		DetailedLdapUserDetails principal = (DetailedLdapUserDetails) authentication.getPrincipal();
 		if("prod".equals(ACTIVE_PROFILE)) {
-			emailService.sendAddPractice(practice, principal);
+			emailService.sendAddPractice(practice, new AccountDetail(principal));
 		}
 		model.addAttribute("ChangeModel", new ChangeModel());
 		model.addAttribute("AddPractice", new AddPractice());

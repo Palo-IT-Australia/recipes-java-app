@@ -1,11 +1,10 @@
 package au.com.imed.portal.referrer.referrerportal.ldap;
 
-import java.util.Map;
-
-import javax.naming.Name;
-import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
-
+import au.com.imed.portal.referrer.referrerportal.common.PortalConstant;
+import au.com.imed.portal.referrer.referrerportal.common.util.IgnoreCertFactoryUtil;
+import au.com.imed.portal.referrer.referrerportal.model.AccountDetail;
+import au.com.imed.portal.referrer.referrerportal.model.LdapUserDetails;
+import au.com.imed.portal.referrer.referrerportal.model.StageUser;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
@@ -16,11 +15,10 @@ import org.springframework.ldap.core.support.AbstractContextMapper;
 import org.springframework.ldap.core.support.LdapContextSource;
 import org.springframework.web.client.RestTemplate;
 
-import au.com.imed.portal.referrer.referrerportal.common.PortalConstant;
-import au.com.imed.portal.referrer.referrerportal.common.util.IgnoreCertFactoryUtil;
-import au.com.imed.portal.referrer.referrerportal.model.AccountDetail;
-import au.com.imed.portal.referrer.referrerportal.model.LdapUserDetails;
-import au.com.imed.portal.referrer.referrerportal.model.StageUser;
+import javax.naming.Name;
+import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
+import java.util.Map;
 
 public abstract class ABasicAccountService {
 
@@ -115,6 +113,7 @@ public abstract class ABasicAccountService {
 			detail.setName(attrs.get("cn") != null ? attrs.get("cn").get(0).toString() : "");
 			detail.setMobile(attrs.get("mobile") != null ? attrs.get("mobile").get(0).toString() : "");
 			detail.setUid(attrs.get("uid") != null ? attrs.get("uid").get(0).toString() : "");
+			detail.setLastName(attrs.get("sn") != null ? attrs.get("sn").get(0).toString() : "");
 			return detail;
 		}
 	}

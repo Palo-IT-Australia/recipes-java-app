@@ -1,9 +1,9 @@
-package au.com.imed.portal.referrer.referrerportal.rest.account.controller.v2;
+package au.com.imed.portal.referrer.referrerportal.rest.practice.controller.v2;
 
 import au.com.imed.portal.referrer.referrerportal.email.ReferrerMailService;
+import au.com.imed.portal.referrer.referrerportal.ldap.ReferrerAccountService;
 import au.com.imed.portal.referrer.referrerportal.model.AddPractice;
 import au.com.imed.portal.referrer.referrerportal.rest.models.ErrorResponse;
-import au.com.imed.portal.referrer.referrerportal.security.DetailedLdapUserDetails;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,21 +19,26 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("${imed.api-v2.prefix}/practice")
 @PreAuthorize("isAuthenticated()")
 @Slf4j
-public class PracticeController {
+public class PracticesController {
 
     @Autowired
     private ReferrerMailService emailService;
 
+    @Autowired
+    private ReferrerAccountService referrerAccountService;
+
     @PostMapping("/add")
-    public ResponseEntity<ErrorResponse> addPractice (@RequestBody AddPractice practice, final Authentication authentication) {
+    public ResponseEntity<ErrorResponse> addPractice(@RequestBody AddPractice practice, final Authentication authentication) {
         log.info("/practice/add" + practice.toString());
         log.info(authentication.toString());
         try {
-            DetailedLdapUserDetails principal = (DetailedLdapUserDetails) authentication.getPrincipal();
-            emailService.sendAddPractice(practice, principal);
+            var accountDetail = referrerAccountService.getReferrerAccountDetail((String) authentication.getPrincipal());
+            emailService.sendAddPractice(practice, accountDetail);
             return new ResponseEntity<>(HttpStatus.ACCEPTED);
         } catch (Exception e) {
+            e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
 }
+
