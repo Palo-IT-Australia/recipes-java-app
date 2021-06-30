@@ -67,7 +67,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private String ldapPassword;
 
     @Value("${imed.frontend.url}")
-    private String frontendUrl;
+    private String[] frontendUrls;
 
     @Autowired
     private ReferrerAccountService accountService;
@@ -223,7 +223,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public CorsConfigurationSource corsConfigurationSource() {
         final var configuration = new CorsConfiguration();
 
-        configuration.setAllowedOrigins(List.of(frontendUrl.split(",")));  //set access from all domains
+        configuration.setAllowedOrigins(List.of(frontendUrls));  //set access from all domains
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "OPTIONS"));
         configuration.setAllowCredentials(true);
         configuration.setAllowedHeaders(List.of("Authorization", "Cache-Control", "Content-Type"));
