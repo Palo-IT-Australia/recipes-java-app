@@ -6,6 +6,7 @@ import au.com.imed.portal.referrer.referrerportal.model.AddPractice;
 import au.com.imed.portal.referrer.referrerportal.rest.models.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 @PreAuthorize("isAuthenticated()")
 @Slf4j
 public class PracticesController {
+    private final String environment;
 
     @Autowired
     private ReferrerMailService emailService;
@@ -27,13 +29,19 @@ public class PracticesController {
     @Autowired
     private ReferrerAccountService referrerAccountService;
 
+    public PracticesController(@Value("${spring.profiles.active}") String environment) {
+        this.environment = environment;
+    }
+
     @PostMapping("/add")
     public ResponseEntity<ErrorResponse> addPractice(@RequestBody AddPractice practice, final Authentication authentication) {
         log.info("/practice/add" + practice.toString());
         log.info(authentication.toString());
         try {
             var accountDetail = referrerAccountService.getReferrerAccountDetail((String) authentication.getPrincipal());
-            emailService.sendAddPractice(practice, accountDetail);
+            if("prod".equals(environment)) {
+                emailService.sendAddPractice(practice, accountDetail);
+            }
             return new ResponseEntity<>(HttpStatus.ACCEPTED);
         } catch (Exception e) {
             e.printStackTrace();

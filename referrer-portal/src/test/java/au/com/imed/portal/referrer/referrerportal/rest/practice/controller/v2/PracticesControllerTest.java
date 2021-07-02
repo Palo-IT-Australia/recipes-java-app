@@ -10,13 +10,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.core.Authentication;
-
+import org.springframework.test.context.TestPropertySource;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
+@TestPropertySource(properties = { "profiles.active=prod" })
 public class PracticesControllerTest {
-
     @Mock
     private ReferrerAccountService referrerAccountService;
 
@@ -24,7 +24,7 @@ public class PracticesControllerTest {
     private ReferrerMailService mailService;
 
     @InjectMocks
-    private PracticesController controller;
+    private final PracticesController controller = new PracticesController("prod");
 
     @Test
     public void shouldSendEmailToAddPractice() {
@@ -49,6 +49,7 @@ public class PracticesControllerTest {
         Authentication auth = mock(Authentication.class);
         when(auth.getPrincipal()).thenReturn("jackson");
         when(referrerAccountService.getReferrerAccountDetail("jackson")).thenReturn(accountDetail);
+        // TODO: Figure out why this prevent the class from being used
         doThrow(new Exception("")).when(mailService).sendAddPractice(practice, accountDetail);
 
         var response = controller.addPractice(practice, auth);
