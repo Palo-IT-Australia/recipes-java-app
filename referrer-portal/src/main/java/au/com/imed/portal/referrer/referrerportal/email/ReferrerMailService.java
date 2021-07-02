@@ -2,7 +2,6 @@ package au.com.imed.portal.referrer.referrerportal.email;
 
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.entity.ReferrerProviderEntity;
 import au.com.imed.portal.referrer.referrerportal.model.*;
-import au.com.imed.portal.referrer.referrerportal.security.DetailedLdapUserDetails;
 import org.jsoup.helper.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -363,7 +362,7 @@ public class ReferrerMailService {
 	 * @throws MessagingException
 	 */
 	public void sendWithStreamAsAttachmentWithHeaderFooter(final List<String> tos, final String subject, final String content,
-			InputStreamSource dataSource, String attachmentFileName, String headerImgLoc, String footerImgLoc) throws MessagingException {
+														   InputStreamSource dataSource, String attachmentFileName, String headerImgLoc, String footerImgLoc) throws MessagingException {
 		List<InputStreamSource> tempDatasourceList = new ArrayList<InputStreamSource>();
 		tempDatasourceList.add(dataSource);
 		List<String> tempFileNameList = new ArrayList<String>();
@@ -371,24 +370,24 @@ public class ReferrerMailService {
 		sendWithStreamsAsAttachmentWithHeaderFooter(tos, subject, content, tempDatasourceList, tempFileNameList, headerImgLoc, footerImgLoc);
 	}
 
-	public void sendAddPractice(final AddPractice practice, final DetailedLdapUserDetails detail) {
+	public void sendAddPractice(final AddPractice practice, AccountDetail accountDetail) {
 		final String NL = "\n";
-    StringBuffer sb = new StringBuffer();
-    sb.append("Referrer userid:");
-    sb.append(detail.getUsername());
-    sb.append(NL);
-    sb.append("Referrer first name:");
-    sb.append(detail.getGivenName());
-    sb.append(NL);
-    sb.append("Referrer last name:");
-    sb.append(detail.getSn());
-    sb.append(NL);
-    sb.append("Referrer email:");
-    sb.append(detail.getEmail());
-    sb.append(NL);
-    sb.append("Referrer mobile:");
-    sb.append(detail.getMobile());
-    sb.append(NL);
+		StringBuffer sb = new StringBuffer();
+		sb.append("Referrer userid:");
+		sb.append(accountDetail.getUid());
+		sb.append(NL);
+		sb.append("Referrer first name:");
+		sb.append(accountDetail.getName());
+		sb.append(NL);
+		sb.append("Referrer last name:");
+		sb.append(accountDetail.getLastName());
+		sb.append(NL);
+		sb.append("Referrer email:");
+		sb.append(accountDetail.getEmail());
+		sb.append(NL);
+		sb.append("Referrer mobile:");
+		sb.append(accountDetail.getMobile());
+		sb.append(NL);
     sb.append(NL);
 
     sb.append("Practice provider number:");

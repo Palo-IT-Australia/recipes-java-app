@@ -1,13 +1,26 @@
 package au.com.imed.portal.referrer.referrerportal.model;
 
+import au.com.imed.portal.referrer.referrerportal.security.DetailedLdapUserDetails;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class AccountDetail {
     private String uid;
     private String name;
+    private String lastName;
     private String email;
     private String mobile;
+
+    public AccountDetail() {
+    }
+
+    public AccountDetail(DetailedLdapUserDetails principal) {
+        this.uid = principal.getUsername();
+        this.name = principal.getGivenName();
+        this.email = principal.getEmail();
+        this.mobile = principal.getMobile();
+        this.lastName = principal.getSn();
+    }
 
     public String getUid() {
         return uid;
@@ -39,6 +52,14 @@ public class AccountDetail {
 
     public void setMobile(String mobile) {
         this.mobile = mobile;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 
     @Override
