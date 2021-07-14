@@ -3,7 +3,7 @@ package au.com.imed.portal.referrer.referrerportal.rest.account.controller.v2;
 import au.com.imed.portal.referrer.referrerportal.common.PortalConstant;
 import au.com.imed.portal.referrer.referrerportal.common.util.AuthenticationUtil;
 import au.com.imed.portal.referrer.referrerportal.ldap.ReferrerAccountService;
-import au.com.imed.portal.referrer.referrerportal.model.AccountDetail;
+import au.com.imed.portal.referrer.referrerportal.rest.visage.model.account.AccountDetail
 import au.com.imed.portal.referrer.referrerportal.model.DetailModel;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.model.Referrer;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.service.GetReferrerService;
@@ -65,7 +65,7 @@ public class AccountDetailsController {
         internalParams.put(GetReferrerService.PARAM_CURRENT_USER_NAME, userName);
         ResponseEntity<Referrer> entity = getReferrerService.doRestGet(userName, internalParams, Referrer.class);
         if (HttpStatus.OK.equals(entity.getStatusCode())) {
-            au.com.imed.portal.referrer.referrerportal.rest.visage.model.account.AccountDetail detail = portalAccountService.getReferrerAccountDetail(userName);
+            AccountDetail detail = portalAccountService.getReferrerAccountDetail(userName);
             if (detail != null) {
                 Referrer ref = entity.getBody();
                 ref.setEmail(detail.getEmail());
