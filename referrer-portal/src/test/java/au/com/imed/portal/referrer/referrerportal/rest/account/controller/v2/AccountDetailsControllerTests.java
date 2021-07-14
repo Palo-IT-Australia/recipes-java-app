@@ -1,15 +1,21 @@
 package au.com.imed.portal.referrer.referrerportal.rest.account.controller.v2;
 
 import au.com.imed.portal.referrer.referrerportal.ldap.ReferrerAccountService;
-import au.com.imed.portal.referrer.referrerportal.model.AccountDetail;
+import au.com.imed.portal.referrer.referrerportal.rest.visage.model.account.AccountDetail;
 import au.com.imed.portal.referrer.referrerportal.model.DetailModel;
+import au.com.imed.portal.referrer.referrerportal.rest.visage.model.Referrer;
+import au.com.imed.portal.referrer.referrerportal.rest.visage.service.GetReferrerService;
+import au.com.imed.portal.referrer.referrerportal.rest.visage.service.dicom.account.PortalAccountService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.server.ResponseStatusException;
 
 import static org.junit.Assert.assertTrue;
@@ -18,8 +24,8 @@ import java.util.HashMap;
 
 import static au.com.imed.portal.referrer.referrerportal.common.PortalConstant.MODEL_KEY_SUCCESS_MSG;
 import static org.junit.Assert.assertSame;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 
 
 @RunWith(MockitoJUnitRunner.class)
@@ -27,6 +33,12 @@ public class AccountDetailsControllerTests {
 
     @Mock
     private ReferrerAccountService referrerAccountService;
+
+    @Mock
+    private GetReferrerService getReferrerService;
+
+    @Mock
+    private PortalAccountService portalAccountService;
 
     @InjectMocks
     private AccountDetailsController accountDetailsController;
@@ -37,13 +49,25 @@ public class AccountDetailsControllerTests {
         mockReturn.setMobile("jackson");
         mockReturn.setEmail("jackson@palo-it.com");
         mockReturn.setName("jackson");
-        mockReturn.setUid("0404040404");
 
-        Mockito.when(referrerAccountService.getReferrerAccountDetail(Mockito.any(String.class))).thenReturn(mockReturn);
+        var MockReferrer = ResponseEntity.ok(new Referrer());
+
+        var mockUser = "Mr. Grumpy";
+
+        when(getReferrerService.doRestGet(any(), any(), any())).thenReturn(MockReferrer);
+
+        when(portalAccountService.getReferrerAccountDetail(mockUser)).thenReturn(mockReturn);
+
         Authentication authentication = Mockito.mock(Authentication.class);
-        Mockito.when(authentication.getName()).thenReturn("jackson");
+        when(authentication.getName()).thenReturn(mockUser);
 
-        var result = accountDetailsController.accountDetails(authentication);
+        SecurityContext securityContext = Mockito.mock(SecurityContext.class);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+
+        SecurityContextHolder.setContext(securityContext);
+        Mockito.when(authentication.getName()).thenReturn("Mr. Grumpy");
+
+        var result = accountDetailsController.getReferrer("mockAuthentication");
         assertTrue(result.getStatusCode().is2xxSuccessful());
         verify(authentication, times(1)).getName();
         assertSame(result.getBody().getMobile(), "jackson");
