@@ -1,11 +1,14 @@
 package au.com.imed.portal.referrer.referrerportal.rest.account.controller.v2;
 
+import au.com.imed.portal.referrer.referrerportal.common.PortalConstant;
+import au.com.imed.portal.referrer.referrerportal.common.util.AuthenticationUtil;
 import au.com.imed.portal.referrer.referrerportal.ldap.ReferrerAccountService;
-import au.com.imed.portal.referrer.referrerportal.model.AccountDetail;
+import au.com.imed.portal.referrer.referrerportal.rest.visage.model.account.AccountDetail;
 import au.com.imed.portal.referrer.referrerportal.model.DetailModel;
-import au.com.imed.portal.referrer.referrerportal.rest.account.model.AccountDetailsResponse;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.model.Referrer;
+import au.com.imed.portal.referrer.referrerportal.rest.visage.service.GetReferrerService;
 import au.com.imed.portal.referrer.referrerportal.utils.ModelUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,13 +19,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import au.com.imed.portal.referrer.referrerportal.rest.visage.service.dicom.account.PortalAccountService;
 
 import static au.com.imed.portal.referrer.referrerportal.common.PortalConstant.MODEL_KEY_SUCCESS_MSG;
 import static au.com.imed.portal.referrer.referrerportal.common.PortalConstant.MODEL_KEY_ERROR_MSG;
 
 
+import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping("${imed.api-v2.prefix}/account")
 @PreAuthorize("isAuthenticated()")
@@ -30,6 +36,12 @@ public class AccountDetailsController {
 
     @Autowired
     private ReferrerAccountService accountService;
+
+    @Autowired
+    private GetReferrerService getReferrerService;
+
+    @Autowired
+    private PortalAccountService portalAccountService;
 
     private DetailModel getPopulatedDetailModel(final Authentication authentication) {
         DetailModel model = new DetailModel();
@@ -44,35 +56,29 @@ public class AccountDetailsController {
         return model;
     }
 
-    private Referrer.Practice[] getListedPracticesModel(final Authentication authentication) {
-        Referrer.Practice[] mockPractices;
-        mockPractices = new Referrer.Practice[3];
-        var mockPractice1 = new Referrer.Practice();
-        mockPractice1.setPracticeName("Sydney Medical Center");
-        var mockPractice2 = new Referrer.Practice();
-        mockPractice2.setPracticeName("Prince Louie Private Hospital");
-        var mockPractice3 = new Referrer.Practice();
-        mockPractice3.setPracticeName("Barton Medical Center");
-        mockPractices[0] = mockPractice1;
-        mockPractices[1] = mockPractice2;
-        mockPractices[2] = mockPractice3;
-
-        var mockReferrer = new Referrer();
-        mockReferrer.setPractices(mockPractices);
-        return mockReferrer.getPractices();
-    }
-
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/details")
-    public ResponseEntity<AccountDetailsResponse> accountDetails(Authentication authentication) {
-        try {
-            var details = getPopulatedDetailModel(authentication);
-            var practices = getListedPracticesModel(authentication);
-            return ResponseEntity.ok(new AccountDetailsResponse(details.getEmail(), details.getMobile(), details.getDisplayName(), practices));
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    public ResponseEntity<Referrer> getReferrer(@RequestHeader(value = PortalConstant.HEADER_AUTHENTICATION, required = false) String authentication) {
+        Map<String, String> internalParams = new HashMap<String, String>(1);
+        String userName = AuthenticationUtil.getAuthenticatedUserName(authentication);
+        internalParams.put(GetReferrerService.PARAM_CURRENT_USER_NAME, userName);
+
+        ResponseEntity<Referrer> entity = getReferrerService.doRestGet(userName, internalParams, Referrer.class);
+
+        if (HttpStatus.BAD_REQUEST.equals(entity.getStatusCode())) {
+            return entity;
         }
+
+        AccountDetail detail = portalAccountService.getReferrerAccountDetail(userName);
+        if (detail != null) {
+            Referrer ref = entity.getBody();
+            ref.setEmail(detail.getEmail());
+            ref.setName(detail.getName());
+            ref.setMobile(detail.getMobile());
+            log.info("/user overwriting with LDAP information");
+            entity = new ResponseEntity<>(ref, HttpStatus.OK);
+        }
+        return entity;
     }
 
     @PreAuthorize("isAuthenticated()")
