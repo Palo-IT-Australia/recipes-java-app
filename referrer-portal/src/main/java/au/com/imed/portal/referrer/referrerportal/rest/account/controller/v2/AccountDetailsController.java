@@ -3,7 +3,7 @@ package au.com.imed.portal.referrer.referrerportal.rest.account.controller.v2;
 import au.com.imed.portal.referrer.referrerportal.common.PortalConstant;
 import au.com.imed.portal.referrer.referrerportal.common.util.AuthenticationUtil;
 import au.com.imed.portal.referrer.referrerportal.ldap.ReferrerAccountService;
-import au.com.imed.portal.referrer.referrerportal.rest.visage.model.account.AccountDetail
+import au.com.imed.portal.referrer.referrerportal.rest.visage.model.account.AccountDetail;
 import au.com.imed.portal.referrer.referrerportal.model.DetailModel;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.model.Referrer;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.service.GetReferrerService;
@@ -58,22 +58,25 @@ public class AccountDetailsController {
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/details")
-    public ResponseEntity<Referrer> getReferrer(
-            @RequestHeader(value = PortalConstant.HEADER_AUTHENTICATION, required = false) String authentication) {
+    public ResponseEntity<Referrer> getReferrer(@RequestHeader(value = PortalConstant.HEADER_AUTHENTICATION, required = false) String authentication) {
         Map<String, String> internalParams = new HashMap<String, String>(1);
         String userName = AuthenticationUtil.getAuthenticatedUserName(authentication);
         internalParams.put(GetReferrerService.PARAM_CURRENT_USER_NAME, userName);
+
         ResponseEntity<Referrer> entity = getReferrerService.doRestGet(userName, internalParams, Referrer.class);
-        if (HttpStatus.OK.equals(entity.getStatusCode())) {
-            AccountDetail detail = portalAccountService.getReferrerAccountDetail(userName);
-            if (detail != null) {
-                Referrer ref = entity.getBody();
-                ref.setEmail(detail.getEmail());
-                ref.setName(detail.getName());
-                ref.setMobile(detail.getMobile());
-                log.info("/user overwriting with LDAP information");
-                entity = new ResponseEntity<>(ref, HttpStatus.OK);
-            }
+
+        if (HttpStatus.BAD_REQUEST.equals(entity.getStatusCode())) {
+            return entity;
+        }
+
+        AccountDetail detail = portalAccountService.getReferrerAccountDetail(userName);
+        if (detail != null) {
+            Referrer ref = entity.getBody();
+            ref.setEmail(detail.getEmail());
+            ref.setName(detail.getName());
+            ref.setMobile(detail.getMobile());
+            log.info("/user overwriting with LDAP information");
+            entity = new ResponseEntity<>(ref, HttpStatus.OK);
         }
         return entity;
     }
