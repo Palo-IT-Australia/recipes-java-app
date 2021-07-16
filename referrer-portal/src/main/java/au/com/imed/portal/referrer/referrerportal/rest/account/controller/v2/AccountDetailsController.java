@@ -3,7 +3,6 @@ package au.com.imed.portal.referrer.referrerportal.rest.account.controller.v2;
 import au.com.imed.portal.referrer.referrerportal.common.PortalConstant;
 import au.com.imed.portal.referrer.referrerportal.common.util.AuthenticationUtil;
 import au.com.imed.portal.referrer.referrerportal.ldap.ReferrerAccountService;
-import au.com.imed.portal.referrer.referrerportal.rest.visage.model.account.AccountDetail;
 import au.com.imed.portal.referrer.referrerportal.model.DetailModel;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.model.Referrer;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.service.GetReferrerService;
@@ -46,7 +45,7 @@ public class AccountDetailsController {
     private DetailModel getPopulatedDetailModel(final Authentication authentication) {
         DetailModel model = new DetailModel();
         if (authentication != null) {
-            AccountDetail detail = accountService.getReferrerAccountDetail(authentication.getName());
+            var detail = accountService.getReferrerAccountDetail(authentication.getName());
             if (detail != null) {
                 model.setEmail(detail.getEmail());
                 model.setMobile(detail.getMobile());
@@ -69,12 +68,12 @@ public class AccountDetailsController {
             return entity;
         }
 
-        AccountDetail detail = portalAccountService.getReferrerAccountDetail(userName);
-        if (detail != null) {
+        var referrerAccountDetail = portalAccountService.getReferrerAccountDetail(userName);
+        if (referrerAccountDetail != null) {
             Referrer ref = entity.getBody();
-            ref.setEmail(detail.getEmail());
-            ref.setName(detail.getName());
-            ref.setMobile(detail.getMobile());
+            ref.setEmail(referrerAccountDetail.getEmail());
+            ref.setName(referrerAccountDetail.getName());
+            ref.setMobile(referrerAccountDetail.getMobile());
             log.info("/user overwriting with LDAP information");
             entity = new ResponseEntity<>(ref, HttpStatus.OK);
         }
