@@ -1,5 +1,6 @@
 package au.com.imed.portal.referrer.referrerportal.rest.account.service;
 
+import au.com.imed.portal.referrer.referrerportal.common.util.AuthenticationUtil;
 import au.com.imed.portal.referrer.referrerportal.email.ReferrerMailService;
 import au.com.imed.portal.referrer.referrerportal.jpa.audit.entity.ReferrerPasswordResetEntity;
 import au.com.imed.portal.referrer.referrerportal.ldap.ReferrerCreateAccountService;
@@ -124,5 +125,13 @@ public class UserAccountService {
         if (resetPassword != null) {
             return URLEncoder.encode(UrlCodeAes128Util.encrypt(resetPassword.getUrlCode()), StandardCharsets.UTF_8);
         } else return null;
+    }
+
+    public String createRefreshToken(String uid) {
+        try {
+            return AuthenticationUtil.createRefreshToken(uid);
+        } catch (Exception e) {
+            throw new RuntimeException("Error creating refresh token");
+        }
     }
 }

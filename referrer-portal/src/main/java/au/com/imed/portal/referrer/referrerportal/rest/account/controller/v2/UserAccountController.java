@@ -43,7 +43,8 @@ public class UserAccountController {
         if (accountService.checkPasswordForReferrer(user.getUid(), user.getPassword())) {
             try {
                 var token = AuthenticationUtil.createAccessToken(user.getUid(), accountService.getAccountGroups(user.getUid()));
-                return ResponseEntity.ok(new AccountTokenResponse("Bearer", token));
+                var refreshToken = userAccountService.createRefreshToken(user.getUid());
+                return ResponseEntity.ok(new AccountTokenResponse("Bearer", token, refreshToken));
             } catch (Exception e) {
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             }

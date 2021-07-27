@@ -160,4 +160,16 @@ public class UserAccountControllerTest {
         assertTrue(response.getStatusCode().is4xxClientError());
     }
 
+    @Test
+    @SneakyThrows
+    public void shouldReturnRefreshTokenWhenLogin() {
+        AccountUidPassword userAccount = new AccountUidPassword();
+        userAccount.setUid("email@email.com");
+        userAccount.setPassword("password");
+
+        when(accountService.checkPasswordForReferrer(userAccount.getUid(), userAccount.getPassword())).thenReturn(true);
+        when(service.createRefreshToken("email@email.com")).thenReturn("refresh-token");
+        var response = controller.login(userAccount);
+        assertEquals("refresh-token", response.getBody().getRefreshToken());
+    }
 }
