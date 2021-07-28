@@ -375,7 +375,7 @@ public class ReferrerPortalMvcController {
 				if (list.size() == 1) {
 					LdapUserDetails referrer = list.get(0);
 					logger.info("/retrieve successfully found UID : " + referrer.getUid());
-					String to = "prod".equals(ACTIVE_PROFILE) ? referrer.getEmail() : "Hidehiro.Uehara@i-med.com.au";
+					String to = "prod".equals(ACTIVE_PROFILE) ? referrer.getEmail() : "imol-palo@sg.palo-it.com";
 					emailService.emailRetrieved(to, referrer);
 					// Audit
 					Map<String, String> params = new HashMap<>(2);

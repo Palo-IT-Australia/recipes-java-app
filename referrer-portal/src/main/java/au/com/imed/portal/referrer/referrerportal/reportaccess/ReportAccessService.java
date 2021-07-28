@@ -41,6 +41,9 @@ public class ReportAccessService {
 	@Value("${imed.application.url}")
 	private String PORTAL_ROOT_URL;
 
+	@Value("${imed.email.test.receiver}")
+	private String[] testEmailReceivers;
+
 	private static final int MAX_FAILURES = 3;
 	
 	@Autowired
@@ -111,7 +114,7 @@ public class ReportAccessService {
 						emailService.sendReportHtml(new String [] {patemail}, baseUrl + "?code=" + encoded);   
 						smsService.send(new String [] {patmobile}, "I-MED Radiology Network Patient Report Access Passcode = " + originalPassword);
 					} else {
-						emailService.sendReportHtml(new String [] {"Hidehiro.Uehara@i-med.com.au"}, baseUrl + "?code=" + encoded);   
+						emailService.sendReportHtml(testEmailReceivers, baseUrl + "?code=" + encoded);
 						smsService.send(new String [] {"0437118213"}, "I-MED Radiology Network Patient Report Access Passcode = " + originalPassword);
 					}
 

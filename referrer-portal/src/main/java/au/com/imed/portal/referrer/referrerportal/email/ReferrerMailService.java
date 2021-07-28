@@ -71,11 +71,11 @@ public class ReferrerMailService {
 	@Qualifier("mailSender")
 	private JavaMailSender mailSender;
 
-	public void sendMail(String to, String subject, String body) {
+	public void sendMail(String[] to, String subject, String body) {
 		sendMail(to, subject, body, FROM_ADDRESS);
 	}
 
-	public void sendMail(String to, String subject, String body, String from) {
+	public void sendMail(String[] to, String subject, String body, String from) {
 		SimpleMailMessage message = new SimpleMailMessage();
 		message.setTo(to);
 		message.setFrom(from);
@@ -258,6 +258,7 @@ public class ReferrerMailService {
 			}
 
 			emailMsgHelper.setFrom("do_not_reply@i-med.com.au");
+			//TODO: should remove this?
 			emailMsgHelper.setBcc("Hidehiro.Uehara@i-med.com.au");
 			emailMsgHelper.setSubject(subject);
 			emailMsgHelper.setText(content, true);
@@ -338,7 +339,6 @@ public class ReferrerMailService {
 	 * @param tos
 	 * @param subject
 	 * @param content
-	 * @param writers
 	 * @param attachmentFileName
 	 * @throws MessagingException
 	 */
@@ -357,7 +357,6 @@ public class ReferrerMailService {
 	 * @param tos
 	 * @param subject
 	 * @param content
-	 * @param writers
 	 * @param attachmentFileName
 	 * @throws MessagingException
 	 */
@@ -415,7 +414,7 @@ public class ReferrerMailService {
 		sb.append(practice.getPostcode());
 		sb.append(NL);
 
-		sendMail("referrer@i-med.com.au", "I-MED Online : Referrer New Practice", sb.toString());
+		sendMail(new String[] {"referrer@i-med.com.au"}, "I-MED Online : Referrer New Practice", sb.toString());
 	}
 
 	public void sendReportHtml(final String[] toEmails, final String url) throws Exception {
@@ -447,7 +446,7 @@ public class ReferrerMailService {
 
   public void emailPasswordChange(StageUser user) {
     try {
-      sendMail(user.getEmail(), "I-MED Online - Change of your password notification", UserMessageUtil.getPasswordChangedBody(user.getUid()));
+      sendMail(new String[] {user.getEmail()}, "I-MED Online - Change of your password notification", UserMessageUtil.getPasswordChangedBody(user.getUid()));
     }
     catch (MailSendException ex) {
       emailSupportTeamMailIssue(user.getUid());
@@ -456,7 +455,7 @@ public class ReferrerMailService {
 
   public void emailPasswordReset(StageUser user, String password) {
     try {
-      sendMail(user.getEmail(), "I-MED Online - Password reset", UserMessageUtil.getResetPasswordBody(user,password));
+      sendMail(new String[] {user.getEmail()}, "I-MED Online - Password reset", UserMessageUtil.getResetPasswordBody(user,password));
     }
     catch (MailSendException ex) {
       emailSupportTeamMailIssue(user.getUid());
@@ -465,7 +464,7 @@ public class ReferrerMailService {
 
   public void emailDetailsChanged(StageUser user) {
     try {
-      sendMail(user.getEmail(), "I-MED Online - Change of your details", UserMessageUtil.getDetailsChangedBody(user));
+      sendMail(new String[] {user.getEmail()}, "I-MED Online - Change of your details", UserMessageUtil.getDetailsChangedBody(user));
     }
     catch (MailSendException ex) {
       emailSupportTeamMailIssue(user.getUid());
@@ -543,18 +542,18 @@ public class ReferrerMailService {
 
 	public void emailAccountMessage(String userId, String email, String message) {
 		try {
-			sendMail(email, "I-MED Online - Message about your account application", UserMessageUtil.getAccountMessage(message), SUPPORT_ADDRESS);
+			sendMail(new String[] {email}, "I-MED Online - Message about your account application", UserMessageUtil.getAccountMessage(message), SUPPORT_ADDRESS);
 		} catch (MailSendException ex) {
 			emailSupportTeamMailIssue(userId);
 		}
 	}
 
 	private void emailSupportTeamMailIssue(String user) {
-		sendMail(SUPPORT_ADDRESS, "User Account Issue", UserMessageUtil.getAccountMailIssueBody(user));
+		sendMail(new String[] {SUPPORT_ADDRESS}, "User Account Issue", UserMessageUtil.getAccountMailIssueBody(user));
 	}
 
 	private void emailSupportTeamNewUser(ExternalUser user) {
-		sendMail(SUPPORT_ADDRESS, "New User Created - " + user.getUserid(), UserMessageUtil.getNewAccountCreatedBody(user));
+		sendMail(new String[] {SUPPORT_ADDRESS}, "New User Created - " + user.getUserid(), UserMessageUtil.getNewAccountCreatedBody(user));
 	}
 
 	public void emailCrmNotify(StageUser user) {
@@ -603,11 +602,11 @@ public class ReferrerMailService {
       sb.append(NL);
       sb.append(NL);
     }
-    sendMail("Christian.Galloway@i-med.com.au", "Referrer Account Creation IMO2.0 Regional Imaging", sb.toString());
+    sendMail(new String[] {"Christian.Galloway@i-med.com.au"}, "Referrer Account Creation IMO2.0 Regional Imaging", sb.toString());
   }
   private static final String FMT_PLEASE_APPROVE = "A new account application for user: %s has been created. Please browse to Portal User Approval to action this request.\n\n";
 
-	public void emailAutoValidatedReferrerAccount(final String email, ExternalUser user, boolean isStaging, AutoValidationResult result) {
+	public void emailAutoValidatedReferrerAccount(final String[] email, ExternalUser user, boolean isStaging, AutoValidationResult result) {
   	String hl = "";
   	String va = "";
   	String ap = "";
@@ -633,7 +632,7 @@ public class ReferrerMailService {
   }
 
   public void emailSupportTeamRegistrationError(Exception e, String stage, ExternalUser user) {
-    sendMail(UserMessageUtil.ADMIN_USER_EMAIL, "Account Registration Error", UserMessageUtil.getRegistrationErrorBody(e, stage, user));
+    sendMail(new String[] {UserMessageUtil.ADMIN_USER_EMAIL}, "Account Registration Error", UserMessageUtil.getRegistrationErrorBody(e, stage, user));
   }
 
 	/**
