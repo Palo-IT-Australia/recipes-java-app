@@ -11,6 +11,7 @@ import au.com.imed.portal.referrer.referrerportal.rest.account.error.IMedGeneric
 import au.com.imed.portal.referrer.referrerportal.rest.account.error.SmsException;
 import au.com.imed.portal.referrer.referrerportal.rest.account.model.AccountTokenResponse;
 import au.com.imed.portal.referrer.referrerportal.rest.account.model.AccountUidPassword;
+import au.com.imed.portal.referrer.referrerportal.rest.account.service.AuthenticationService;
 import au.com.imed.portal.referrer.referrerportal.rest.account.service.UserAccountService;
 import au.com.imed.portal.referrer.referrerportal.utils.ModelUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -38,12 +39,29 @@ public class UserAccountController {
     @Autowired
     private ReferrerCreateAccountService referrerAccountService;
 
+    @Autowired
+    private AuthenticationService authenticationService;
+
+    @GetMapping("/refresh-token")
+    public ResponseEntity<AccountTokenResponse> refreshToken(@RequestParam String refreshToken) {
+        try {
+            var uid = authenticationService.checkRefreshToken(refreshToken);
+            return ResponseEntity.ok(new AccountTokenResponse("Bearer",
+                    AuthenticationUtil.createAccessToken(uid, accountService.getAccountGroups(uid)),
+                    authenticationService.createRefreshToken(uid)));
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+    }
+
     @PostMapping("/login")
     public ResponseEntity<AccountTokenResponse> login(@RequestBody AccountUidPassword user) {
         if (accountService.checkPasswordForReferrer(user.getUid(), user.getPassword())) {
             try {
                 var token = AuthenticationUtil.createAccessToken(user.getUid(), accountService.getAccountGroups(user.getUid()));
-                return ResponseEntity.ok(new AccountTokenResponse("Bearer", token));
+                var refreshToken = authenticationService.createRefreshToken(user.getUid());
+                return ResponseEntity.ok(new AccountTokenResponse("Bearer", token, refreshToken));
             } catch (Exception e) {
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             }
@@ -62,7 +80,7 @@ public class UserAccountController {
                 ex.printStackTrace();
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage());
             } catch (Exception ex) {
-                ex.printStackTrace();
+                log.error(ex.getMessage());
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unexpected error occurred");
             }
         } else {
