@@ -18,8 +18,12 @@ public class AppointmentService {
 	@Value("${spring.profiles.active}")
 	private String ACTIVE_PROFILE;
 
+
 	@Autowired
 	ReferrerMailService referrerEmailService;
+
+	@Value("${imed.email.test.receiver}")
+	private String[] emailTestReceivers;
 
 	@Autowired
 	private au.com.imed.portal.referrer.referrerportal.jpa.clinic.repository.ClinicContentRepository clinicRepository;
@@ -33,7 +37,7 @@ public class AppointmentService {
 			toEmails = clinic.getAppointmentEmails().split(",");
 			logger.info("Appointment clinic emails = " + toEmails);
 		} else {
-			toEmails = new String[] { "Hidehiro.Uehara@i-med.com.au" };
+			toEmails = emailTestReceivers;
 		}
 
 		referrerEmailService.sendHtmlMail(toEmails, EMAIL_SUBJECT, this.buildEmailContent(appointment), referral);

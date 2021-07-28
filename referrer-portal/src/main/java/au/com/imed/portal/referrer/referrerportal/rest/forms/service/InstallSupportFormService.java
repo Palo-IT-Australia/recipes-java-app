@@ -21,7 +21,10 @@ public class InstallSupportFormService {
 	
 	@Value("${spring.profiles.active}")
 	private String ACTIVE_PROFILE;
-	
+
+	@Value("${imed.email.test.receiver}")
+	private String[] emailTestReceivers;
+
 	@Autowired
 	private ReferrerMailService emailService;
 	
@@ -43,7 +46,7 @@ public class InstallSupportFormService {
 				e.printStackTrace();
 			}
 		} else {
-			emailService.sendMailWithCc(new String [] {"alexandra.arter@i-med.com.au"}, new String [] {"Hidehiro.Uehara@i-med.com.au"}, SUBJECT, buildBody(installSupport) + "CRM : " + crm.getName() + ", " + crm.getEmail());
+			emailService.sendMailWithCc(new String [] {"alexandra.arter@i-med.com.au"}, emailTestReceivers, SUBJECT, buildBody(installSupport) + "CRM : " + crm.getName() + ", " + crm.getEmail());
 		}
 	}
 	

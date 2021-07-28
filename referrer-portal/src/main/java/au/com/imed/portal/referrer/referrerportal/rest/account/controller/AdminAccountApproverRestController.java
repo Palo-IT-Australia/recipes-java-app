@@ -42,6 +42,9 @@ public class AdminAccountApproverRestController {
 	@Value("${spring.profiles.active}")
 	private String ACTIVE_PROFILE;
 
+	@Value("${imed.email.test.receiver}")
+	private String[] testEmailReceivers;
+
 	@Autowired
 	private ReferrerAccountService referrerAccountService;
 
@@ -155,7 +158,7 @@ public class AdminAccountApproverRestController {
   		try {
   			StageUser user = referrerAccountService.finaliseUser(uid);
   			if(!"prod".equals(ACTIVE_PROFILE)) {
-  				user.setEmail("Hidehiro.Uehara@i-med.com.au");
+  				user.setEmail("imol-palo@sg.palo-it.com");
   			}
   			// Check if account is created by crm with temporal password
   			String action = referrerAccountService.getReferrerCrmAction(uid);
@@ -179,8 +182,7 @@ public class AdminAccountApproverRestController {
   						e.printStackTrace();
   					}
   				} else {
-  					emailService.emailNotifyNewReferrer(new String [] {"Hidehiro.Uehara@i-med.com.au"},
-  							new String [] {"Hidehiro.Uehara@i-med.com.au"}, user);
+  					emailService.emailNotifyNewReferrer(testEmailReceivers, testEmailReceivers, user);
   				}
   			} else {
   				logger.info("This user missing provider information, skipping CRM email.");

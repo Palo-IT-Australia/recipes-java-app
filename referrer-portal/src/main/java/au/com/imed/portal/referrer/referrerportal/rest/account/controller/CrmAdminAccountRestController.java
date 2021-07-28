@@ -36,6 +36,9 @@ public class CrmAdminAccountRestController {
 	@Value("${imed.application.url}")
 	private String APPLICATION_URL;
 
+	@Value("${imed.email.test.receiver}")
+	private String[] testEmailReceivers;
+
 	@Autowired
 	private ReferrerCreateAccountService referrerAccountService;
 
@@ -140,7 +143,7 @@ public class CrmAdminAccountRestController {
 			if("prod".equals(ACTIVE_PROFILE)) {
 				emailService.sendPasswordResetByCrmHtml(new String[] {email}, temppswd);
 			} else {
-				emailService.sendPasswordResetByCrmHtml(new String[] {"Hidehiro.Uehara@i-med.com.au"}, temppswd);
+				emailService.sendPasswordResetByCrmHtml(testEmailReceivers, temppswd);
 			}
 			// Save to DB
 			auditService.auditReset(crm, userDetails, temppswd);
