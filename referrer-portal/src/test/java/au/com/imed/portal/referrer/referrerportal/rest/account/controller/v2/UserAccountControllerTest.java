@@ -1,17 +1,15 @@
 package au.com.imed.portal.referrer.referrerportal.rest.account.controller.v2;
 
-import au.com.imed.portal.referrer.referrerportal.common.util.AuthenticationUtil;
 import au.com.imed.portal.referrer.referrerportal.ldap.GlobalAccountService;
 import au.com.imed.portal.referrer.referrerportal.ldap.ReferrerCreateAccountService;
 import au.com.imed.portal.referrer.referrerportal.model.AccountDetail;
 import au.com.imed.portal.referrer.referrerportal.model.ExternalUser;
 import au.com.imed.portal.referrer.referrerportal.model.ResetConfirmModel;
 import au.com.imed.portal.referrer.referrerportal.model.ResetModel;
-import au.com.imed.portal.referrer.referrerportal.rest.account.error.AuthenticationException;
 import au.com.imed.portal.referrer.referrerportal.rest.account.error.IMedGenericException;
 import au.com.imed.portal.referrer.referrerportal.rest.account.error.SmsException;
+import au.com.imed.portal.referrer.referrerportal.rest.account.model.AccountTokenResponse;
 import au.com.imed.portal.referrer.referrerportal.rest.account.model.AccountUidPassword;
-import au.com.imed.portal.referrer.referrerportal.rest.account.service.AuthenticationService;
 import au.com.imed.portal.referrer.referrerportal.rest.account.service.UserAccountService;
 import lombok.SneakyThrows;
 import org.junit.Test;
@@ -19,12 +17,11 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Collections;
 import java.util.HashMap;
 
 import static au.com.imed.portal.referrer.referrerportal.common.PortalConstant.MODEL_KEY_ERROR_MSG;
@@ -40,9 +37,6 @@ public class UserAccountControllerTest {
 
     @Mock
     private ReferrerCreateAccountService referrerAccountService;
-
-    @Mock
-    private AuthenticationService authenticationService;
 
     @InjectMocks
     private UserAccountController controller;
@@ -166,40 +160,4 @@ public class UserAccountControllerTest {
         assertTrue(response.getStatusCode().is4xxClientError());
     }
 
-    @Test
-    @SneakyThrows
-    public void shouldReturnRefreshTokenWhenLogin() {
-        AccountUidPassword userAccount = new AccountUidPassword();
-        userAccount.setUid("email@email.com");
-        userAccount.setPassword("password");
-
-        when(accountService.checkPasswordForReferrer(userAccount.getUid(), userAccount.getPassword())).thenReturn(true);
-        when(authenticationService.createRefreshToken("email@email.com")).thenReturn("refresh-token");
-        var response = controller.login(userAccount);
-        assertEquals("refresh-token", response.getBody().getRefreshToken());
-    }
-
-    @Test
-    public void shouldRefreshAccessToken() throws Exception {
-        try (MockedStatic<AuthenticationUtil> authUtilMock = Mockito.mockStatic(AuthenticationUtil.class)) {
-            when(authenticationService.checkRefreshToken("refresh-token")).thenReturn("uid");
-            when(accountService.getAccountGroups("uid")).thenReturn(Collections.singletonList("ADMIN"));
-            authUtilMock.when(() -> AuthenticationUtil.createAccessToken("uid", Collections.singletonList("ADMIN"))).thenReturn("access-token");
-            when(authenticationService.createRefreshToken("uid")).thenReturn("refresh-token-2");
-
-            var response = controller.refreshToken("refresh-token");
-
-            assertEquals("access-token", response.getBody().getToken());
-            assertEquals("refresh-token-2", response.getBody().getRefreshToken());
-        }
-    }
-
-    @Test
-    public void shouldReturn4xxWhenNotValidRefreshToken() throws Exception {
-        when(authenticationService.checkRefreshToken("refresh-token")).thenThrow(AuthenticationException.class);
-
-        var response = controller.refreshToken("refresh-token");
-
-        assertTrue(response.getStatusCode().is4xxClientError());
-    }
 }
