@@ -10,10 +10,8 @@ import org.springframework.stereotype.Service;
 
 import javax.naming.directory.SearchControls;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import static java.util.Arrays.asList;
 
@@ -48,12 +46,28 @@ public class GlobalAccountService extends ABasicAccountService {
     public boolean tryLogin(String username, String password) {
         try {
             List<LdapTemplate> templates = asList(getGlobalLdapTemplate(), getReferrerLdapTemplate(), getBusinessUnitLdapTemplate(), getPortalLdapTemplate());
-            var result = templates.parallelStream().map(template -> checkPasswordForTemplate(template, username, password)).collect(Collectors.toList());
-            return result.stream().anyMatch(auth -> auth);
+            var authenticated = templates.parallelStream().anyMatch(template -> checkPasswordForTemplate(template, username, password));
+            if (!authenticated) {
+                return checkPasswordForAd(getADAccountsLdapTemplate(), username, password);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
         return false;
+    }
+
+    private boolean checkPasswordForAd(LdapTemplate template, String username, String password) {
+        var isAuth = false;
+        try {
+            if (username != null && username.length() > 0 && password != null && password.length() > 0) {
+                var filter = new AndFilter();
+                filter.and(new EqualsFilter("sAMAccountName", username));
+                isAuth = template.authenticate("", filter.toString(), password);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return isAuth;
     }
 
     private boolean checkPasswordForTemplate(LdapTemplate template, String username, String password) {
