@@ -48,8 +48,9 @@ public class GlobalAccountService extends ABasicAccountService {
             List<LdapTemplate> templates = asList(getGlobalLdapTemplate(), getReferrerLdapTemplate(), getBusinessUnitLdapTemplate(), getPortalLdapTemplate());
             var authenticated = templates.parallelStream().anyMatch(template -> checkPasswordForTemplate(template, username, password));
             if (!authenticated) {
-                return checkPasswordForAd(getADAccountsLdapTemplate(), username, password);
+                authenticated = checkPasswordForAd(getADAccountsLdapTemplate(), username, password);
             }
+            return authenticated;
         } catch (Exception e) {
             e.printStackTrace();
         }
