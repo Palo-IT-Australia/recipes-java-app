@@ -57,7 +57,7 @@ public class UserAccountController {
 
     @PostMapping("/login")
     public ResponseEntity<AccountTokenResponse> login(@RequestBody AccountUidPassword user) {
-        if (accountService.checkPasswordForReferrer(user.getUid(), user.getPassword())) {
+        if (accountService.tryLogin(user.getUid(), user.getPassword())) {
             try {
                 var token = AuthenticationUtil.createAccessToken(user.getUid(), accountService.getAccountGroups(user.getUid()));
                 var refreshToken = authenticationService.createRefreshToken(user.getUid());

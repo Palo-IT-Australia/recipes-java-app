@@ -130,9 +130,9 @@ public class UserAccountControllerTest {
         userAccount.setUid("email@email.com");
         userAccount.setPassword("password");
 
-        when(accountService.checkPasswordForReferrer(userAccount.getUid(), userAccount.getPassword())).thenReturn(true);
+        when(accountService.tryLogin(userAccount.getUid(), userAccount.getPassword())).thenReturn(true);
         var response = controller.login(userAccount);
-        verify(accountService).checkPasswordForReferrer(userAccount.getUid(), userAccount.getPassword());
+        verify(accountService).tryLogin(userAccount.getUid(), userAccount.getPassword());
         verify(accountService).getAccountGroups(userAccount.getUid());
         assertTrue(response.getStatusCode().is2xxSuccessful());
         assertEquals(response.getBody().getType(), "Bearer");
@@ -145,9 +145,9 @@ public class UserAccountControllerTest {
         userAccount.setUid("email@email.com");
         userAccount.setPassword("password");
 
-        when(accountService.checkPasswordForReferrer(userAccount.getUid(), userAccount.getPassword())).thenReturn(false);
+        when(accountService.tryLogin(userAccount.getUid(), userAccount.getPassword())).thenReturn(false);
         var response = controller.login(userAccount);
-        verify(accountService).checkPasswordForReferrer(userAccount.getUid(), userAccount.getPassword());
+        verify(accountService).tryLogin(userAccount.getUid(), userAccount.getPassword());
         assertTrue(response.getStatusCode().is4xxClientError());
     }
 
@@ -158,11 +158,11 @@ public class UserAccountControllerTest {
         userAccount.setUid("email@email.com");
         userAccount.setPassword("password");
 
-        when(accountService.checkPasswordForReferrer(userAccount.getUid(), userAccount.getPassword())).thenReturn(true);
+        when(accountService.tryLogin(userAccount.getUid(), userAccount.getPassword())).thenReturn(true);
         doThrow(new Exception()).when(accountService).getAccountGroups(userAccount.getUid());
 
         var response = controller.login(userAccount);
-        verify(accountService).checkPasswordForReferrer(userAccount.getUid(), userAccount.getPassword());
+        verify(accountService).tryLogin(userAccount.getUid(), userAccount.getPassword());
         assertTrue(response.getStatusCode().is4xxClientError());
     }
 
@@ -173,7 +173,7 @@ public class UserAccountControllerTest {
         userAccount.setUid("email@email.com");
         userAccount.setPassword("password");
 
-        when(accountService.checkPasswordForReferrer(userAccount.getUid(), userAccount.getPassword())).thenReturn(true);
+        when(accountService.tryLogin(userAccount.getUid(), userAccount.getPassword())).thenReturn(true);
         when(authenticationService.createRefreshToken("email@email.com")).thenReturn("refresh-token");
         var response = controller.login(userAccount);
         assertEquals("refresh-token", response.getBody().getRefreshToken());

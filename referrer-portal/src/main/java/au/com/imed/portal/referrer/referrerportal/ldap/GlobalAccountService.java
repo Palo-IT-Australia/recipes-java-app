@@ -3,6 +3,7 @@ package au.com.imed.portal.referrer.referrerportal.ldap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
+import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.filter.AndFilter;
 import org.springframework.ldap.filter.EqualsFilter;
 import org.springframework.stereotype.Service;
@@ -12,6 +13,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import static java.util.Arrays.asList;
 
 @Primary
 @Service
@@ -41,13 +45,24 @@ public class GlobalAccountService extends ABasicAccountService {
     @Value("${imed.portal.auth.groups.hospital}")
     private String[] hospitalGroups;
 
-    public boolean checkPasswordForReferrer(String username, String password) {
+    public boolean tryLogin(String username, String password) {
+        try {
+            List<LdapTemplate> templates = asList(getGlobalLdapTemplate(), getReferrerLdapTemplate(), getBusinessUnitLdapTemplate(), getPortalLdapTemplate());
+            var result = templates.parallelStream().map(template -> checkPasswordForTemplate(template, username, password)).collect(Collectors.toList());
+            return result.stream().anyMatch(auth -> auth);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    private boolean checkPasswordForTemplate(LdapTemplate template, String username, String password) {
         var isAuth = false;
         try {
             if (username != null && username.length() > 0 && password != null && password.length() > 0) {
                 var filter = new AndFilter();
                 filter.and(new EqualsFilter("uid", username));
-                isAuth = getReferrerLdapTemplate().authenticate("", filter.toString(), password);
+                isAuth = template.authenticate("", filter.toString(), password);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -109,7 +124,7 @@ public class GlobalAccountService extends ABasicAccountService {
 
     private boolean hasAuthority(List<String> groups, String[] targetGroup) {
         if (groups != null && !groups.isEmpty()) {
-            return groups.stream().anyMatch(s -> Arrays.asList(targetGroup).contains(s));
+            return groups.stream().anyMatch(s -> asList(targetGroup).contains(s));
         }
         return false;
     }
