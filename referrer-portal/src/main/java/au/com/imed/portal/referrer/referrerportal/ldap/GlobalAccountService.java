@@ -47,7 +47,7 @@ public class GlobalAccountService extends ABasicAccountService {
             if (username != null && username.length() > 0 && password != null && password.length() > 0) {
                 var filter = new AndFilter();
                 filter.and(new EqualsFilter("uid", username));
-                isAuth = getReferrerLdapTemplate().authenticate("", filter.toString(), password);
+                isAuth = getGlobalLdapTemplate().authenticate("", filter.toString(), password);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
