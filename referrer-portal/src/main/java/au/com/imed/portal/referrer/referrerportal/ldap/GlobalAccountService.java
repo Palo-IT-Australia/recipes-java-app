@@ -45,7 +45,7 @@ public class GlobalAccountService extends ABasicAccountService {
 
     public boolean tryLogin(String username, String password) {
         try {
-            List<LdapTemplate> templates = asList(getGlobalLdapTemplate(), getReferrerLdapTemplate(), getBusinessUnitLdapTemplate(), getPortalLdapTemplate());
+            List<LdapTemplate> templates = Collections.singletonList(getReferrerLdapTemplate());
             var authenticated = templates.parallelStream().anyMatch(template -> checkPasswordForTemplate(template, username, password));
             if (!authenticated) {
                 authenticated = checkPasswordForAd(getADAccountsLdapTemplate(), username, password);
