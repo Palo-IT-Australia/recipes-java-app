@@ -10,14 +10,15 @@ import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.filter.AndFilter;
 import org.springframework.ldap.filter.EqualsFilter;
 import org.springframework.ldap.support.LdapNameBuilder;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 
 import javax.naming.Name;
 import javax.naming.directory.SearchControls;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import static java.util.Arrays.asList;
 
@@ -107,37 +108,24 @@ public class GlobalAccountService extends ABasicAccountService {
         return getGroupNames(userName, getLdapGroups(userName));
     }
 
-    private ArrayList<String> getLdapGroups(String userName) throws Exception {
+    private Collection<? extends GrantedAuthority> getLdapGroups(String uid) throws Exception {
         DirContextOperations ctx = new DirContextAdapter();
         ctx.setAttributeValues("objectclass", new String[] {"top", "person", "organizationalPerson","inetOrgPerson"});
-        ctx.setAttributeValue("cn", "janis");
-        ctx.setAttributeValue("sn", "Parker");
-        ctx.setAttributeValue("uid", userName);
+//        ctx.setAttributeValue("cn", userName);
+        ctx.setAttributeValue("uid", uid);
 
         Name dn = LdapNameBuilder.newInstance()
                 .add("ou=users,dc=mia,dc=net,dc=au")
-                .add("uid=janis")
+                .add("uid=" + uid)
                 .build();
 
         ctx.setDn(dn);
 
-        var deets = ldapUserMapper.mapUserFromContext(ctx, userName, Collections.emptyList());
-        deets.getAuthorities();
-        var groups = new ArrayList<String>();
-        var filter = new AndFilter();
-        filter.and(new EqualsFilter("cn", userName));
-
-        getGlobalLdapTemplate().search("", filter.encode(), getSimpleSearchControls(), attributes -> {
-            var name = attributes.getName();
-            var groupMatcher = Pattern.compile(".*cn=(([\\w-\\s])+).*").matcher(name);
-            if (groupMatcher.matches()) {
-                groups.add(groupMatcher.group(1));
-            }
-        });
-        return groups;
+        var deets = ldapUserMapper.mapUserFromContext(ctx, uid, Collections.emptyList());
+        return deets.getAuthorities();
     }
 
-    private List<String> getGroupNames(String username, List<String> ldapGroups) {
+    private List<String> getGroupNames(String username, Collection<? extends GrantedAuthority> ldapGroups) {
         List<String> auths = new ArrayList<>(1);
         if (ldapGroups != null && !ldapGroups.isEmpty()) {
             if (hasAuthority(ldapGroups, adminGroups)) {
@@ -162,7 +150,7 @@ public class GlobalAccountService extends ABasicAccountService {
         return auths;
     }
 
-    private boolean hasAuthority(List<String> groups, String[] targetGroup) {
+    private boolean hasAuthority(Collection<? extends GrantedAuthority> groups, String[] targetGroup) {
         if (groups != null && !groups.isEmpty()) {
             return groups.stream().anyMatch(s -> asList(targetGroup).contains(s));
         }
