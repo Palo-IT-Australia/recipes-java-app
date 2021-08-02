@@ -1,15 +1,21 @@
 package au.com.imed.portal.referrer.referrerportal.ldap;
 
+import au.com.imed.portal.referrer.referrerportal.service.LdapUserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
+import org.springframework.ldap.core.DirContextAdapter;
+import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.filter.AndFilter;
 import org.springframework.ldap.filter.EqualsFilter;
+import org.springframework.ldap.support.LdapNameBuilder;
 import org.springframework.stereotype.Service;
 
+import javax.naming.Name;
 import javax.naming.directory.SearchControls;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -24,6 +30,9 @@ public class GlobalAccountService extends ABasicAccountService {
     public static final String AUTH_HOSPITAL = "ROLE_HOSPITAL";
     public static final String AUTH_CLEANUP = "ROLE_CLEANUP";
     public static final String AUTH_CRM_ADMIN = "ROLE_CRM_ADMIN";
+
+    @Autowired
+    private LdapUserMapper ldapUserMapper;
 
     @Autowired
     private ReferrerAccountService accountService;
@@ -99,9 +108,25 @@ public class GlobalAccountService extends ABasicAccountService {
     }
 
     private ArrayList<String> getLdapGroups(String userName) throws Exception {
+        DirContextOperations ctx = new DirContextAdapter();
+        ctx.setAttributeValues("objectclass", new String[] {"top", "person", "organizationalPerson","inetOrgPerson"});
+        ctx.setAttributeValue("cn", "janis");
+        ctx.setAttributeValue("sn", "Parker");
+        ctx.setAttributeValue("uid", userName);
+
+        Name dn = LdapNameBuilder.newInstance()
+                .add("ou=users,dc=mia,dc=net,dc=au")
+                .add("uid=janis")
+                .build();
+
+        ctx.setDn(dn);
+
+        var deets = ldapUserMapper.mapUserFromContext(ctx, userName, Collections.emptyList());
+        deets.getAuthorities();
         var groups = new ArrayList<String>();
         var filter = new AndFilter();
         filter.and(new EqualsFilter("cn", userName));
+
         getGlobalLdapTemplate().search("", filter.encode(), getSimpleSearchControls(), attributes -> {
             var name = attributes.getName();
             var groupMatcher = Pattern.compile(".*cn=(([\\w-\\s])+).*").matcher(name);

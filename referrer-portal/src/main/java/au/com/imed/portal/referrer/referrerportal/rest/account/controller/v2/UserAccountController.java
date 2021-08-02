@@ -59,7 +59,8 @@ public class UserAccountController {
     public ResponseEntity<AccountTokenResponse> login(@RequestBody AccountUidPassword user) {
         if (accountService.tryLogin(user.getUid(), user.getPassword())) {
             try {
-                var token = AuthenticationUtil.createAccessToken(user.getUid(), accountService.getAccountGroups(user.getUid()));
+                var groups = accountService.getAccountGroups(user.getUid());
+                var token = AuthenticationUtil.createAccessToken(user.getUid(), groups);
                 var refreshToken = authenticationService.createRefreshToken(user.getUid());
                 return ResponseEntity.ok(new AccountTokenResponse("Bearer", token, refreshToken));
             } catch (Exception e) {
