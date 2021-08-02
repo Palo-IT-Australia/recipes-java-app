@@ -579,9 +579,10 @@ public class VisageController {
 
     @RequestMapping("/reportPdf")
     public ResponseEntity<byte[]> pdfReport(@RequestParam Map<String, String> paramMap,
-                                            @RequestHeader(value = PortalConstant.HEADER_AUTHENTICATION, required = false) String authentication) {
+                                            @RequestHeader(value = PortalConstant.HEADER_AUTHENTICATION, required = false) String authentication,
+                                            @RequestParam(value = PortalConstant.TOKEN, required = false) String token) {
         ResponseEntity<byte[]> entity = new ResponseEntity<byte[]>(HttpStatus.METHOD_NOT_ALLOWED);
-        String userName = AuthenticationUtil.getAuthenticatedUserName(authentication);
+        String userName = token != null ? AuthenticationUtil.getAuthenticatedUserName(token) : AuthenticationUtil.getAuthenticatedUserName(authentication);
         if (rateLimit(userName)) {
             if (userName != null && preferenceService.isTermsAccepted(userName)) {
                 OrderDetails order = obtainOrderDetails(userName, paramMap);
@@ -608,8 +609,10 @@ public class VisageController {
 
     @RequestMapping("/attachment")
     public ResponseEntity<byte[]> getAttachment(@RequestParam Map<String, String> paramMap,
-                                                @RequestHeader(value = PortalConstant.HEADER_AUTHENTICATION, required = false) String authentication) {
-        String userName = AuthenticationUtil.getAuthenticatedUserName(authentication);
+                                                @RequestHeader(value = PortalConstant.HEADER_AUTHENTICATION, required = false) String authentication,
+                                                @RequestParam(value = PortalConstant.TOKEN, required = false) String token) {
+
+        String userName = token != null ? AuthenticationUtil.getAuthenticatedUserName(token) : AuthenticationUtil.getAuthenticatedUserName(authentication);
         if (rateLimit(userName)) {
             if (userName != null && preferenceService.isTermsAccepted(userName)) {
                 OrderDetails orderDetails = obtainOrderDetails(userName, paramMap);
