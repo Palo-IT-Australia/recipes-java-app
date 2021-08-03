@@ -12,6 +12,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.rmi.server.ExportException;
 
 public class JwtTokenFilter extends OncePerRequestFilter {
 
@@ -38,6 +39,8 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                         // that the current user is authenticated. So it passes the Spring Security Configurations successfully.
                         SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
                     }
+                } else {
+                    throw new RuntimeException("Unauthorized");
                 }
             } catch (Exception e) {
                 e.printStackTrace();
