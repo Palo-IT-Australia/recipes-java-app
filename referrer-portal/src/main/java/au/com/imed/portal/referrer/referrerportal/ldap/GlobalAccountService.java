@@ -65,18 +65,13 @@ public class GlobalAccountService extends ABasicAccountService {
     @Autowired
     private AdLdapTemplate adLdapTemplate;
 
-    public boolean tryLogin(String username, String password) {
-        try {
-            List<LdapTemplate> templates = Collections.singletonList(getReferrerLdapTemplate());
-            var authenticated = templates.parallelStream().anyMatch(template -> checkPasswordForTemplate(template, username, password));
-            if (!authenticated) {
-                authenticated = checkPasswordForAd(getADAccountsLdapTemplate(), username, password);
-            }
-            return authenticated;
-        } catch (Exception e) {
-            e.printStackTrace();
+    public boolean tryLogin(String username, String password) throws Exception {
+        List<LdapTemplate> templates = Collections.singletonList(getReferrerLdapTemplate());
+        var authenticated = templates.parallelStream().anyMatch(template -> checkPasswordForTemplate(template, username, password));
+        if (!authenticated) {
+            authenticated = checkPasswordForAd(getADAccountsLdapTemplate(), username, password);
         }
-        return false;
+        return authenticated;
     }
 
     private boolean checkPasswordForAd(LdapTemplate template, String username, String password) {
@@ -113,7 +108,7 @@ public class GlobalAccountService extends ABasicAccountService {
 
     private Collection<? extends GrantedAuthority> getLdapGroups(String uid) {
         var result = new ArrayList<GrantedAuthority>();
-        List<BaseLdapTemplate> templates = asList(referrerLdapTemplate);
+        List<BaseLdapTemplate> templates = asList(referrerLdapTemplate, adLdapTemplate);
 
         templates.parallelStream().forEach(template -> {
             var authorities = ldapUserMapper.getSimpleGrantedAuthorities(template.getLdapTemplate().lookupContext(getDn(template, uid)), uid);
