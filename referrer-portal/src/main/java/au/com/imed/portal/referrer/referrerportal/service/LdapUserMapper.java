@@ -48,7 +48,29 @@ public class LdapUserMapper extends LdapUserDetailsMapper {
 
     @Override
     public UserDetails mapUserFromContext(DirContextOperations ctx, String username, Collection<? extends GrantedAuthority> authorities) {
+        auditService.doAudit("Login", username);
+
+        return getDetailedLdapUserDetails(ctx, username);
+    }
+
+    private DetailedLdapUserDetails getDetailedLdapUserDetails(DirContextOperations ctx, String username) {
         // Check user id cases as ldap is insensitive and visage is sensitive
+        Set<SimpleGrantedAuthority> auths = getSimpleGrantedAuthorities(ctx, username);
+
+        // Audit login
+        return getDetailedLdapUserDetails(ctx, username, auths);
+    }
+
+    private DetailedLdapUserDetails getDetailedLdapUserDetails(DirContextOperations ctx, String username, Set<SimpleGrantedAuthority> auths) {
+        UserDetails details = super.mapUserFromContext(ctx, username, auths);
+        return new DetailedLdapUserDetails((LdapUserDetails) details,
+                ctx.getStringAttribute("sn"),
+                ctx.getStringAttribute("givenName"),
+                ctx.getStringAttribute("mobile"),
+                ctx.getStringAttribute("mail"));
+    }
+
+    public Set<SimpleGrantedAuthority> getSimpleGrantedAuthorities(DirContextOperations ctx, String username) {
         String uid = ctx.getStringAttribute("uid");
         String acnt = ctx.getStringAttribute("sAMAccountName");
         if (!StringUtil.isBlank(uid) && !username.equals(uid)) {
@@ -89,15 +111,6 @@ public class LdapUserMapper extends LdapUserDetailsMapper {
         if (isHospitalAuth) {
             auths.add(new SimpleGrantedAuthority(AUTH_HOSPITAL));
         }
-
-        // Audit login
-        auditService.doAudit("Login", username);
-
-        UserDetails details = super.mapUserFromContext(ctx, username, auths);
-        return new DetailedLdapUserDetails((LdapUserDetails) details,
-                ctx.getStringAttribute("sn"),
-                ctx.getStringAttribute("givenName"),
-                ctx.getStringAttribute("mobile"),
-                ctx.getStringAttribute("mail"));
+        return auths;
     }
 }

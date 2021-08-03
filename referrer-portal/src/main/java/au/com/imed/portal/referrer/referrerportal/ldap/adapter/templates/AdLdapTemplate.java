@@ -23,4 +23,9 @@ public class AdLdapTemplate extends ImolAdLdapAdapter implements BaseLdapTemplat
     public LdapTemplate getLdapTemplate() {
         return new LdapTemplate(getContextSource(getBaseDomain()));
     }
+
+    @Override
+    public String getSearchQuery() {
+        return "sAMAccountName=";
+    }
 }

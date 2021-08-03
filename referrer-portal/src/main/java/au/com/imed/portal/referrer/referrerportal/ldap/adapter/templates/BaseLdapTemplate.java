@@ -10,4 +10,6 @@ public interface BaseLdapTemplate {
     LdapContextSource getContextSource(String baseDomain);
 
     LdapTemplate getLdapTemplate();
+
+    String getSearchQuery();
 }

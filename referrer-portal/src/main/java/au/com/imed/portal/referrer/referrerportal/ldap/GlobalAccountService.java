@@ -111,20 +111,20 @@ public class GlobalAccountService extends ABasicAccountService {
         return getGroupNames(userName, getLdapGroups(userName));
     }
 
-    private Collection<? extends GrantedAuthority> getLdapGroups(String uid) throws Exception {
+    private Collection<? extends GrantedAuthority> getLdapGroups(String uid) {
         var result = new ArrayList<GrantedAuthority>();
         List<BaseLdapTemplate> templates = asList(referrerLdapTemplate, adLdapTemplate);
 
         templates.parallelStream().forEach(template -> {
-            var deets = ldapUserMapper.mapUserFromContext(template.getLdapTemplate().lookupContext(getDn(template.getLdapTemplate(), uid)), uid, Collections.emptyList());
-            result.addAll(deets.getAuthorities());
+            var authorities = ldapUserMapper.getSimpleGrantedAuthorities(template.getLdapTemplate().lookupContext(getDn(template, uid)), uid);
+            result.addAll(authorities);
         });
 
         return result;
     }
 
-    private String getDn(LdapTemplate template, String uid) {
-        return "uid=" + uid;
+    private String getDn(BaseLdapTemplate template, String uid) {
+        return template.getSearchQuery() + uid;
     }
 
     private List<String> getGroupNames(String username, Collection<? extends GrantedAuthority> ldapGroups) {

@@ -25,4 +25,8 @@ public class ReferrerLdapTemplate extends ImolLdapAdapter implements BaseLdapTem
         return new LdapTemplate(getContextSource(getBaseDomain()));
     }
 
+    @Override
+    public String getSearchQuery() {
+        return "uid=";
+    }
 }
