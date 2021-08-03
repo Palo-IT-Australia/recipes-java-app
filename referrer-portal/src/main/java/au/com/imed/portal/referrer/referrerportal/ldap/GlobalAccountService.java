@@ -1,12 +1,8 @@
 package au.com.imed.portal.referrer.referrerportal.ldap;
 
-import au.com.imed.portal.referrer.referrerportal.ldap.adapter.templates.AdLdapTemplate;
-import au.com.imed.portal.referrer.referrerportal.ldap.adapter.templates.BaseLdapTemplate;
-import au.com.imed.portal.referrer.referrerportal.ldap.adapter.templates.ReferrerLdapTemplate;
 import au.com.imed.portal.referrer.referrerportal.service.LdapUserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Primary;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DirContextOperations;
@@ -14,7 +10,6 @@ import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.filter.AndFilter;
 import org.springframework.ldap.filter.EqualsFilter;
 import org.springframework.ldap.support.LdapNameBuilder;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 
@@ -31,7 +26,6 @@ import static java.util.Arrays.asList;
 @Service
 public class GlobalAccountService extends ABasicAccountService {
 
-    public static final String REFERRER = "ROLE_REFERRER";
     public static final String AUTH_ADMIN = "ROLE_ADMIN";
     public static final String AUTH_EDITOR = "ROLE_EDITOR";
     public static final String AUTH_HOSPITAL = "ROLE_HOSPITAL";
@@ -58,12 +52,6 @@ public class GlobalAccountService extends ABasicAccountService {
 
     @Value("${imed.portal.auth.groups.hospital}")
     private String[] hospitalGroups;
-
-    @Autowired
-    private ReferrerLdapTemplate referrerLdapTemplate;
-
-    @Autowired
-    private AdLdapTemplate adLdapTemplate;
 
     public boolean tryLogin(String username, String password) {
         try {
@@ -107,24 +95,34 @@ public class GlobalAccountService extends ABasicAccountService {
         return isAuth;
     }
 
+    private SearchControls getSimpleSearchControls() {
+        var searchControls = new SearchControls();
+        searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+        searchControls.setTimeLimit(30000);
+        String[] attrIDs = {"memberOf"};
+        searchControls.setReturningAttributes(attrIDs);
+        return searchControls;
+    }
+
     public List<String> getAccountGroups(final String userName) throws Exception {
         return getGroupNames(userName, getLdapGroups(userName));
     }
 
     private Collection<? extends GrantedAuthority> getLdapGroups(String uid) throws Exception {
-        var result = new ArrayList<GrantedAuthority>();
-        List<BaseLdapTemplate> templates = asList(referrerLdapTemplate, adLdapTemplate);
+        DirContextOperations ctx = new DirContextAdapter();
+        ctx.setAttributeValues("objectclass", new String[] {"top", "person", "organizationalPerson","inetOrgPerson"});
+//        ctx.setAttributeValue("cn", userName);
+        ctx.setAttributeValue("uid", uid);
 
-        templates.parallelStream().forEach(template -> {
-            var deets = ldapUserMapper.mapUserFromContext(template.getLdapTemplate().lookupContext(getDn(template.getLdapTemplate(), uid)), uid, Collections.emptyList());
-            result.addAll(deets.getAuthorities());
-        });
+        Name dn = LdapNameBuilder.newInstance()
+                .add("ou=users,dc=mia,dc=net,dc=au")
+                .add("uid=" + uid)
+                .build();
 
-        return result;
-    }
+        ctx.setDn(dn);
 
-    private String getDn(LdapTemplate template, String uid) {
-        return "uid=" + uid;
+        var deets = ldapUserMapper.mapUserFromContext(ctx, uid, Collections.emptyList());
+        return deets.getAuthorities();
     }
 
     private List<String> getGroupNames(String username, Collection<? extends GrantedAuthority> ldapGroups) {
