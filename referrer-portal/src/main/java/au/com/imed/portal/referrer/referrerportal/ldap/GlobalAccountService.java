@@ -113,7 +113,7 @@ public class GlobalAccountService extends ABasicAccountService {
 
     private Collection<? extends GrantedAuthority> getLdapGroups(String uid) {
         var result = new ArrayList<GrantedAuthority>();
-        List<BaseLdapTemplate> templates = asList(referrerLdapTemplate, adLdapTemplate);
+        List<BaseLdapTemplate> templates = asList(referrerLdapTemplate);
 
         templates.parallelStream().forEach(template -> {
             var authorities = ldapUserMapper.getSimpleGrantedAuthorities(template.getLdapTemplate().lookupContext(getDn(template, uid)), uid);
