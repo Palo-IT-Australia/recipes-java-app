@@ -29,8 +29,8 @@ public class ReferrerLdapTemplate extends ImolLdapAdapter implements BaseLdapTem
     }
 
     @Override
-    public String getSearchQuery() {
-        return "uid=";
+    public String getSearchQuery(String uid) {
+        return "uid=" + uid;
     }
 
     @Override

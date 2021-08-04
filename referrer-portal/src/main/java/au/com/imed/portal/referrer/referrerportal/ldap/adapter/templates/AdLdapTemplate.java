@@ -28,8 +28,8 @@ public class AdLdapTemplate extends ImolAdLdapAdapter implements BaseLdapTemplat
     }
 
     @Override
-    public String getSearchQuery() {
-        return "sAMAccountName=";
+    public String getSearchQuery(String uid) {
+        return "sAMAccountName=" + uid;
     }
 
     @Override

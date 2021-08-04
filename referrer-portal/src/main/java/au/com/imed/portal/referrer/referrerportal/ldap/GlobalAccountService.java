@@ -27,6 +27,8 @@ import org.springframework.stereotype.Service;
 import javax.naming.Name;
 import javax.naming.directory.SearchControls;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.util.Arrays.asList;
 
@@ -115,24 +117,21 @@ public class GlobalAccountService extends ABasicAccountService {
 
         templates.forEach(template -> {
             try {
-                var authorities = template.getLdapTemplate().lookup(template.buildSearchDn(uid), new AbstractContextMapper<Set<SimpleGrantedAuthority>>() {
+                var authorities = template.getLdapTemplate().search("", template.getSearchQuery(uid), new AbstractContextMapper<Set<SimpleGrantedAuthority>>() {
+
                     @Override
                     protected Set<SimpleGrantedAuthority> doMapFromContext(DirContextOperations dirContextOperations) {
                         return ldapUserMapper.getSimpleGrantedAuthorities(dirContextOperations, uid);
                     }
                 });
 
-                result.addAll(authorities);
+                result.addAll(authorities.stream().flatMap(Collection::stream).collect(Collectors.toList()));
             } catch (Exception e) {
                 e.printStackTrace();
             }
         });
 
         return result;
-    }
-
-    private String getDn(BaseLdapTemplate template, String uid) {
-        return template.getSearchQuery() + uid;
     }
 
     private List<String> getGroupNames(String username, Collection<? extends GrantedAuthority> ldapGroups) {

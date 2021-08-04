@@ -13,7 +13,7 @@ public interface BaseLdapTemplate {
 
     LdapTemplate getLdapTemplate();
 
-    String getSearchQuery();
+    String getSearchQuery(String uid);
 
     Name buildSearchDn(String uid);
 }
