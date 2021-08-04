@@ -117,7 +117,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .contextSource(contextSource)
                 .userDetailsContextMapper(ldapUserMapper);
 
-        if (ACTIVE_PROFILE.equals("local")) {
+        if (!ACTIVE_PROFILE.equals("local")) {
             LdapContextSource contextSourceAd = new LdapContextSource();
             contextSourceAd.setBase("ou=Business Units,dc=mia,dc=net,dc=au");
             contextSourceAd.setUserDn("CN=IWS_LDAP_BIND_Prod,OU=ServiceAccounts,DC=mia,DC=net,DC=au");
