@@ -9,4 +9,5 @@ public class AccountTokenResponse {
     private final String type;
     private final String token;
     private final String refreshToken;
+
 }

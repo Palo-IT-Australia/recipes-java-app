@@ -108,7 +108,7 @@ public class GlobalAccountService extends ABasicAccountService {
     }
 
     public List<String> getAccountGroups(final String userName) throws Exception {
-        return getGroupNames(userName, getLdapGroups(userName));
+        return getLdapGroups(userName).stream().map(Object::toString).collect(Collectors.toList());
     }
 
     private Collection<? extends GrantedAuthority> getLdapGroups(String uid) {
@@ -116,7 +116,7 @@ public class GlobalAccountService extends ABasicAccountService {
         List<BaseLdapTemplate> templates = asList(referrerLdapTemplate, adLdapTemplate);
 
         templates.forEach(template -> {
-            var authorities = template.getLdapTemplate().search("", template.getSearchQuery(uid), new AbstractContextMapper<Set<SimpleGrantedAuthority>>() {
+            var authorities = template.getLdapTemplate().search("", template.getSearchQuery(uid), SearchScope.SUBTREE.getId(), new AbstractContextMapper<Set<SimpleGrantedAuthority>>() {
 
                 @Override
                 protected Set<SimpleGrantedAuthority> doMapFromContext(DirContextOperations dirContextOperations) {
