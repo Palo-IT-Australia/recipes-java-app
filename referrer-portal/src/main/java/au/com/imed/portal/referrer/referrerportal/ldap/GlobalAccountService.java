@@ -11,19 +11,22 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.ldap.core.LdapTemplate;
+import org.springframework.ldap.core.support.AbstractContextMapper;
 import org.springframework.ldap.filter.AndFilter;
 import org.springframework.ldap.filter.EqualsFilter;
+import org.springframework.ldap.filter.Filter;
+import org.springframework.ldap.query.LdapQuery;
+import org.springframework.ldap.query.LdapQueryBuilder;
+import org.springframework.ldap.query.SearchScope;
 import org.springframework.ldap.support.LdapNameBuilder;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 
 import javax.naming.Name;
 import javax.naming.directory.SearchControls;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static java.util.Arrays.asList;
 
@@ -112,7 +115,13 @@ public class GlobalAccountService extends ABasicAccountService {
 
         templates.forEach(template -> {
             try {
-                var authorities = ldapUserMapper.getSimpleGrantedAuthorities(template.getLdapTemplate().lookupContext(getDn(template, uid)), uid);
+                var authorities = template.getLdapTemplate().lookup(getDn(template, uid), new AbstractContextMapper<Set<SimpleGrantedAuthority>>() {
+                    @Override
+                    protected Set<SimpleGrantedAuthority> doMapFromContext(DirContextOperations dirContextOperations) {
+                        return ldapUserMapper.getSimpleGrantedAuthorities(dirContextOperations, uid);
+                    }
+                });
+
                 result.addAll(authorities);
             } catch (Exception e) {
                 e.printStackTrace();
