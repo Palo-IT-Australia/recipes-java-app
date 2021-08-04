@@ -5,7 +5,10 @@ import au.com.imed.portal.referrer.referrerportal.ldap.adapter.ImolAdLdapAdapter
 import au.com.imed.portal.referrer.referrerportal.ldap.adapter.ImolLdapAdapter;
 import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.core.support.LdapContextSource;
+import org.springframework.ldap.support.LdapNameBuilder;
 import org.springframework.stereotype.Component;
+
+import javax.naming.Name;
 
 @Component
 public class ReferrerLdapTemplate extends ImolLdapAdapter implements BaseLdapTemplate {
@@ -28,5 +31,10 @@ public class ReferrerLdapTemplate extends ImolLdapAdapter implements BaseLdapTem
     @Override
     public String getSearchQuery() {
         return "uid=";
+    }
+
+    @Override
+    public Name buildSearchDn(String uid) {
+        return LdapNameBuilder.newInstance().add("uid", uid).build();
     }
 }

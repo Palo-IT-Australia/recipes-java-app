@@ -115,7 +115,7 @@ public class GlobalAccountService extends ABasicAccountService {
 
         templates.forEach(template -> {
             try {
-                var authorities = template.getLdapTemplate().lookup(getDn(template, uid), new AbstractContextMapper<Set<SimpleGrantedAuthority>>() {
+                var authorities = template.getLdapTemplate().lookup(template.buildSearchDn(uid), new AbstractContextMapper<Set<SimpleGrantedAuthority>>() {
                     @Override
                     protected Set<SimpleGrantedAuthority> doMapFromContext(DirContextOperations dirContextOperations) {
                         return ldapUserMapper.getSimpleGrantedAuthorities(dirContextOperations, uid);

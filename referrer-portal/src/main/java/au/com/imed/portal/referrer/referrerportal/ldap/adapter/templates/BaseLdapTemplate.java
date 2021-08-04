@@ -3,6 +3,8 @@ package au.com.imed.portal.referrer.referrerportal.ldap.adapter.templates;
 import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.core.support.LdapContextSource;
 
+import javax.naming.Name;
+
 public interface BaseLdapTemplate {
 
     String getBaseDomain();
@@ -12,4 +14,6 @@ public interface BaseLdapTemplate {
     LdapTemplate getLdapTemplate();
 
     String getSearchQuery();
+
+    Name buildSearchDn(String uid);
 }
