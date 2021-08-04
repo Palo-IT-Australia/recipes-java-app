@@ -110,9 +110,13 @@ public class GlobalAccountService extends ABasicAccountService {
         var result = new ArrayList<GrantedAuthority>();
         List<BaseLdapTemplate> templates = asList(referrerLdapTemplate, adLdapTemplate);
 
-        templates.parallelStream().forEach(template -> {
-            var authorities = ldapUserMapper.getSimpleGrantedAuthorities(template.getLdapTemplate().lookupContext(getDn(template, uid)), uid);
-            result.addAll(authorities);
+        templates.forEach(template -> {
+            try {
+                var authorities = ldapUserMapper.getSimpleGrantedAuthorities(template.getLdapTemplate().lookupContext(getDn(template, uid)), uid);
+                result.addAll(authorities);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         });
 
         return result;

@@ -14,7 +14,6 @@ public abstract class ImolAdLdapAdapter implements BaseLdapTemplate {
         contextSource.setBase(baseDomain);
         contextSource.setUserDn("CN=IWS_LDAP_BIND_Prod,OU=ServiceAccounts,DC=mia,DC=net,DC=au");
         contextSource.setPassword("7Z79531seI32j49pu96m3172563435OKe65oA8g33y29mM3k6w85B80EH5EXZb7t");
-//        contextSource.setUrl("ldap://10.100.120.10:389");
         contextSource.setUrl(adLdapHost);
         contextSource.afterPropertiesSet();
         return contextSource;
