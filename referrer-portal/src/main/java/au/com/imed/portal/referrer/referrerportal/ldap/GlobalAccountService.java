@@ -116,19 +116,15 @@ public class GlobalAccountService extends ABasicAccountService {
         List<BaseLdapTemplate> templates = asList(referrerLdapTemplate, adLdapTemplate);
 
         templates.forEach(template -> {
-            try {
-                var authorities = template.getLdapTemplate().search("", template.getSearchQuery(uid), new AbstractContextMapper<Set<SimpleGrantedAuthority>>() {
+            var authorities = template.getLdapTemplate().search("", template.getSearchQuery(uid), new AbstractContextMapper<Set<SimpleGrantedAuthority>>() {
 
-                    @Override
-                    protected Set<SimpleGrantedAuthority> doMapFromContext(DirContextOperations dirContextOperations) {
-                        return ldapUserMapper.getSimpleGrantedAuthorities(dirContextOperations, uid);
-                    }
-                });
+                @Override
+                protected Set<SimpleGrantedAuthority> doMapFromContext(DirContextOperations dirContextOperations) {
+                    return ldapUserMapper.getSimpleGrantedAuthorities(dirContextOperations, uid);
+                }
+            });
 
-                result.addAll(authorities.stream().flatMap(Collection::stream).collect(Collectors.toList()));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            result.addAll(authorities.stream().flatMap(Collection::stream).collect(Collectors.toList()));
         });
 
         return result;
