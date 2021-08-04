@@ -88,15 +88,35 @@ public abstract class ABasicAccountService {
 		return getLdapTemplate(PortalConstant.DOMAIN_PACS_USERS);
 	}
 
+	protected LdapTemplate getADAccountsLdapTemplate() throws Exception {
+		return new LdapTemplate(getAdminLdapContextSource(PortalConstant.DOMAIN_BUSINESS_UNITS));
+	}
+
 	private LdapTemplate getLdapTemplate(final String baseDomain) throws Exception {
+		LdapContextSource contextSource = getLdapContextSource(baseDomain);
+
+		return new LdapTemplate(contextSource);
+	}
+
+	private LdapContextSource getAdminLdapContextSource(String baseDomain) {
+		LdapContextSource contextSource = new LdapContextSource();
+		contextSource.setBase(baseDomain);
+		contextSource.setUserDn("CN=IWS_LDAP_BIND_Prod,OU=ServiceAccounts,DC=mia,DC=net,DC=au");
+		contextSource.setPassword("7Z79531seI32j49pu96m3172563435OKe65oA8g33y29mM3k6w85B80EH5EXZb7t");
+		contextSource.setUrl("ldap://10.100.120.10:389");
+		contextSource.afterPropertiesSet();
+		return contextSource;
+	}
+
+
+	private LdapContextSource getLdapContextSource(String baseDomain) {
 		LdapContextSource contextSource = new LdapContextSource();
 		contextSource.setBase(baseDomain);
 		contextSource.setUserDn(ldapUserDn);
 		contextSource.setPassword(ldapPassword);
 		contextSource.setUrl(ldapUrl);
 		contextSource.afterPropertiesSet();
-
-		return new LdapTemplate(contextSource);
+		return contextSource;
 	}
 
 	protected class PersonContextMapper extends AbstractContextMapper<Name> {

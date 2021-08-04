@@ -20,6 +20,7 @@ public final class PortalConstant {
 	public static String IMED_TEMPORAL_PASSWORD = "iMtmP2018pswd";
 
 	public static final String HEADER_AUTHENTICATION = "Authentication";
+	public static final String TOKEN = "token";
 
 	// Constants related to ldap and email symbols
 	public static final String ATMARK_IN_LDAP = "-!-";

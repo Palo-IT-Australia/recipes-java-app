@@ -5,9 +5,11 @@ import au.com.imed.portal.referrer.referrerportal.ldap.ReferrerAccountService;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.service.AuditService;
 import au.com.imed.portal.referrer.referrerportal.security.DetailedLdapUserDetails;
 import au.com.imed.portal.referrer.referrerportal.security.PortalLogoutSuccessHandler;
+import au.com.imed.portal.referrer.referrerportal.service.LdapUserMapper;
 import org.jsoup.helper.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.ldap.core.DirContextOperations;
@@ -57,9 +59,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Value("${imed.portal.pages.urls.cleanup}")
     private String[] cleanupUrls;
 
-    @Autowired
-    private AuditService auditService;
-
     @Value("${imed.ldap.userdn}")
     private String ldapUserDn;
 
@@ -69,26 +68,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Value("${imed.frontend.url}")
     private String[] frontendUrls;
 
-    @Autowired
-    private ReferrerAccountService accountService;
-
-    @Value("${imed.portal.auth.groups.admin}")
-    private String[] adminGroups;
-
-    @Value("${imed.portal.auth.groups.crmadmin}")
-    private String[] crmAdminGroups;
-
-    @Value("${imed.portal.auth.groups.editor}")
-    private String[] editorGroups;
-
-    @Value("${imed.portal.auth.groups.cleanup}")
-    private String[] cleanupGroup;
-
-    @Value("${imed.portal.auth.groups.hospital}")
-    private String[] hospitalGroups;
-
     @Value("${spring.profiles.active}")
     private String ACTIVE_PROFILE;
+
+    @Autowired
+    private LdapUserMapper ldapUserMapper;
 
     @Autowired
     private PortalLogoutSuccessHandler portalLogoutSuccessHandler;
@@ -131,7 +115,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .ldapAuthentication()
                 .userSearchFilter("(uid={0})")
                 .contextSource(contextSource)
-                .userDetailsContextMapper(userDetailsContextMapper());
+                .userDetailsContextMapper(ldapUserMapper);
 
         if (!ACTIVE_PROFILE.equals("local")) {
             LdapContextSource contextSourceAd = new LdapContextSource();
@@ -145,78 +129,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     .ldapAuthentication()
                     .userSearchFilter("(sAMAccountName={0})")
                     .contextSource(contextSourceAd)
-                    .userDetailsContextMapper(userDetailsContextMapper());
+                    .userDetailsContextMapper(ldapUserMapper);
         }
     }
 
     @Bean
     public UserDetailsContextMapper userDetailsContextMapper() {
-        return new LdapUserDetailsMapper() {
-            @Override
-            public UserDetails mapUserFromContext(DirContextOperations ctx, String username, Collection<? extends GrantedAuthority> authorities) {
-                // Check user id cases as ldap is insensitive and visage is sensitive
-                String uid = ctx.getStringAttribute("uid");
-                String acnt = ctx.getStringAttribute("sAMAccountName");
-                if (!StringUtil.isBlank(uid) && !username.equals(uid)) {
-                    throw new UsernameNotFoundException("uid case mismatch LDAP");
-                } else if (!StringUtil.isBlank(acnt) && !username.equals(acnt)) {
-                    throw new UsernameNotFoundException("sAMAccountName case mismatch AD");
-                }
-
-                Set<SimpleGrantedAuthority> auths = new HashSet<>(1);
-
-                final String CN = "CN=";
-                Object[] groups = ctx.getObjectAttributes("memberOf");
-                if (groups != null && groups.length > 0) {
-                    if (Arrays.stream(groups).map(o -> o.toString()).filter(s -> {
-                        return Arrays.stream(adminGroups).filter(g -> s.startsWith(CN + g)).count() > 0;
-                    }).count() > 0) {
-                        auths.add(new SimpleGrantedAuthority(AUTH_ADMIN));
-                    }
-                    if (Arrays.stream(groups).map(o -> o.toString()).filter(s -> {
-                        return Arrays.stream(editorGroups).filter(g -> s.startsWith(CN + g)).count() > 0;
-                    }).count() > 0) {
-                        auths.add(new SimpleGrantedAuthority(AUTH_EDITOR));
-                    }
-                    if (Arrays.stream(groups).map(o -> o.toString()).filter(s -> {
-                        return Arrays.stream(cleanupGroup).filter(g -> s.startsWith(CN + g)).count() > 0;
-                    }).count() > 0) {
-                        auths.add(new SimpleGrantedAuthority(AUTH_CLEANUP));
-                    }
-                    if (Arrays.stream(groups).map(o -> o.toString()).filter(s -> {
-                        return Arrays.stream(crmAdminGroups).filter(g -> s.startsWith(CN + g)).count() > 0;
-                    }).count() > 0) {
-                        auths.add(new SimpleGrantedAuthority(AUTH_CRM_ADMIN));
-                    }
-
-                }
-
-                // Hospital access both AD and LDAP groups
-                boolean isHospitalAuth = false;
-                if (accountService.isHospitalAccess(username)) {
-                    isHospitalAuth = true;
-                } else if (groups != null && groups.length > 0) {
-                    if (Arrays.stream(groups).map(o -> o.toString()).filter(s -> {
-                        return Arrays.stream(hospitalGroups).filter(g -> s.startsWith(CN + g)).count() > 0;
-                    }).count() > 0) {
-                        isHospitalAuth = true;
-                    }
-                }
-                if (isHospitalAuth) {
-                    auths.add(new SimpleGrantedAuthority(AUTH_HOSPITAL));
-                }
-
-                // Audit login
-                auditService.doAudit("Login", username);
-
-                UserDetails details = super.mapUserFromContext(ctx, username, auths);
-                return new DetailedLdapUserDetails((LdapUserDetails) details,
-                        ctx.getStringAttribute("sn"),
-                        ctx.getStringAttribute("givenName"),
-                        ctx.getStringAttribute("mobile"),
-                        ctx.getStringAttribute("mail"));
-            }
-        };
+        return ldapUserMapper;
     }
 
     @Bean
