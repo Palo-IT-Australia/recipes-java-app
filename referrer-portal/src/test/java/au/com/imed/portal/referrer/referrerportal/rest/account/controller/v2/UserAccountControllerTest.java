@@ -184,7 +184,7 @@ public class UserAccountControllerTest {
         try (MockedStatic<AuthenticationUtil> authUtilMock = Mockito.mockStatic(AuthenticationUtil.class)) {
             when(authenticationService.checkRefreshToken("refresh-token")).thenReturn("uid");
             when(accountService.getAccountGroups("uid")).thenReturn(Collections.singletonList("ADMIN"));
-            authUtilMock.when(() -> AuthenticationUtil.createAccessToken("uid", Collections.singletonList("ADMIN"))).thenReturn("access-token");
+            authUtilMock.when(() -> AuthenticationUtil.createImolAccessToken("uid", Collections.singletonList("ADMIN"))).thenReturn("access-token");
             when(authenticationService.createRefreshToken("uid")).thenReturn("refresh-token-2");
 
             var response = controller.refreshToken("refresh-token");

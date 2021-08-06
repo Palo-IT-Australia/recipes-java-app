@@ -21,7 +21,7 @@ public class AuthenticationService {
 
     public String createRefreshToken(String uid) {
         try {
-            var refreshToken = AuthenticationUtil.createRefreshToken(uid);
+            var refreshToken = AuthenticationUtil.createImolRefreshToken(uid);
             invalidateActiveTokens(uid);
             refreshTokenRepository.save(new RefreshToken(uid, getTokenHash(refreshToken)));
             return refreshToken;

@@ -47,7 +47,7 @@ public class UserAccountController {
         try {
             var uid = authenticationService.checkRefreshToken(refreshToken);
             return ResponseEntity.ok(new AccountTokenResponse("Bearer",
-                    AuthenticationUtil.createAccessToken(uid, accountService.getAccountGroups(uid)),
+                    AuthenticationUtil.createImolAccessToken(uid, accountService.getAccountGroups(uid)),
                     authenticationService.createRefreshToken(uid)));
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -59,7 +59,7 @@ public class UserAccountController {
     public ResponseEntity<AccountTokenResponse> login(@RequestBody AccountUidPassword user) throws Exception {
         if (accountService.tryLogin(user.getUid(), user.getPassword())) {
             var groups = accountService.getAccountGroups(user.getUid());
-            var token = AuthenticationUtil.createAccessToken(user.getUid(), groups);
+            var token = AuthenticationUtil.createImolAccessToken(user.getUid(), groups);
             var refreshToken = authenticationService.createRefreshToken(user.getUid());
             return ResponseEntity.ok(new AccountTokenResponse("Bearer", token, refreshToken));
         }
