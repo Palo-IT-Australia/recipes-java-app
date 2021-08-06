@@ -37,7 +37,9 @@ public class AuthenticationUtil {
     private static final String SUBJECT_ACCESS = "I-MED Token ACCESS";
     private static final String SUBJECT_REFRESH = "I-MED Token REFRESH";
     private static final float EXPIRE_ACCESS = 20;
+    private static final float EXPIRE_IMOL_ACCESS = 5;
     private static final float EXPIRE_REFRESH = 60 * 24 * 7; // 7days
+    private static final float EXPIRE_IMOL_REFRESH = 10;
     private static final String WEBKEY_STRING = "eyJhbGciOiJQQkVTMi1IUzI1NitBMTI4S1ciLCJlbmMiOiJBMTI4Q0JDLUhTMjU2IiwicDJjIjo4MTkyLCJwMnMiOiIzRkNyanliYTBwOXZvQXNUIn0.fXlwgtkn_s3aHcU6gdsxbO8g3UiFbDQUvfyN_w4Tokhi7cUQ_rPjvw.KoP4zXOJaqNwv8Tw7foqpQ.M3TOzEVn6STorZRKjB9ey0ku6tqeLLyG-hnCRAwy6ArZraI1V45bjkflYWo168hAf6VQOihWQhZTSS4TdcYm0fGPIOwrKYEerqlr94Pqs3ekJNsLjgP0gLHPwxreeWfndP8h6HN9aKh39YnKg80TgGqN06eIZCpK0i65XwY_BrKTjtkUm4h-iUgtzawGe9JD2O6RXb3ZfxlT28EDm4NtLUoaTPohsrTzAQn_bOCrxQbsY9v2q_wVrBZeyCnbY9BY6uny9xqUi5B2qruAhHag9vBV5sG5W8DBvwXeDVIQYb5jQazjHn1haN92QXKVd7UyXLcM1DxDlZhrd66rWVPnDcv5Zpp8uzPGXVLA3uQtN0r-Ujg_v5nmOZxBQA2X38WoJYNi9lTa8So7Xl23A9iagoP9hJ4tLCuD8Z-PitcZdZKlqA5QtQWpwC5LkyF0bfGC-rZrHRt7vCf4LPAshQZ_CHHDrhXZgqzWvSkob8FE7XxPWh0UcZQ9XvtReOaM_w4Va-WundCWM3-LVWbRtq87cCfLIAvrwppHinYVfR28CXlai53BngHCT7TzdpSxXRd-1XjlBWMn5ks-N3ppmQCwIH-m3sFpkFiy2KlhLvNYE8RCLTGwLz9tvgVyMldd4cW5IcaaLymO04Yy46627xyqhL30fFHHfa-u1-Pa71AHt-Wi5jGRi0Mfa90l6aMNFrwW_z-Ck4u4Aahpf7pDzUezNnc8DEUMI6ln1vKVDs7JJf19Mp5eEa-hvwH_AoJxokurXXnhobcVF8Gk4IfikbJzoVdbSEsJKUZAXG3dOzHALCXA-qa-QHzXWpO5CSMICUcAM0lRrSqdXsDqVC5d8v41jh8GM00xI3bn7MRvAAH9Ja7k3z33k87FTsNDM7Y1_lRrKBcjxPt4_twaGXL2hIQ4VLP8CmOMmxN5WCmU0hhhSIUHO3olpC7ugAMvGnfcGPinjhV_1jg89czVvYvECfq-vCoWc3r8atFCu6zPTzaz-qxI4GKIosb7ufcL34TrOnX3IXaZrsfEprpLV7ArB-0ZOcCU9K3RcLDqqYgauABJN9rc7b4Tpu90jSEvujitSjRCLmmj0Dk85VuN9nHe0eU1toMTv72VauMbbGDlmj7D2C_PzujbeoOqrWnuPAKDfBwGjhfzAD7fVy8tgQZT-hBkcD8a3AM3l6t4wDZMbaXaDacCc_xlQsfvAHZU3w600LZtPwDpOSlm8RFdfOi5FHwOtYQsQvnrDQF84RI2oK1EQ5ZQHsHDY1glrHjb4gqbvyPcA9jA1J4VscqHyT151x5rjXAAmQGtETvAh0EMF_papCtlz-5KPr8t3PwTySmroU0srEYfY2pXbgiQOexR1r8JS5A7N97VipSazZmex89-LHpo3IM31NMq8fJQ_Yi-uFxSZ55MlZnJrI1xQ4qqShWkij7hVdodWLwMPhQYA7GwOr8ytbuUt2NUFyRWG_htnog_YZn2kZE35eS6LYyvd8a6wXedf981OvK1ehUQuy99I3v8SHNV4B4z7OFKjsgzYAJVXAMAUjwnb4sgwF1LblFgCDp-qC5ccgTEc2nrZfGfavvktq381mrZBZTkeDVcSMr_thrDy3-J_bJFwtRF98KLwHMWxI8Cyi8UP4Wlcoo8gIMdRB2Vz4QDpn0u1n5CYQWtuBORrJXUjHL0qtzGqP0wwJog9uP0bHwherVL-xSw-Yi95J4rfMSJGpz4spvuKYuMq78gQczi6o94bbbDWvCHjoxnYpEyyGSrm3KLmWlXgAn8k5kb7HcEf4w7--B4G73xJitz2g_fJcLiWJAeNrcgZYPXS5lA0rUZkWNUdBxh_FBgRyl53ryGvF-Epv4uR8MleGT-MmZQqBpWTqAKpXNAe-LB-YFZsG7durJ-SEoPuV3nSJc_oTq9cDf7hK7XywlVcAv2SPOBEAUMwoHLzWBuCvF2-4Db8AcBhkjCimCQDFifS6OjMsZ8ta7Mt99f21YpBwyY-Cka2xOd7gq58H9g3eRa9wOqP9phmMSUDi4qtk6zrM_ICjEB9JHLZx9BMFkuvgjsqwk3S5sBJTTD4YqN5NrKoRZruT0eNQoffzHbZan6UqgRWGeemXiemL_v-DXBg9qkjJ-SrnU5FbqHRqCgrg5BLsGKeiMotEvHhYM6uojfNb7V-fDnIS4pLbNFXW9pW1Hh8veHoLG7h2VVx40vPA.erlYmPKgVsSmUdRJp9rpAA";
 
     /**
@@ -58,13 +60,13 @@ public class AuthenticationUtil {
         return createToken(username, null, EXPIRE_ACCESS, SUBJECT_ACCESS);
     }
 
-    ///
-    /// Public methods to check/create token for client
-    ///
-    public static String createAccessToken(final String username, List<String> groups) throws Exception {
-        return createToken(username, groups, EXPIRE_ACCESS, SUBJECT_ACCESS);
+    public static String createImolAccessToken(final String username, List<String> groups) throws Exception {
+        return createToken(username, groups, EXPIRE_IMOL_ACCESS, SUBJECT_ACCESS);
     }
 
+    public static String createImolRefreshToken(final String username) throws Exception {
+        return createToken(username, null, EXPIRE_IMOL_REFRESH, SUBJECT_REFRESH);
+    }
 
     public static String createRefreshToken(final String username) throws Exception {
         return createToken(username, null, EXPIRE_REFRESH, SUBJECT_REFRESH);
