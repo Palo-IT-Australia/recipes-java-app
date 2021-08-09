@@ -41,7 +41,7 @@ public class UserAccountService {
     @Autowired
     private ReferrerCreateAccountService referrerAccountService;
 
-    @Value("${imed.application.url}")
+    @Value("${imed.application.v3.url}")
     private String applicationUrl;
 
     public void confirmPasswordReset(ResetConfirmModel confirmModel) {

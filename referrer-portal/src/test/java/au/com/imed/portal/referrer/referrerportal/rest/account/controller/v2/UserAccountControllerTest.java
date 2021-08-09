@@ -151,21 +151,6 @@ public class UserAccountControllerTest {
         assertTrue(response.getStatusCode().is4xxClientError());
     }
 
-    @SneakyThrows
-    @Test
-    public void shouldReturn4xxOnFailedLogin2() {
-        AccountUidPassword userAccount = new AccountUidPassword();
-        userAccount.setUid("email@email.com");
-        userAccount.setPassword("password");
-
-        when(accountService.tryLogin(userAccount.getUid(), userAccount.getPassword())).thenReturn(true);
-        doThrow(new Exception()).when(accountService).getAccountGroups(userAccount.getUid());
-
-        var response = controller.login(userAccount);
-        verify(accountService).tryLogin(userAccount.getUid(), userAccount.getPassword());
-        assertTrue(response.getStatusCode().is4xxClientError());
-    }
-
     @Test
     @SneakyThrows
     public void shouldReturnRefreshTokenWhenLogin() {

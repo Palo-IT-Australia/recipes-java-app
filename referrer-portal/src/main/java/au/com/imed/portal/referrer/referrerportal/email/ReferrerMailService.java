@@ -369,7 +369,7 @@ public class ReferrerMailService {
 		sendWithStreamsAsAttachmentWithHeaderFooter(tos, subject, content, tempDatasourceList, tempFileNameList, headerImgLoc, footerImgLoc);
 	}
 
-	public void sendAddPractice(final AddPractice practice, AccountDetail accountDetail) {
+	public void sendAddPractice(String mailTo, final AddPractice practice, AccountDetail accountDetail) {
 		final String NL = "\n";
 		StringBuffer sb = new StringBuffer();
 		sb.append("Referrer userid:");
@@ -414,7 +414,7 @@ public class ReferrerMailService {
 		sb.append(practice.getPostcode());
 		sb.append(NL);
 
-		sendMail(new String[] {"referrer@i-med.com.au"}, "I-MED Online : Referrer New Practice", sb.toString());
+		sendMail(new String[] {mailTo}, "I-MED Online : Referrer New Practice", sb.toString());
 	}
 
 	public void sendReportHtml(final String[] toEmails, final String url) throws Exception {

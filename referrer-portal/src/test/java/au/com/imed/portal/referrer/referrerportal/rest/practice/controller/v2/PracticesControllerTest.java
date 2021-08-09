@@ -37,7 +37,7 @@ public class PracticesControllerTest {
 
         var response = controller.addPractice(practice, auth);
 
-        verify(mailService).sendAddPractice(practice, accountDetail);
+        verify(mailService).sendAddPractice(null, practice, accountDetail);
         assertTrue(response.getStatusCode().is2xxSuccessful());
     }
 
@@ -50,7 +50,7 @@ public class PracticesControllerTest {
         when(auth.getPrincipal()).thenReturn("jackson");
         when(referrerAccountService.getReferrerAccountDetail("jackson")).thenReturn(accountDetail);
         // TODO: Figure out why this prevent the class from being used
-        doThrow(new Exception("")).when(mailService).sendAddPractice(practice, accountDetail);
+        doThrow(new Exception("")).when(mailService).sendAddPractice(null, practice, accountDetail);
 
         var response = controller.addPractice(practice, auth);
 
