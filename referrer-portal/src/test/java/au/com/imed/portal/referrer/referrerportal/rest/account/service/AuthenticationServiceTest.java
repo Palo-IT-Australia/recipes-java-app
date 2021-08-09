@@ -26,7 +26,7 @@ public class AuthenticationServiceTest {
     @Test
     public void shouldCreateRefreshToken() throws Exception {
         try (MockedStatic<AuthenticationUtil> authUtilMock = Mockito.mockStatic(AuthenticationUtil.class)) {
-            authUtilMock.when(() -> AuthenticationUtil.createRefreshToken("uid")).thenReturn("refresh-token");
+            authUtilMock.when(() -> AuthenticationUtil.createImolRefreshToken("uid")).thenReturn("refresh-token");
 
             var result = service.createRefreshToken("uid");
             assertEquals("refresh-token", result);
@@ -37,7 +37,7 @@ public class AuthenticationServiceTest {
     public void shouldInvalidatePreviousTokensOnNewTokenCreate() throws Exception {
         try (MockedStatic<AuthenticationUtil> authUtilMock = Mockito.mockStatic(AuthenticationUtil.class)) {
             ArgumentCaptor<RefreshToken> tokenCaptor = ArgumentCaptor.forClass(RefreshToken.class);
-            authUtilMock.when(() -> AuthenticationUtil.createRefreshToken("uid")).thenReturn("refresh-token");
+            authUtilMock.when(() -> AuthenticationUtil.createImolRefreshToken("uid")).thenReturn("refresh-token");
 
             var previousTokens = singletonList(new RefreshToken());
             when(repository.findAllByUserIdAndValid("uid", true)).thenReturn(previousTokens);

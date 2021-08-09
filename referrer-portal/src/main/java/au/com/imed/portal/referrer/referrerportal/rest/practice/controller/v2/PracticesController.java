@@ -29,6 +29,9 @@ public class PracticesController {
     @Autowired
     private ReferrerAccountService referrerAccountService;
 
+    @Value("${imed.email.reciever}")
+    private String emailReceiver;
+
     public PracticesController(@Value("${spring.profiles.active}") String environment) {
         this.environment = environment;
     }
@@ -39,9 +42,7 @@ public class PracticesController {
         log.info(authentication.toString());
         try {
             var accountDetail = referrerAccountService.getReferrerAccountDetail((String) authentication.getPrincipal());
-            if("prod".equals(environment)) {
-                emailService.sendAddPractice(practice, accountDetail);
-            }
+            emailService.sendAddPractice(emailReceiver, practice, accountDetail);
             return new ResponseEntity<>(HttpStatus.ACCEPTED);
         } catch (Exception e) {
             e.printStackTrace();

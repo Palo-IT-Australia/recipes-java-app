@@ -68,6 +68,9 @@ public class ReferrerPortalMvcController {
 	@Value("${imed.application.version}")
 	private String vnum;
 
+	@Value("${imed.email.reciever}")
+	private String emailReceiver;
+
 	@Autowired
 	private ReferrerCreateAccountService accountService;
 
@@ -349,7 +352,7 @@ public class ReferrerPortalMvcController {
 		logger.info(authentication.getPrincipal().toString());
 		DetailedLdapUserDetails principal = (DetailedLdapUserDetails) authentication.getPrincipal();
 		if("prod".equals(ACTIVE_PROFILE)) {
-			emailService.sendAddPractice(practice, new AccountDetail(principal));
+			emailService.sendAddPractice(emailReceiver, practice, new AccountDetail(principal));
 		}
 		model.addAttribute("ChangeModel", new ChangeModel());
 		model.addAttribute("AddPractice", new AddPractice());
