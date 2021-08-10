@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -58,8 +57,7 @@ public class ReferrerPortalAccountRestController {
 
                 LdapUserDetails referrer = list.get(0);
                 log.info("/retrieve successfully found UID : " + referrer.getUid());
-                String to = "prod".equals(ACTIVE_PROFILE) ? referrer.getEmail() : emailReceiver;
-                emailService.emailRetrieved(to, referrer);
+                emailService.emailRetrieved(referrer.getEmail(), referrer);
                 // Audit
                 Map<String, String> params = new HashMap<>(2);
                 params.put("email", referrer.getEmail());
