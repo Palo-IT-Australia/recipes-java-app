@@ -87,7 +87,7 @@ public class UserAccountController {
     }
 
     @PostMapping("/reset-confirm")
-    public ResponseEntity<ResetConfirmModel> postResetConfirm(@ModelAttribute ResetConfirmModel confirmModel) {
+    public ResponseEntity<ResetConfirmModel> postResetConfirm(@RequestBody ResetConfirmModel confirmModel) {
         log.info(confirmModel.toString());
         if (ModelUtil.sanitizeModel(confirmModel)) {
             try {
