@@ -85,4 +85,19 @@ public class AuthenticationServiceTest {
             service.checkRefreshToken("token");
         }
     }
+
+    @Test
+    public void shouldThrowExceptionOnExpiredRefreshToken() {
+        try (MockedStatic<AuthenticationUtil> authUtilMock = Mockito.mockStatic(AuthenticationUtil.class)) {
+            authUtilMock.when(() -> AuthenticationUtil.checkRefreshToken("Bearer token")).thenReturn(null);
+
+            try {
+                service.checkRefreshToken("token");
+            } catch (AuthenticationException ex) {
+                //do nothing, expected behaviour
+            }
+
+            verify(repository, times(0)).findByRefreshToken(anyString());
+        }
+    }
 }

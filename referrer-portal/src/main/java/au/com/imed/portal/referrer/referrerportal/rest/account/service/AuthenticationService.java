@@ -33,16 +33,23 @@ public class AuthenticationService {
     public String checkRefreshToken(String refreshToken) {
         try {
             var uid = AuthenticationUtil.checkRefreshToken("Bearer " + refreshToken);
-            var tokenEntity = refreshTokenRepository.findByRefreshToken(getTokenHash(refreshToken));
-            if (tokenEntity == null) {
-                throw new AuthenticationException("Invalid refresh token");
-            } else if (!tokenEntity.isValid()) {
-                invalidateActiveTokens(uid);
-                throw new AuthenticationException("Invalid refresh token");
+            if (uid == null) {
+                throw new AuthenticationException("Refresh token expired");
             }
+            validateTokens(refreshToken, uid);
             return uid;
         } catch (Exception e) {
             throw new AuthenticationException("Could not validate refresh token");
+        }
+    }
+
+    private void validateTokens(String refreshToken, String uid) throws NoSuchAlgorithmException {
+        var tokenEntity = refreshTokenRepository.findByRefreshToken(getTokenHash(refreshToken));
+        if (tokenEntity == null) {
+            throw new AuthenticationException("Invalid refresh token");
+        } else if (!tokenEntity.isValid()) {
+            invalidateActiveTokens(uid);
+            throw new AuthenticationException("Invalid refresh token");
         }
     }
 
