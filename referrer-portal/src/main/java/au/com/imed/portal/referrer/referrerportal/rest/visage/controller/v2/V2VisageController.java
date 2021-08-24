@@ -1,5 +1,6 @@
 package au.com.imed.portal.referrer.referrerportal.rest.visage.controller.v2;
 
+import au.com.imed.portal.referrer.referrerportal.common.PortalConstant;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.controller.VisageController;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.model.*;
 import au.com.imed.portal.referrer.referrerportal.rest.visage.model.account.AccountDetail;
@@ -21,7 +22,7 @@ import java.util.Map;
 public class V2VisageController  extends VisageController {
 
     @Override
-    public ResponseEntity<List<Order>> searchOrders(Map<String, String> paramMap, String authentication) {
+    public ResponseEntity<List<Order>> searchOrders(@RequestParam Map<String, String> paramMap, String authentication) {
         return super.searchOrders(paramMap, authentication);
     }
 
@@ -31,23 +32,23 @@ public class V2VisageController  extends VisageController {
     }
 
     @Override
-    public ResponseEntity<QuickReport> quickReport(String imsec) {
+    public ResponseEntity<QuickReport> quickReport(@RequestParam(PortalConstant.PARAM_IMED_SECIRITY) String imsec) {
         return super.quickReport(imsec);
     }
 
     @Override
-    public ResponseEntity<byte[]> quickReportPdf(String imsec) {
+    public ResponseEntity<byte[]> quickReportPdf(@RequestParam(PortalConstant.PARAM_IMED_SECIRITY) String imsec) {
         return super.quickReportPdf(imsec);
     }
 
     @Override
-    public ResponseEntity<byte[]> quickAttachment(String imsec) {
+    public ResponseEntity<byte[]> quickAttachment(@RequestParam(PortalConstant.PARAM_IMED_SECIRITY) String imsec) {
         return super.quickAttachment(imsec);
     }
 
     @Override
-    public ResponseEntity<List<HospitalOrderSummary>> searchHospitalOrders(Map<String, String> paramMap, String authentication) {
-        return super.searchHospitalOrders(paramMap, authentication);
+    public ResponseEntity<List<HospitalOrderSummary>> searchHospitalOrders(@RequestParam Map<String, String> paramMap, String auth) {
+        return super.searchHospitalOrders(paramMap, auth);
     }
 
     @Override
@@ -56,27 +57,27 @@ public class V2VisageController  extends VisageController {
     }
 
     @Override
-    public ResponseEntity<String> postHospitalPreferences(HospitalUserPreferences preferences, String authentication) {
+    public ResponseEntity<String> postHospitalPreferences(@RequestBody HospitalUserPreferences preferences, String authentication) {
         return super.postHospitalPreferences(preferences, authentication);
     }
 
     @Override
-    public ResponseEntity<JSONObject> isMyimedPatient(String patientId, String authentication) {
+    public ResponseEntity<JSONObject> isMyimedPatient(@RequestParam("patientId") String patientId, String authentication) {
         return super.isMyimedPatient(patientId, authentication);
     }
 
     @Override
-    public ResponseEntity<Patient> getPatient(Map<String, String> paramMap, String authentication) {
+    public ResponseEntity<Patient> getPatient(@RequestParam Map<String, String> paramMap, String authentication) {
         return super.getPatient(paramMap, authentication);
     }
 
     @Override
-    public ResponseEntity<OrderDetails> getOrder(Map<String, String> paramMap, String authentication) {
+    public ResponseEntity<OrderDetails> getOrder(@RequestParam Map<String, String> paramMap, String authentication) {
         return super.getOrder(paramMap, authentication);
     }
 
     @Override
-    public ResponseEntity<PatientOrder> getPatientOrders(Map<String, String> paramMap, String authentication) {
+    public ResponseEntity<PatientOrder> getPatientOrders(@RequestParam Map<String, String> paramMap, String authentication) {
         return super.getPatientOrders(paramMap, authentication);
     }
 
@@ -86,22 +87,26 @@ public class V2VisageController  extends VisageController {
     }
 
     @Override
-    public ResponseEntity<String> viewHtmlReport(Map<String, String> paramMap, String authentication) {
+    public ResponseEntity<String> viewHtmlReport(@RequestParam Map<String, String> paramMap, String authentication) {
         return super.viewHtmlReport(paramMap, authentication);
     }
 
     @Override
-    public ResponseEntity<List<ReportNotify>> reportNotifyRecent(Map<String, String> paramMap, String authentication) {
+    public ResponseEntity<List<ReportNotify>> reportNotifyRecent(@RequestParam Map<String, String> paramMap, String authentication) {
         return super.reportNotifyRecent(paramMap, authentication);
     }
 
     @Override
-    public ResponseEntity<byte[]> pdfReport(Map<String, String> paramMap, String authentication, String token) {
+    public ResponseEntity<byte[]> pdfReport(@RequestParam Map<String, String> paramMap,
+                                            @RequestHeader(value = PortalConstant.HEADER_AUTHENTICATION, required = false) String authentication,
+                                            @RequestParam(value = PortalConstant.TOKEN, required = false) String token) {
         return super.pdfReport(paramMap, authentication, token);
     }
 
     @Override
-    public ResponseEntity<byte[]> getAttachment(Map<String, String> paramMap, String authentication, String token) {
+    public ResponseEntity<byte[]> getAttachment(@RequestParam Map<String, String> paramMap,
+                                                @RequestHeader(value = PortalConstant.HEADER_AUTHENTICATION, required = false) String authentication,
+                                                @RequestParam(value = PortalConstant.TOKEN, required = false) String token) {
         return super.getAttachment(paramMap, authentication, token);
     }
 
@@ -116,17 +121,17 @@ public class V2VisageController  extends VisageController {
     }
 
     @Override
-    public ResponseEntity<String> viewImage(Map<String, String> paramMap, String authentication) {
+    public ResponseEntity<String> viewImage(@RequestParam Map<String, String> paramMap, String authentication) {
         return super.viewImage(paramMap, authentication);
     }
 
     @Override
-    public ResponseEntity<String[]> viewImageIv(Map<String, String> paramMap, String authentication) {
+    public ResponseEntity<String[]> viewImageIv(@RequestParam Map<String, String> paramMap, String authentication) {
         return super.viewImageIv(paramMap, authentication);
     }
 
     @Override
-    public ResponseEntity<String[]> viewImageIvEv(Map<String, String> paramMap, String authentication) {
+    public ResponseEntity<String[]> viewImageIvEv(@RequestParam Map<String, String> paramMap, String authentication) {
         return super.viewImageIvEv(paramMap, authentication);
     }
 
@@ -141,7 +146,7 @@ public class V2VisageController  extends VisageController {
     }
 
     @Override
-    public ResponseEntity<String> postPreferences(UserPreferences preferences, String authentication) {
+    public ResponseEntity<String> postPreferences(@RequestBody UserPreferences preferences, String authentication) {
         return super.postPreferences(preferences, authentication);
     }
 
@@ -161,27 +166,27 @@ public class V2VisageController  extends VisageController {
     }
 
     @Override
-    public ResponseEntity<String> checkEmailUniqueness(HttpServletResponse response, AccountEmail accountEmail, String authentication) {
+    public ResponseEntity<String> checkEmailUniqueness(HttpServletResponse response, @RequestBody AccountEmail accountEmail, String authentication) {
         return super.checkEmailUniqueness(response, accountEmail, authentication);
     }
 
     @Override
-    public ResponseEntity<String> updateAccountDetails(HttpServletResponse response, AccountDetail accountDetail, String authentication) {
+    public ResponseEntity<String> updateAccountDetails(HttpServletResponse response, @RequestBody AccountDetail accountDetail, String authentication) {
         return super.updateAccountDetails(response, accountDetail, authentication);
     }
 
     @Override
-    public ResponseEntity<String> updatePassword(HttpServletResponse response, AccountPassword accountPassword, String authentication) {
+    public ResponseEntity<String> updatePassword(HttpServletResponse response, @RequestBody AccountPassword accountPassword, String authentication) {
         return super.updatePassword(response, accountPassword, authentication);
     }
 
     @Override
-    public ResponseEntity<String> reportNotifyRegister(ReportNotifyRegister register, String authentication) {
+    public ResponseEntity<String> reportNotifyRegister(@RequestBody ReportNotifyRegister register, String authentication) {
         return super.reportNotifyRegister(register, authentication);
     }
 
     @Override
-    public ResponseEntity<Tokens> createTokens(UsernamePassword usernamePassword) {
+    public ResponseEntity<Tokens> createTokens(@RequestBody UsernamePassword usernamePassword) {
         return super.createTokens(usernamePassword);
     }
 
