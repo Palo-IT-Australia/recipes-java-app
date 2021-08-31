@@ -21,6 +21,6 @@ public class RestSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and().cors()
                 .and().addFilterAfter(new JwtTokenFilter(), UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling()
-                .authenticationEntryPoint(new Http403ForbiddenEntryPoint()).and();
+                .authenticationEntryPoint(new Http403ForbiddenEntryPoint());
     }
 }
