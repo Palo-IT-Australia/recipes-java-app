@@ -68,6 +68,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+        http.exceptionHandling().authenticationEntryPoint(new Http403ForbiddenEntryPoint());
         http.authorizeRequests()
                 .antMatchers(anonUrls).permitAll()
                 .antMatchers(adminUrls).hasAuthority(AUTH_ADMIN)
@@ -89,10 +90,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()).ignoringAntMatchers(nocsrfs)
                 .and()
                 .addFilterAfter(new JwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
-
-        http.antMatcher("/api/v2/**")
-                .exceptionHandling()
-                .authenticationEntryPoint(new Http403ForbiddenEntryPoint());
     }
 
     @Override
