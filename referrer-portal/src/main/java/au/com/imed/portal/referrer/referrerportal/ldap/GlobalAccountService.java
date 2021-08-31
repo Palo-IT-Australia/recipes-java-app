@@ -5,9 +5,9 @@ import au.com.imed.portal.referrer.referrerportal.ldap.templates.BaseLdapTemplat
 import au.com.imed.portal.referrer.referrerportal.ldap.templates.ReferrerLdapTemplate;
 import au.com.imed.portal.referrer.referrerportal.service.LdapUserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
 import org.springframework.ldap.core.DirContextOperations;
+import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.core.support.AbstractContextMapper;
 import org.springframework.ldap.query.SearchScope;
 import org.springframework.security.core.GrantedAuthority;
@@ -39,21 +39,15 @@ public class GlobalAccountService extends ABasicAccountService {
     @Autowired
     private AdLdapTemplate adLdapTemplate;
 
-    @Value("${spring.profiles.active}")
-    private String ACTIVE_PROFILE;
-
     public boolean tryLogin(String username, String password) {
         var authenticated = referrerLdapTemplate.authenticate(username, password);
-        if (!authenticated && !ACTIVE_PROFILE.equalsIgnoreCase("local")) {
+        if (!authenticated) {
             authenticated = adLdapTemplate.authenticate(username, password);
         }
         return authenticated;
     }
 
     public List<String> getAccountGroups(final String userName) throws Exception {
-        if (ACTIVE_PROFILE.equalsIgnoreCase("local")) {
-            return Collections.emptyList();
-        }
         return getLdapGroups(userName).stream().map(Object::toString).collect(Collectors.toList());
     }
 

@@ -27,7 +27,6 @@ public class V2VisageController  extends VisageController {
     }
 
     @Override
-    @PreAuthorize("isAnonymous()")
     public String getPing() {
         return super.getPing();
     }
@@ -98,7 +97,6 @@ public class V2VisageController  extends VisageController {
     }
 
     @Override
-    @PreAuthorize("isAnonymous()")
     public ResponseEntity<byte[]> pdfReport(@RequestParam Map<String, String> paramMap,
                                             @RequestHeader(value = PortalConstant.HEADER_AUTHENTICATION, required = false) String authentication,
                                             @RequestParam(value = PortalConstant.TOKEN, required = false) String token) {
@@ -106,7 +104,6 @@ public class V2VisageController  extends VisageController {
     }
 
     @Override
-    @PreAuthorize("isAnonymous()")
     public ResponseEntity<byte[]> getAttachment(@RequestParam Map<String, String> paramMap,
                                                 @RequestHeader(value = PortalConstant.HEADER_AUTHENTICATION, required = false) String authentication,
                                                 @RequestParam(value = PortalConstant.TOKEN, required = false) String token) {
