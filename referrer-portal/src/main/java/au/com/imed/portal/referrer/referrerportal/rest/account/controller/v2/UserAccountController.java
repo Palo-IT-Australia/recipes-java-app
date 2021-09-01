@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -27,6 +28,7 @@ import static au.com.imed.portal.referrer.referrerportal.common.PortalConstant.M
 
 @Slf4j
 @RestController
+@PreAuthorize("isAnonymous()")
 @RequestMapping("${imed.api-v2.prefix}/portal/")
 public class UserAccountController {
 
@@ -42,6 +44,7 @@ public class UserAccountController {
     @Autowired
     private AuthenticationService authenticationService;
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/refresh-token")
     public ResponseEntity<AccountTokenResponse> refreshToken(@RequestParam String refreshToken) {
         try {

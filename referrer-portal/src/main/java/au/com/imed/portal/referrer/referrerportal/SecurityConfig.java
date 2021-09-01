@@ -1,20 +1,18 @@
 package au.com.imed.portal.referrer.referrerportal;
 
-import au.com.imed.portal.referrer.referrerportal.jwt.JwtTokenFilter;
 import au.com.imed.portal.referrer.referrerportal.security.PortalLogoutSuccessHandler;
 import au.com.imed.portal.referrer.referrerportal.service.LdapUserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.ldap.core.support.LdapContextSource;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.ldap.userdetails.UserDetailsContextMapper;
-import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -68,7 +66,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.authorizeRequests()
+        http.mvcMatcher("/**").authorizeRequests()
                 .antMatchers(anonUrls).permitAll()
                 .antMatchers(adminUrls).hasAuthority(AUTH_ADMIN)
                 .antMatchers(cleanupUrls).hasAuthority(AUTH_CLEANUP)
@@ -86,9 +84,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .logoutSuccessUrl("/login?logout")
                 .permitAll()
                 .and().cors().and()
-                .csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()).ignoringAntMatchers(nocsrfs)
-                .and()
-                .addFilterAfter(new JwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
+                .csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()).ignoringAntMatchers(nocsrfs);
     }
 
     @Override
