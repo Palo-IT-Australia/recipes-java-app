@@ -29,7 +29,8 @@ public class RestSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(apiV2Prefix).permitAll()
                 .anyRequest().fullyAuthenticated()
                 .and()
-                .addFilterAfter(new JwtTokenFilter(), UsernamePasswordAuthenticationFilter.class)
-                .csrf().disable();
+                .cors().and()
+                .csrf().disable()
+                .addFilterAfter(new JwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
     }
 }
