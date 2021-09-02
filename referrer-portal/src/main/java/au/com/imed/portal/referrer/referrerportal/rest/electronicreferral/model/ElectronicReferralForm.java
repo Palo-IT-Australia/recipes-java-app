@@ -53,6 +53,8 @@ public class ElectronicReferralForm {
 	String clinicalDetails;
 	@Column(name = "patient_pregnant")
 	String patientPregnant;
+	@Column(name = "iv_contrast_details")
+	String ivContrastDetails;
 	@Column(name = "iv_contrast_allergy")
 	String ivContrastAllergy;
 	@Column(name = "iv_renal")
@@ -221,6 +223,14 @@ public class ElectronicReferralForm {
 
 	public void setPatientCompensation(boolean patientCompensation) {
 		this.patientCompensation = patientCompensation;
+	}
+
+	public String getIvContrastDetails() {
+		return ivContrastDetails;
+	}
+
+	public void setIvContrastDetails(String ivContrastDetails) {
+		this.ivContrastDetails = ivContrastDetails;
 	}
 
 	public String getExamDetails() {
