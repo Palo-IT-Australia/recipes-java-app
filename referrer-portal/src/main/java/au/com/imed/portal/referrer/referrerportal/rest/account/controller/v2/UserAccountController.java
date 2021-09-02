@@ -44,7 +44,6 @@ public class UserAccountController {
     @Autowired
     private AuthenticationService authenticationService;
 
-    @PreAuthorize("isAuthenticated()")
     @GetMapping("/refresh-token")
     public ResponseEntity<AccountTokenResponse> refreshToken(@RequestParam String refreshToken) {
         try {
