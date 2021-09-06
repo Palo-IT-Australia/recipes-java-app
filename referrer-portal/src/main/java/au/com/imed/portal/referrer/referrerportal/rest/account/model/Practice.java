@@ -1,3 +1,5 @@
+package au.com.imed.portal.referrer.referrerportal.rest.account.model;
+
 public class Practice {
     private String providerNumber;
     private String name;
